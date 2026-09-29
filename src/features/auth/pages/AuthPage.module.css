@@ -1,0 +1,265 @@
+/* ── Full-page background ── */
+.page {
+  min-height: 100svh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0d0f1a;
+  padding: 24px 16px;
+  box-sizing: border-box;
+}
+
+/* ── Card ── */
+.card {
+  width: 100%;
+  max-width: 460px;
+  background: #161827;
+  border: 1px solid #252840;
+  border-radius: 16px;
+  padding: 40px 36px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 32px 20px 24px;
+  }
+}
+
+/* ── Avatar icon box ── */
+.avatarWrap {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #00e5cc 0%, #0099a8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0a0d14;
+  margin: 0 auto 20px;
+  flex-shrink: 0;
+}
+
+/* ── Headings ── */
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #f1f5f9;
+  text-align: center;
+  margin: 0 0 6px;
+  letter-spacing: -0.3px;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: #6b7280;
+  text-align: center;
+  margin: 0 0 28px;
+  line-height: 1.5;
+}
+
+/* ── Form ── */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+/* ── Server error banner ── */
+.serverError {
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #f87171;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+/* ── Checkbox row ── */
+.checkboxRow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #9ca3af;
+  line-height: 1.5;
+}
+
+.checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  border: 2px solid #2e3448;
+  border-radius: 4px;
+  background: #1a1d2e;
+  cursor: pointer;
+  margin-top: 1px;
+  transition: background 0.15s, border-color 0.15s;
+  position: relative;
+}
+
+.checkbox:checked {
+  background: #00e5cc;
+  border-color: #00e5cc;
+}
+
+.checkbox:checked::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 5px;
+  height: 9px;
+  border: 2px solid #0a0d14;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+}
+
+.checkbox:focus-visible {
+  outline: 2px solid #00e5cc;
+  outline-offset: 2px;
+}
+
+.checkboxError {
+  font-size: 12px;
+  color: #f87171;
+  padding-left: 28px;
+}
+
+/* ── Link inside checkbox text ── */
+.link {
+  color: #00e5cc;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+/* ── Divider ── */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+  color: #374151;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #252840;
+}
+
+/* ── Social buttons row ── */
+.socialRow {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+/* ── Switch text ── */
+.switchText {
+  text-align: center;
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.switchLink {
+  color: #00e5cc;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.switchLink:hover {
+  text-decoration: underline;
+}
+
+/* ── Remember me row (Login only) ── */
+.rememberRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.rememberLabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+/* ── Forgot password link (Login only) ── */
+.forgotLink {
+  font-size: 12px;
+  color: #00e5cc;
+  text-decoration: none;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.forgotLink:hover {
+  text-decoration: underline;
+}
+
+/* ── Password label row (Login only) ── */
+.labelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.passwordLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9ca3af;
+}
+
+/* ── OTP row (Register) ── */
+.otpRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.otpInputWrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.otpBtnWrap {
+  flex-shrink: 0;
+  /* push button down to align with input field, clearing label+hint row (~22px) */
+  padding-top: 22px;
+}

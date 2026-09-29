@@ -1,0 +1,173 @@
+/* ── Base ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-position 0.5s ease,
+    box-shadow 0.3s ease,
+    opacity 0.2s ease,
+    transform 0.1s ease;
+  white-space: nowrap;
+  text-decoration: none;
+  outline: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn:focus-visible {
+  outline: 2px solid #00e5cc;
+  outline-offset: 2px;
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ── Sizes ── */
+.sm {
+  height: 36px;
+  padding: 0 14px;
+  font-size: 13px;
+}
+
+.md {
+  height: 44px;
+  padding: 0 20px;
+  font-size: 14px;
+}
+
+.lg {
+  height: 52px;
+  padding: 0 28px;
+  font-size: 16px;
+}
+
+/* ── Variants ── */
+
+/* Primary – animated cyan→green gradient with glow */
+.primary {
+  /* Oversized gradient so we can shift background-position on hover */
+  background: linear-gradient(90deg, #00d9f5 0%, #00e5cc 35%, #00f59b 100%);
+  background-size: 200% 100%;
+  background-position: 0% 50%;
+  color: #07111a;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  /* Resting glow */
+  box-shadow:
+    0 0 18px rgba(0, 229, 204, 0.35),
+    0 0 6px  rgba(0, 245, 155, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transition:
+    background-position 0.5s ease,
+    box-shadow 0.3s ease,
+    transform 0.1s ease;
+}
+
+/* Shimmer sweep pseudo-element */
+.primary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.25) 50%,
+    transparent 65%
+  );
+  background-size: 200% 100%;
+  background-position: -100% 0;
+  transition: background-position 0.6s ease;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.primary:hover:not(:disabled) {
+  background-position: 100% 50%;
+  box-shadow:
+    0 0 28px rgba(0, 229, 204, 0.6),
+    0 0 60px rgba(0, 229, 204, 0.25),
+    0 0 10px rgba(0, 245, 155, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Shimmer plays on hover */
+.primary:hover:not(:disabled)::before {
+  background-position: 200% 0;
+}
+
+.primary:active:not(:disabled) {
+  box-shadow:
+    0 0 14px rgba(0, 229, 204, 0.45),
+    0 0 4px  rgba(0, 245, 155, 0.3);
+}
+
+/* Secondary – dark filled */
+.secondary {
+  background: #1e2130;
+  color: #e2e8f0;
+  border: 1px solid #2e3448;
+}
+
+.secondary:hover:not(:disabled) {
+  background: #252a3d;
+  border-color: #3a4060;
+}
+
+/* Ghost – transparent with border */
+.ghost {
+  background: transparent;
+  color: #e2e8f0;
+  border: 1px solid #2e3448;
+}
+
+.ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: #4a5070;
+}
+
+/* ── Full width ── */
+.fullWidth {
+  width: 100%;
+}
+
+/* ── Icon ── */
+.icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ── Loading spinner ── */
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
