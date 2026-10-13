@@ -1,0 +1,194 @@
+/* ── Header shell ── */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  background: rgba(8, 10, 18, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid #1a1f35;
+}
+
+.inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* ── Left ── */
+.left {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  flex-shrink: 0;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.logoText {
+  font-size: 17px;
+  font-weight: 700;
+  color: #f1f5f9;
+  letter-spacing: -0.3px;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.navLink {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #6b7280;
+  text-decoration: none;
+  transition: color 0.15s, background 0.15s;
+}
+
+.navLink:hover {
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.navActive {
+  color: #f1f5f9;
+  background: #1a1f35;
+}
+
+/* ── Right ── */
+.right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Search */
+.searchWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #0d1020;
+  border: 1px solid #1a1f35;
+  border-radius: 8px;
+  padding: 0 12px;
+  height: 36px;
+  transition: border-color 0.2s;
+}
+
+.searchWrap:focus-within {
+  border-color: #00e5cc;
+}
+
+.searchIcon {
+  color: #4b5268;
+  display: flex;
+  flex-shrink: 0;
+}
+
+.searchInput {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #e2e8f0;
+  font-size: 13px;
+  font-family: inherit;
+  width: 200px;
+  caret-color: #00e5cc;
+}
+
+.searchInput::placeholder {
+  color: #3d4460;
+}
+
+/* remove browser search clear button */
+.searchInput::-webkit-search-cancel-button { display: none; }
+
+.kbd {
+  font-size: 11px;
+  color: #3d4460;
+  font-family: ui-monospace, monospace;
+  background: #161a2e;
+  border: 1px solid #252840;
+  border-radius: 4px;
+  padding: 1px 5px;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+/* Credits badge */
+.credits {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #0d1020;
+  border: 1px solid #1a1f35;
+  border-radius: 8px;
+  padding: 0 12px;
+  height: 36px;
+  color: #00e5cc;
+}
+
+.creditsValue {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.creditsCurrency {
+  font-size: 11px;
+  font-weight: 600;
+  color: #4b5268;
+  letter-spacing: 0.05em;
+}
+
+/* Avatar */
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #1a1f35;
+  border: 1px solid #252840;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+
+.avatar:hover {
+  background: #252840;
+  border-color: #00e5cc;
+  color: #00e5cc;
+}
+
+@media (max-width: 768px) {
+  .nav { display: none; }
+  .searchInput { width: 140px; }
+}
+
+.signInBtn {
+  background-color: #00e5cc;
+  padding: 5px 10px;
+  border-radius: 8px;
+  color: #000;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  margin-right: 2px;
+}

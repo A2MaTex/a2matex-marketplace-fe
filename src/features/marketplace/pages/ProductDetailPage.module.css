@@ -1,0 +1,259 @@
+/* ── Page shell ── */
+.page {
+  background: #060810;
+  min-height: 100vh;
+  padding: 24px 0 60px;
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Breadcrumb ── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.breadLink {
+  color: #4b5268;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.breadLink:hover { color: #9ca3af; }
+
+.breadSep { color: #2e3448; }
+
+.breadCurrent { color: #6b7280; }
+
+/* ── 2-col layout ── */
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+/* ── Left column ── */
+.left {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Header card ── */
+.headerCard {
+  background: #0b0e1c;
+  border: 1px solid #1a1f35;
+  border-radius: 14px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.titleRow {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.productIcon {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: #161a2e;
+  border: 1px solid #1e2440;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4b5268;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.titleBlock {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.titleMeta {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #f1f5f9;
+  margin: 0;
+  line-height: 1.25;
+}
+
+.versionBadge {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: #00e5cc;
+  background: rgba(0, 229, 204, 0.1);
+  border: 1px solid rgba(0, 229, 204, 0.25);
+  border-radius: 5px;
+  padding: 3px 8px;
+  letter-spacing: 0.03em;
+  margin-top: 3px;
+}
+
+.authorRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.authorText {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.verifiedBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #00e5cc;
+}
+
+.dot { color: #2e3448; font-size: 14px; }
+
+.ratingRow {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.ratingVal {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin-left: 4px;
+}
+
+.ratingCount {
+  font-size: 12px;
+  color: #4b5268;
+  margin-left: 2px;
+}
+
+/* Downloads badge (top-right) */
+.downloadsBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(0, 229, 204, 0.08);
+  border: 1px solid rgba(0, 229, 204, 0.2);
+  color: #00e5cc;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Descriptions ── */
+.shortDesc {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.75;
+  margin: 0;
+  border-top: 1px solid #1a1f35;
+  padding-top: 16px;
+}
+
+.detailBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.detailLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #00e5cc;
+  text-transform: uppercase;
+}
+
+.detailText {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.75;
+  margin: 0;
+  white-space: pre-line;
+}
+
+.moreBtn {
+  background: none;
+  border: none;
+  color: #00e5cc;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0 2px;
+  display: inline;
+}
+
+.moreBtn:hover { text-decoration: underline; }
+
+/* ── Generic section wrapper ── */
+.section {
+  background: #0b0e1c;
+  border: 1px solid #1a1f35;
+  border-radius: 14px;
+  padding: 24px;
+}
+
+/* ── Right sidebar ── */
+.right {
+  position: sticky;
+  top: 72px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 960px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .right {
+    position: static;
+    order: -1;
+  }
+}
+
+@media (max-width: 600px) {
+  .titleRow {
+    flex-wrap: wrap;
+  }
+
+  .downloadsBadge {
+    width: 100%;
+  }
+}

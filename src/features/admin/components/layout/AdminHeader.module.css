@@ -1,0 +1,187 @@
+/* ─── Admin Header ───────────────────────────────────────── */
+.header {
+  height: 52px;
+  background: #0d1117;
+  border-bottom: 1px solid #21262d;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  max-width: calc(100% - 228px);
+  margin-left: 228px;
+}
+
+/* Left */
+.left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.logoText {
+  font-size: 16px;
+  font-weight: 800;
+  color: #e6edf3;
+  letter-spacing: -0.2px;
+}
+
+.portalBadge {
+  font-size: 10px;
+  font-weight: 700;
+  color: #58a6ff;
+  background: rgba(88, 166, 255, 0.1);
+  border: 1px solid rgba(88, 166, 255, 0.25);
+  border-radius: 4px;
+  padding: 2px 8px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Search */
+.searchWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 0 12px;
+  height: 34px;
+  width: 300px;
+  transition: border-color 0.15s;
+}
+
+.searchWrap:focus-within {
+  border-color: #58a6ff;
+}
+
+.searchIcon {
+  color: #484f58;
+  display: flex;
+  flex-shrink: 0;
+  font-size: 14px;
+}
+
+.searchInput {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #c9d1d9;
+  font-size: 12px;
+  font-family: inherit;
+  flex: 1;
+  caret-color: #58a6ff;
+}
+
+.searchInput::placeholder {
+  color: #484f58;
+}
+
+.searchKbd {
+  font-size: 10px;
+  color: #484f58;
+  font-family: ui-monospace, monospace;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 3px;
+  padding: 1px 5px;
+  flex-shrink: 0;
+}
+
+/* Right */
+.right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.iconBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  border: 1px solid #30363d;
+  background: #161b22;
+  color: #7d8590;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  position: relative;
+}
+
+.iconBtn:hover {
+  color: #c9d1d9;
+  border-color: #484f58;
+}
+
+.notifDot {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #f85149;
+  border: 1.5px solid #0d1117;
+}
+
+.userChip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px 4px 6px;
+  border-radius: 8px;
+  border: 1px solid #30363d;
+  background: #161b22;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.userChip:hover {
+  border-color: #484f58;
+}
+
+.avatarCircle {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #1f6feb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.userText {
+  display: flex;
+  flex-direction: column;
+}
+
+.userNameText {
+  font-size: 12px;
+  font-weight: 600;
+  color: #c9d1d9;
+  line-height: 1.2;
+}
+
+.userRoleText {
+  font-size: 10px;
+  color: #58a6ff;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}

@@ -1,0 +1,150 @@
+.wrap {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ── Main search row ── */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #0b0e1c;
+  border: 1px solid #1a1f35;
+  border-radius: 12px;
+  padding: 10px 10px 10px 0;
+}
+
+/* Input */
+.inputWrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+}
+
+.inputIcon {
+  color: #4b5268;
+  display: flex;
+  flex-shrink: 0;
+}
+
+.input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #e2e8f0;
+  font-size: 14px;
+  font-family: inherit;
+  caret-color: #00e5cc;
+}
+
+.input::placeholder { color: #3d4460; }
+.input::-webkit-search-cancel-button { display: none; }
+
+.kbd {
+  font-size: 11px;
+  color: #3d4460;
+  font-family: ui-monospace, monospace;
+  background: #161a2e;
+  border: 1px solid #252840;
+  border-radius: 4px;
+  padding: 2px 6px;
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* Divider between input and select */
+.row > .inputWrap::after {
+  content: "";
+  width: 1px;
+  height: 20px;
+  background: #1a1f35;
+  flex-shrink: 0;
+}
+
+/* License select */
+.selectWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.select {
+  appearance: none;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #9ca3af;
+  font-size: 13px;
+  font-family: inherit;
+  padding: 0 28px 0 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.select option {
+  background: #0e1120;
+  color: #e2e8f0;
+}
+
+.selectArrow {
+  position: absolute;
+  right: 8px;
+  color: #4b5268;
+  pointer-events: none;
+  display: flex;
+}
+
+/* ── Quick tags row ── */
+.tagsRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.tagsLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #4b5268;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tag {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: 500;
+  color: #6b7280;
+  background: transparent;
+  border: 1px solid #1a1f35;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+
+.tag:hover {
+  color: #e2e8f0;
+  border-color: #2e3448;
+  background: rgba(255,255,255,0.03);
+}
+
+.tagActive {
+  color: #00e5cc;
+  border-color: rgba(0, 229, 204, 0.4);
+  background: rgba(0, 229, 204, 0.07);
+}

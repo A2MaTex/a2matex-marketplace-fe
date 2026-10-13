@@ -1,0 +1,117 @@
+.wrap {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px 60px;
+}
+
+/* ── Controls bar ── */
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 0 16px;
+  flex-wrap: wrap;
+}
+
+.count {
+  font-size: 13px;
+  color: #4b5268;
+  margin: 0;
+}
+
+.count strong {
+  color: #9ca3af;
+  font-weight: 600;
+}
+
+.sortRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.sortLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #4b5268;
+  margin-right: 4px;
+}
+
+.sortBtn {
+  padding: 5px 14px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-family: inherit;
+  font-weight: 500;
+  color: #6b7280;
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.sortBtn:hover {
+  color: #e2e8f0;
+  background: rgba(255,255,255,0.04);
+}
+
+.sortActive {
+  color: #f1f5f9;
+  background: #161a2e;
+  border-color: #252840;
+}
+
+/* ── Grid layout ── */
+/*
+  Desktop: 3 columns
+  - Featured card: col 1, spans 2 rows
+  - Regular cards: fill col 2 & 3, then wrap
+*/
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: auto;
+  gap: 16px;
+}
+
+.featuredSlot {
+  grid-column: 1 / 3;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Make the featured card fill its slot height */
+.featuredSlot > * {
+  flex: 1;
+}
+
+.regularSlot {
+  display: flex;
+  flex-direction: column;
+}
+
+.regularSlot > * {
+  flex: 1;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .featuredSlot {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

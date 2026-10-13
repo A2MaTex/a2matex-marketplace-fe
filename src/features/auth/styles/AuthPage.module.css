@@ -5,24 +5,66 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #0d0f1a;
+  background: #060810;
   padding: 24px 16px;
   box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Đốm sáng trên-trái: xanh cyan lớn, mờ */
+.page::before {
+  content: "";
+  position: absolute;
+  top: -160px;
+  left: -120px;
+  width: 720px;
+  height: 720px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(0, 229, 204, 0.13) 0%,
+    rgba(0, 229, 204, 0.04) 50%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Đốm sáng dưới-phải: xanh lá, nhỏ hơn, đậm hơn chút */
+.page::after {
+  content: "";
+  position: absolute;
+  bottom: -100px;
+  right: -80px;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(0, 245, 155, 0.11) 0%,
+    rgba(0, 245, 155, 0.03) 55%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* ── Card ── */
 .card {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 460px;
-  background: #161827;
-  border: 1px solid #252840;
+  background: #0e1120;
+  border: 1px solid #1c2035;
   border-radius: 16px;
   padding: 40px 36px 32px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
   gap: 0;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
 }
 
 @media (max-width: 480px) {
@@ -106,9 +148,9 @@
   width: 18px;
   height: 18px;
   min-width: 18px;
-  border: 2px solid #2e3448;
+  border: 2px solid #1a1f35;
   border-radius: 4px;
-  background: #1a1d2e;
+  background: #080b14;
   cursor: pointer;
   margin-top: 1px;
   transition: background 0.15s, border-color 0.15s;
@@ -249,7 +291,7 @@
 /* ── OTP row (Register) ── */
 .otpRow {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 10px;
 }
 
@@ -261,5 +303,5 @@
 .otpBtnWrap {
   flex-shrink: 0;
   /* push button down to align with input field, clearing label+hint row (~22px) */
-  padding-top: 22px;
+  padding-top: 31px;
 }
