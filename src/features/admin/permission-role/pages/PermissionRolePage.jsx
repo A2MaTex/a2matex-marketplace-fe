@@ -18,8 +18,6 @@ import { HiOutlineShieldCheck } from "react-icons/hi";
 import { BsCheckCircleFill } from "react-icons/bs";
 import styles from "./PermissionRolePage.module.css";
 import { permissionRoleApi } from "../api/permissionRoleApi";
-import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../../../auth/store/authStore";
 
 const HTTP_METHODS = ["ALL", "GET", "POST", "PUT", "DELETE", "PATCH"];
 const ITEMS_PER_PAGE = 10;
@@ -44,7 +42,6 @@ export default function PermissionRolePage() {
   const [activeModule, setActiveModule] = useState("All Modules");
   const [activeMethod, setActiveMethod] = useState("ALL");
   const [showAssignedOnly, setShowAssignedOnly] = useState(false);
-  const [page, setPage] = useState(1);
 
   const [toast, setToast] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -72,7 +69,6 @@ export default function PermissionRolePage() {
   };
 
   const loadRolePermissions = async () => {
-    setPage(1);
     setPermFilter("");
     setActiveModule("All Modules");
     setActiveMethod("ALL");
@@ -122,15 +118,6 @@ export default function PermissionRolePage() {
     ],
   );
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil(filteredPerms.length / ITEMS_PER_PAGE),
-  );
-  const pagedPerms = filteredPerms.slice(
-    (page - 1) * ITEMS_PER_PAGE,
-    page * ITEMS_PER_PAGE,
-  );
-
   const filteredRoles = useMemo(
     () =>
       roles.filter(
@@ -170,15 +157,15 @@ export default function PermissionRolePage() {
     });
 
   const allPageChecked =
-    pagedPerms.length > 0 && pagedPerms.every((p) => draftIds.has(p.id));
+    filteredPerms.length > 0 && filteredPerms.every((p) => draftIds.has(p.id));
   const somePageChecked =
-    pagedPerms.some((p) => draftIds.has(p.id)) && !allPageChecked;
+    filteredPerms.some((p) => draftIds.has(p.id)) && !allPageChecked;
 
   const togglePageAll = () => {
     setDraftIds((prev) => {
       const next = new Set(prev);
-      if (allPageChecked) pagedPerms.forEach((p) => next.delete(p.id));
-      else pagedPerms.forEach((p) => next.add(p.id));
+      if (allPageChecked) filteredPerms.forEach((p) => next.delete(p.id));
+      else filteredPerms.forEach((p) => next.add(p.id));
       return next;
     });
   };
@@ -237,29 +224,12 @@ export default function PermissionRolePage() {
     setTimeout(() => setToast(null), 3500);
   };
 
-  const getPaginationPages = () => {
-    if (totalPages <= 7)
-      return Array.from({ length: totalPages }, (_, i) => i + 1);
-    if (page <= 4) return [1, 2, 3, 4, 5, "...", totalPages];
-    if (page >= totalPages - 3)
-      return [
-        1,
-        "...",
-        totalPages - 4,
-        totalPages - 3,
-        totalPages - 2,
-        totalPages - 1,
-        totalPages,
-      ];
-    return [1, "...", page - 1, page, page + 1, "...", totalPages];
-  };
-
   useEffect(() => {
     fetchInitialData();
   }, []);
 
   useEffect(() => {
-    loadRolePermissions();
+    if (selectedRoleId) loadRolePermissions();
   }, [selectedRoleId]);
 
   if (loading) {
@@ -546,7 +516,7 @@ export default function PermissionRolePage() {
                 </tr>
               </thead>
               <tbody>
-                {pagedPerms.length === 0 ? (
+                {filteredPerms.length === 0 ? (
                   <tr>
                     <td
                       colSpan={5}
@@ -560,7 +530,7 @@ export default function PermissionRolePage() {
                     </td>
                   </tr>
                 ) : (
-                  pagedPerms.map((perm) => (
+                  filteredPerms.map((perm) => (
                     <tr key={perm.id}>
                       <td>
                         <input
@@ -599,48 +569,6 @@ export default function PermissionRolePage() {
               </tbody>
             </table>
           </div>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className={styles.pagination}>
-              <span>
-                Showing {(page - 1) * ITEMS_PER_PAGE + 1}–
-                {Math.min(page * ITEMS_PER_PAGE, filteredPerms.length)} of{" "}
-                {filteredPerms.length}
-              </span>
-              <div className={styles.paginationBtns}>
-                <button
-                  className={styles.pageBtn}
-                  disabled={page === 1}
-                  onClick={() => setPage((p) => p - 1)}
-                >
-                  ‹
-                </button>
-                {getPaginationPages().map((p, i) =>
-                  p === "..." ? (
-                    <span key={`dots-${i}`} className={styles.pageDots}>
-                      …
-                    </span>
-                  ) : (
-                    <button
-                      key={p}
-                      className={`${styles.pageBtn} ${page === p ? styles.activePage : ""}`}
-                      onClick={() => setPage(p)}
-                    >
-                      {p}
-                    </button>
-                  ),
-                )}
-                <button
-                  className={styles.pageBtn}
-                  disabled={page === totalPages}
-                  onClick={() => setPage((p) => p + 1)}
-                >
-                  ›
-                </button>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
