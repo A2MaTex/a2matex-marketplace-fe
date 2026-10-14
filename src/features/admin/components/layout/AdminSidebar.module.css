@@ -159,7 +159,7 @@
 }
 
 .userName {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   color: #c9d1d9;
   white-space: nowrap;
@@ -169,6 +169,7 @@
 
 .userRole {
   font-size: 10px;
+  line-height: 16px;
   color: #58a6ff;
   font-weight: 600;
   text-transform: uppercase;

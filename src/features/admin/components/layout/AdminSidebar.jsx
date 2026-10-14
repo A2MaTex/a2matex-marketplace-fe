@@ -46,7 +46,7 @@ const NAV_ITEMS = [
   },
 ];
 
-export default function AdminSidebar() {
+export default function AdminSidebar({ user }) {
   return (
     <aside className={styles.sidebar}>
       {/* Brand */}
@@ -91,8 +91,8 @@ export default function AdminSidebar() {
       <div className={styles.userBlock}>
         <div className={styles.avatar}>A</div>
         <div className={styles.userInfo}>
-          <div className={styles.userName}>Alex Mercer</div>
-          <div className={styles.userRole}>SuperAdmin</div>
+          <div className={styles.userName}>{user?.fullName || ""}</div>
+          <div className={styles.userRole}>ADMIN</div>
         </div>
       </div>
     </aside>

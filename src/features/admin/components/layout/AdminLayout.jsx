@@ -34,7 +34,7 @@ export default function AdminLayout({ children }) {
     <div className={styles.shell}>
       <AdminHeader user={user} />
       <div className={styles.body}>
-        <AdminSidebar />
+        <AdminSidebar user={user} />
         <main className={styles.main}>{children}</main>
       </div>
     </div>

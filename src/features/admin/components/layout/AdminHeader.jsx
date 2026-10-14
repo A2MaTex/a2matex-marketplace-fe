@@ -35,8 +35,7 @@ export default function AdminHeader({ user }) {
         <div className={styles.userChip}>
           <div className={styles.avatarCircle}>A</div>
           <div className={styles.userText}>
-            <span className={styles.userNameText}>{user.username}</span>
-            <span className={styles.userRoleText}>ADMIN</span>
+            <span className={styles.userNameText}>{user?.fullName || ""}</span>
           </div>
         </div>
       </div>
