@@ -13,17 +13,38 @@ import {
   MdFilterList,
   MdCode,
   MdClose,
+  MdKeyboardArrowDown,
+  MdKeyboardArrowRight,
 } from "react-icons/md";
 import { HiOutlineShieldCheck } from "react-icons/hi";
 import { BsCheckCircleFill } from "react-icons/bs";
 import styles from "./PermissionRolePage.module.css";
 import { permissionRoleApi } from "../api/permissionRoleApi";
 
-const HTTP_METHODS = ["ALL", "GET", "POST", "PUT", "DELETE", "PATCH"];
+const HTTP_METHODS = [
+  "ALL",
+  "GET",
+  "POST",
+  "PUT",
+  "DELETE",
+  "PATCH",
+  "OPTIONS",
+  "HEAD",
+];
+
+const EMPTY_PERMISSION = {
+  name: "",
+  description: "",
+  module: "",
+  path: "",
+  method: "GET",
+  scope: "",
+};
 
 function getModules(permissions) {
-  const mods = [...new Set(permissions.map((p) => p.module))];
-  return ["All Modules", ...mods];
+  return [...new Set(permissions.map((p) => p.module))].sort((a, b) =>
+    a.localeCompare(b),
+  );
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
@@ -38,16 +59,25 @@ export default function PermissionRolePage() {
 
   const [roleSearch, setRoleSearch] = useState("");
   const [permFilter, setPermFilter] = useState("");
-  const [activeModule, setActiveModule] = useState("All Modules");
   const [activeMethod, setActiveMethod] = useState("ALL");
   const [showAssignedOnly, setShowAssignedOnly] = useState(false);
+  const [expandedModules, setExpandedModules] = useState(new Set());
 
   const [toast, setToast] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newRole, setNewRole] = useState({ name: "", description: "" });
   const [creating, setCreating] = useState(false);
-  // Confirmation modal for revoking all permissions before save
-  const [showRevokeConfirm, setShowRevokeConfirm] = useState(false);
+  const [showPermissionModal, setShowPermissionModal] = useState(false);
+  const [newPermission, setNewPermission] = useState(EMPTY_PERMISSION);
+  const [lockedPermissionModule, setLockedPermissionModule] = useState(false);
+  const [creatingPermission, setCreatingPermission] = useState(false);
+  const [editingPermissionId, setEditingPermissionId] = useState(null);
+  const [permissionEdit, setPermissionEdit] = useState({
+    name: "",
+    description: "",
+  });
+  const [updatingPermission, setUpdatingPermission] = useState(false);
+  const [deletingPermissionId, setDeletingPermissionId] = useState(null);
 
   const fetchInitialData = async () => {
     try {
@@ -71,7 +101,6 @@ export default function PermissionRolePage() {
 
   const loadRolePermissions = async () => {
     setPermFilter("");
-    setActiveModule("All Modules");
     setActiveMethod("ALL");
     setShowAssignedOnly(false);
     try {
@@ -94,30 +123,45 @@ export default function PermissionRolePage() {
   const filteredPerms = useMemo(
     () =>
       permissions.filter((p) => {
-        if (activeModule !== "All Modules" && p.module !== activeModule)
-          return false;
         if (activeMethod !== "ALL" && p.method !== activeMethod) return false;
         if (permFilter) {
           const q = permFilter.toLowerCase();
           if (
+            !p.name.toLowerCase().includes(q) &&
             !p.path.toLowerCase().includes(q) &&
             !p.description.toLowerCase().includes(q) &&
-            !p.module.toLowerCase().includes(q)
+            !p.module.toLowerCase().includes(q) &&
+            !p.method.toLowerCase().includes(q)
           )
             return false;
         }
         if (showAssignedOnly && !draftIds.has(p.id)) return false;
         return true;
       }),
-    [
-      permissions,
-      activeModule,
-      activeMethod,
-      permFilter,
-      showAssignedOnly,
-      draftIds,
-    ],
+    [permissions, activeMethod, permFilter, showAssignedOnly, draftIds],
   );
+
+  const permissionsByModule = useMemo(() => {
+    const allByModule = new Map(modules.map((module) => [module, []]));
+    const visibleByModule = new Map(modules.map((module) => [module, []]));
+
+    permissions.forEach((permission) => {
+      allByModule.get(permission.module)?.push(permission);
+    });
+    filteredPerms.forEach((permission) => {
+      visibleByModule.get(permission.module)?.push(permission);
+    });
+
+    return modules
+      .map((module) => [
+        module,
+        {
+          all: allByModule.get(module),
+          visible: visibleByModule.get(module),
+        },
+      ])
+      .filter(([, modulePermissions]) => modulePermissions.visible.length > 0);
+  }, [filteredPerms, modules, permissions]);
 
   const filteredRoles = useMemo(
     () =>
@@ -144,29 +188,24 @@ export default function PermissionRolePage() {
     });
   };
 
-  const selectAll = () =>
-    setDraftIds((prev) => {
-      const n = new Set(prev);
-      filteredPerms.forEach((p) => n.add(p.id));
-      return n;
-    });
-  const revokeAll = () =>
-    setDraftIds((prev) => {
-      const n = new Set(prev);
-      filteredPerms.forEach((p) => n.delete(p.id));
-      return n;
-    });
-
-  const allPageChecked =
-    filteredPerms.length > 0 && filteredPerms.every((p) => draftIds.has(p.id));
-  const somePageChecked =
-    filteredPerms.some((p) => draftIds.has(p.id)) && !allPageChecked;
-
-  const togglePageAll = () => {
+  const grantModulePermissions = (modulePermissions) =>
     setDraftIds((prev) => {
       const next = new Set(prev);
-      if (allPageChecked) filteredPerms.forEach((p) => next.delete(p.id));
-      else filteredPerms.forEach((p) => next.add(p.id));
+      modulePermissions.forEach((permission) => next.add(permission.id));
+      return next;
+    });
+
+  const revokeModulePermissions = (modulePermissions) =>
+    setDraftIds((prev) => {
+      const next = new Set(prev);
+      modulePermissions.forEach((permission) => next.delete(permission.id));
+      return next;
+    });
+
+  const toggleModule = (module) => {
+    setExpandedModules((prev) => {
+      const next = new Set(prev);
+      next.has(module) ? next.delete(module) : next.add(module);
       return next;
     });
   };
@@ -214,6 +253,127 @@ export default function PermissionRolePage() {
     }
   };
 
+  const openPermissionModal = (module = "") => {
+    setNewPermission({ ...EMPTY_PERMISSION, module });
+    setLockedPermissionModule(Boolean(module));
+    setShowPermissionModal(true);
+  };
+
+  const closePermissionModal = () => {
+    if (creatingPermission) return;
+    setShowPermissionModal(false);
+    setNewPermission(EMPTY_PERMISSION);
+    setLockedPermissionModule(false);
+  };
+
+  const handleCreatePermission = async () => {
+    const permission = {
+      ...newPermission,
+      name: newPermission.name.trim(),
+      description: newPermission.description.trim(),
+      module: newPermission.module.trim(),
+      path: newPermission.path.trim(),
+      scope: newPermission.scope || null,
+    };
+
+    if (
+      !permission.name ||
+      !permission.description ||
+      !permission.module ||
+      !permission.path
+    )
+      return;
+
+    setCreatingPermission(true);
+    try {
+      const createdId = await permissionRoleApi.createPermission(permission);
+      setPermissions((prev) => [...prev, { id: createdId, ...permission }]);
+      setExpandedModules((prev) => new Set(prev).add(permission.module));
+      showToast("success", `Permission "${permission.name}" created.`);
+      setShowPermissionModal(false);
+      setNewPermission(EMPTY_PERMISSION);
+      setLockedPermissionModule(false);
+    } catch {
+      showToast("error", "Failed to create permission. Please try again.");
+    } finally {
+      setCreatingPermission(false);
+    }
+  };
+
+  const startEditingPermission = (permission) => {
+    setEditingPermissionId(permission.id);
+    setPermissionEdit({
+      name: permission.name,
+      description: permission.description,
+    });
+  };
+
+  const cancelEditingPermission = () => {
+    if (updatingPermission) return;
+    setEditingPermissionId(null);
+    setPermissionEdit({ name: "", description: "" });
+  };
+
+  const handleUpdatePermission = async (permissionId) => {
+    const data = {
+      name: permissionEdit.name.trim(),
+      description: permissionEdit.description.trim(),
+    };
+    if (!data.name || !data.description) return;
+
+    setUpdatingPermission(true);
+    try {
+      await permissionRoleApi.updatePermission(permissionId, data);
+      setPermissions((prev) =>
+        prev.map((permission) =>
+          permission.id === permissionId
+            ? { ...permission, ...data }
+            : permission,
+        ),
+      );
+      setEditingPermissionId(null);
+      setPermissionEdit({ name: "", description: "" });
+      showToast("success", "Permission updated successfully.");
+    } catch {
+      showToast("error", "Failed to update permission. Please try again.");
+    } finally {
+      setUpdatingPermission(false);
+    }
+  };
+
+  const handleDeletePermission = async (permission) => {
+    if (
+      !window.confirm(
+        `Delete permission "${permission.name}"? This will remove it from every role.`,
+      )
+    )
+      return;
+
+    setDeletingPermissionId(permission.id);
+    try {
+      await permissionRoleApi.deletePermission(permission.id);
+      setPermissions((prev) =>
+        prev.filter((item) => item.id !== permission.id),
+      );
+      setAssignedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(permission.id);
+        return next;
+      });
+      setDraftIds((prev) => {
+        const next = new Set(prev);
+        next.delete(permission.id);
+        return next;
+      });
+      if (editingPermissionId === permission.id) cancelEditingPermission();
+      showToast("success", `Permission "${permission.name}" deleted.`);
+    } catch {
+      showToast("error", "Failed to delete permission. Please try again.");
+    } finally {
+      setDeletingPermissionId(null);
+    }
+  };
+
   const handleDeleteRole = async (roleId) => {
     try {
       await permissionRoleApi.deleteRole(roleId);
@@ -234,7 +394,9 @@ export default function PermissionRolePage() {
   }, []);
 
   useEffect(() => {
-    if (selectedRoleId) loadRolePermissions();
+    if (!selectedRoleId) return;
+
+    loadRolePermissions();
   }, [selectedRoleId]);
 
   if (loading) {
@@ -262,7 +424,10 @@ export default function PermissionRolePage() {
             <MdAdd size={14} />
             Create New Role
           </button>
-          <button className={styles.btnOutline}>
+          <button
+            className={styles.btnOutline}
+            onClick={() => openPermissionModal()}
+          >
             <MdCode size={14} />
             Define API Permission
           </button>
@@ -420,9 +585,7 @@ export default function PermissionRolePage() {
                   type="text"
                   placeholder="Filter permissions by name, path or method (/api/v1/…)"
                   value={permFilter}
-                  onChange={(e) => {
-                    setPermFilter(e.target.value);
-                  }}
+                  onChange={(e) => setPermFilter(e.target.value)}
                 />
               </div>
               <label className={styles.toggleLabel}>
@@ -430,38 +593,12 @@ export default function PermissionRolePage() {
                   <input
                     type="checkbox"
                     checked={showAssignedOnly}
-                    onChange={(e) => {
-                      setShowAssignedOnly(e.target.checked);
-                    }}
+                    onChange={(e) => setShowAssignedOnly(e.target.checked)}
                   />
                   <span className={styles.toggleSlider} />
                 </span>
                 Show Assigned Only
               </label>
-            </div>
-
-            {/* Module tabs */}
-            <div className={styles.tabsRow}>
-              <span className={styles.tabRowLabel}>Module:</span>
-              {modules.map((mod) => {
-                const count =
-                  mod === "All Modules"
-                    ? permissions.length
-                    : permissions.filter((p) => p.module === mod).length;
-                return (
-                  <button
-                    key={mod}
-                    className={`${styles.tab} ${activeModule === mod ? styles.activeTab : ""}`}
-                    onClick={() => {
-                      setActiveModule(mod);
-                    }}
-                  >
-                    {mod === "All Modules"
-                      ? `All Modules (${count})`
-                      : `${mod} (${count})`}
-                  </button>
-                );
-              })}
             </div>
 
             {/* Method filter */}
@@ -471,9 +608,7 @@ export default function PermissionRolePage() {
                 <button
                   key={m}
                   className={`${styles.methodTab} ${activeMethod === m ? styles.activeMethod : ""}`}
-                  onClick={() => {
-                    setActiveMethod(m);
-                  }}
+                  onClick={() => setActiveMethod(m)}
                 >
                   {m}
                 </button>
@@ -481,94 +616,283 @@ export default function PermissionRolePage() {
             </div>
           </div>
 
-          {/* Bulk action bar */}
-          <div className={styles.bulkBar}>
-            <button className={styles.bulkBtn} onClick={selectAll}>
-              <MdSelectAll size={14} /> Select All
-            </button>
-            <button
-              className={`${styles.bulkBtn} ${styles.revoke}`}
-              onClick={revokeAll}
-            >
-              <MdClose size={13} /> Revoke All
-            </button>
-          </div>
+          {/* Permissions grouped by module */}
+          <div className={styles.modulesList}>
+            {permissionsByModule.length === 0 ? (
+              <div className={styles.emptyPermissions}>
+                No permissions match the current filter.
+              </div>
+            ) : (
+              permissionsByModule.map(([module, modulePermissions]) => {
+                const isExpanded = expandedModules.has(module);
+                const assignedCount = modulePermissions.all.filter(
+                  (permission) => draftIds.has(permission.id),
+                ).length;
+                const allChecked =
+                  modulePermissions.all.length > 0 &&
+                  assignedCount === modulePermissions.all.length;
+                const hasAssignedPermissions = assignedCount > 0;
+                const assignedPercentage = modulePermissions.all.length
+                  ? (assignedCount / modulePermissions.all.length) * 100
+                  : 0;
 
-          {/* Permissions table */}
-          <div className={styles.tableWrapper}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>
-                    <input
-                      type="checkbox"
-                      className={styles.checkbox}
-                      checked={allPageChecked}
-                      ref={(el) => {
-                        if (el) el.indeterminate = somePageChecked;
-                      }}
-                      onChange={togglePageAll}
-                    />
-                  </th>
-                  <th>Method</th>
-                  <th>Path &amp; Permission Identifier</th>
-                  <th>Module</th>
-                  <th>Scope</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredPerms.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={5}
-                      style={{
-                        textAlign: "center",
-                        padding: "40px 0",
-                        color: "#484f58",
-                      }}
-                    >
-                      No permissions match the current filter.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredPerms.map((perm) => (
-                    <tr key={perm.id}>
-                      <td>
-                        <input
-                          type="checkbox"
-                          className={styles.checkbox}
-                          checked={draftIds.has(perm.id)}
-                          onChange={() => togglePermission(perm.id)}
-                        />
-                      </td>
-                      <td>
-                        <span
-                          className={`${styles.methodBadge} ${styles[perm.method]}`}
+                return (
+                  <section className={styles.moduleSection} key={module}>
+                    <div className={styles.moduleHeader}>
+                      <button
+                        className={styles.moduleToggle}
+                        onClick={() => toggleModule(module)}
+                        aria-expanded={isExpanded}
+                      >
+                        {isExpanded ? (
+                          <MdKeyboardArrowDown size={19} />
+                        ) : (
+                          <MdKeyboardArrowRight size={19} />
+                        )}
+                        <span className={styles.moduleName}>{module}</span>
+                      </button>
+                      <div className={styles.moduleAssignmentSummary}>
+                        <span className={styles.moduleCount}>
+                          {assignedCount}/{modulePermissions.all.length}{" "}
+                          assigned
+                        </span>
+                        <span className={styles.moduleProgress}>
+                          <span
+                            className={styles.moduleProgressValue}
+                            style={{ width: `${assignedPercentage}%` }}
+                          />
+                        </span>
+                      </div>
+                      <div className={styles.moduleActions}>
+                        <button
+                          className={styles.moduleActionBtn}
+                          onClick={() =>
+                            grantModulePermissions(modulePermissions.all)
+                          }
+                          disabled={allChecked}
                         >
-                          {perm.method}
-                        </span>
-                      </td>
-                      <td>
-                        <div className={styles.pathCell}>
-                          <span className={styles.pathMain}>{perm.path}</span>
-                          <span className={styles.pathDesc}>
-                            {perm.description}
-                          </span>
-                        </div>
-                      </td>
-                      <td>
-                        <span className={styles.moduleBadge}>
-                          {perm.module}
-                        </span>
-                      </td>
-                      <td>
-                        <span className={styles.scopeBadge}>{perm.scope}</span>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                          <MdSelectAll size={14} /> Grant all
+                        </button>
+                        <button
+                          className={`${styles.moduleActionBtn} ${styles.revoke}`}
+                          onClick={() =>
+                            revokeModulePermissions(modulePermissions.all)
+                          }
+                          disabled={!hasAssignedPermissions}
+                        >
+                          <MdClose size={13} /> Revoke all
+                        </button>
+                        <button
+                          className={styles.addPermissionBtn}
+                          onClick={() => openPermissionModal(module)}
+                        >
+                          <MdAdd size={14} /> Add Permission
+                        </button>
+                      </div>
+                    </div>
+
+                    {isExpanded && (
+                      <div className={styles.moduleTableWrapper}>
+                        <table className={styles.table}>
+                          <thead>
+                            <tr>
+                              <th>
+                                <input
+                                  type="checkbox"
+                                  className={styles.checkbox}
+                                  checked={
+                                    modulePermissions.visible.length > 0 &&
+                                    modulePermissions.visible.every(
+                                      (permission) =>
+                                        draftIds.has(permission.id),
+                                    )
+                                  }
+                                  ref={(element) => {
+                                    if (element)
+                                      element.indeterminate =
+                                        modulePermissions.visible.some(
+                                          (permission) =>
+                                            draftIds.has(permission.id),
+                                        ) &&
+                                        !modulePermissions.visible.every(
+                                          (permission) =>
+                                            draftIds.has(permission.id),
+                                        );
+                                  }}
+                                  onChange={(event) => {
+                                    if (event.target.checked)
+                                      grantModulePermissions(
+                                        modulePermissions.visible,
+                                      );
+                                    else
+                                      revokeModulePermissions(
+                                        modulePermissions.visible,
+                                      );
+                                  }}
+                                />
+                              </th>
+                              <th>Name</th>
+                              <th>Module</th>
+                              <th>Method</th>
+                              <th>Path</th>
+                              <th>Scope</th>
+                              <th>Description</th>
+                              <th>Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {modulePermissions.visible.map((permission) => {
+                              const isEditing =
+                                editingPermissionId === permission.id;
+                              const isDeleting =
+                                deletingPermissionId === permission.id;
+
+                              return (
+                                <tr key={permission.id}>
+                                  <td>
+                                    <input
+                                      type="checkbox"
+                                      className={styles.checkbox}
+                                      checked={draftIds.has(permission.id)}
+                                      onChange={() =>
+                                        togglePermission(permission.id)
+                                      }
+                                    />
+                                  </td>
+                                  <td className={styles.permissionNameCell}>
+                                    {isEditing ? (
+                                      <input
+                                        className={styles.inlineEditInput}
+                                        value={permissionEdit.name}
+                                        onChange={(event) =>
+                                          setPermissionEdit((prev) => ({
+                                            ...prev,
+                                            name: event.target.value,
+                                          }))
+                                        }
+                                        autoFocus
+                                      />
+                                    ) : (
+                                      permission.name
+                                    )}
+                                  </td>
+                                  <td>
+                                    <span className={styles.moduleBadge}>
+                                      {permission.module}
+                                    </span>
+                                  </td>
+                                  <td>
+                                    <span
+                                      className={`${styles.methodBadge} ${styles[permission.method]}`}
+                                    >
+                                      {permission.method}
+                                    </span>
+                                  </td>
+                                  <td>
+                                    <span className={styles.pathMain}>
+                                      {permission.path}
+                                    </span>
+                                  </td>
+                                  <td>
+                                    <span className={styles.scopeBadge}>
+                                      {permission.scope || "—"}
+                                    </span>
+                                  </td>
+                                  <td className={styles.descriptionCell}>
+                                    {isEditing ? (
+                                      <input
+                                        className={styles.inlineEditInput}
+                                        value={permissionEdit.description}
+                                        onChange={(event) =>
+                                          setPermissionEdit((prev) => ({
+                                            ...prev,
+                                            description: event.target.value,
+                                          }))
+                                        }
+                                        onKeyDown={(event) => {
+                                          if (event.key === "Enter")
+                                            handleUpdatePermission(
+                                              permission.id,
+                                            );
+                                          if (event.key === "Escape")
+                                            cancelEditingPermission();
+                                        }}
+                                      />
+                                    ) : (
+                                      permission.description
+                                    )}
+                                  </td>
+                                  <td>
+                                    <div className={styles.permissionActions}>
+                                      {isEditing ? (
+                                        <>
+                                          <button
+                                            className={styles.inlineSaveBtn}
+                                            onClick={() =>
+                                              handleUpdatePermission(
+                                                permission.id,
+                                              )
+                                            }
+                                            disabled={
+                                              updatingPermission ||
+                                              !permissionEdit.name.trim() ||
+                                              !permissionEdit.description.trim()
+                                            }
+                                          >
+                                            <MdSave size={13} /> Save
+                                          </button>
+                                          <button
+                                            className={styles.inlineCancelBtn}
+                                            onClick={cancelEditingPermission}
+                                            disabled={updatingPermission}
+                                          >
+                                            <MdClose size={13} /> Cancel
+                                          </button>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <button
+                                            className={styles.inlineUpdateBtn}
+                                            onClick={() =>
+                                              startEditingPermission(permission)
+                                            }
+                                            disabled={
+                                              Boolean(editingPermissionId) ||
+                                              Boolean(deletingPermissionId)
+                                            }
+                                          >
+                                            <MdEdit size={13} /> Update
+                                          </button>
+                                          <button
+                                            className={styles.inlineDeleteBtn}
+                                            onClick={() =>
+                                              handleDeletePermission(permission)
+                                            }
+                                            disabled={
+                                              Boolean(editingPermissionId) ||
+                                              Boolean(deletingPermissionId)
+                                            }
+                                          >
+                                            <MdDelete size={13} />
+                                            {isDeleting
+                                              ? "Deleting…"
+                                              : "Delete"}
+                                          </button>
+                                        </>
+                                      )}
+                                    </div>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </section>
+                );
+              })
+            )}
           </div>
         </div>
       </div>
@@ -625,30 +949,126 @@ export default function PermissionRolePage() {
         </div>
       )}
 
-      {/* Revoke All Confirmation Modal */}
-      {showRevokeConfirm && (
-        <div
-          className={styles.modalOverlay}
-          onClick={() => setShowRevokeConfirm(false)}
-        >
+      {/* Create Permission Modal */}
+      {showPermissionModal && (
+        <div className={styles.modalOverlay} onClick={closePermissionModal}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <h3>Confirm Revocation</h3>
-            <p>Are you sure you want to revoke all permissions of this role?</p>
+            <h3>
+              <MdAdd size={17} /> Create API Permission
+            </h3>
+            <div className={styles.modalField}>
+              <label>Module *</label>
+              <input
+                type="text"
+                placeholder="e.g. PROJECT"
+                value={newPermission.module}
+                readOnly={lockedPermissionModule}
+                onChange={(e) =>
+                  setNewPermission((prev) => ({
+                    ...prev,
+                    module: e.target.value,
+                  }))
+                }
+              />
+            </div>
+            <div className={styles.modalField}>
+              <label>Permission Name *</label>
+              <input
+                type="text"
+                placeholder="e.g. List projects"
+                value={newPermission.name}
+                onChange={(e) =>
+                  setNewPermission((prev) => ({
+                    ...prev,
+                    name: e.target.value,
+                  }))
+                }
+                autoFocus
+              />
+            </div>
+            <div className={styles.modalFieldRow}>
+              <div className={styles.modalField}>
+                <label>Method *</label>
+                <select
+                  value={newPermission.method}
+                  onChange={(e) =>
+                    setNewPermission((prev) => ({
+                      ...prev,
+                      method: e.target.value,
+                    }))
+                  }
+                >
+                  {HTTP_METHODS.slice(1).map((method) => (
+                    <option value={method} key={method}>
+                      {method}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className={styles.modalField}>
+                <label>Scope</label>
+                <select
+                  value={newPermission.scope}
+                  onChange={(e) =>
+                    setNewPermission((prev) => ({
+                      ...prev,
+                      scope: e.target.value,
+                    }))
+                  }
+                >
+                  <option value="">None</option>
+                  <option value="OWN">OWN</option>
+                </select>
+              </div>
+            </div>
+            <div className={styles.modalField}>
+              <label>Path *</label>
+              <input
+                type="text"
+                placeholder="e.g. /projects"
+                value={newPermission.path}
+                onChange={(e) =>
+                  setNewPermission((prev) => ({
+                    ...prev,
+                    path: e.target.value,
+                  }))
+                }
+              />
+            </div>
+            <div className={styles.modalField}>
+              <label>Description *</label>
+              <textarea
+                rows={3}
+                placeholder="Describe what this permission allows…"
+                value={newPermission.description}
+                onChange={(e) =>
+                  setNewPermission((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
+              />
+            </div>
             <div className={styles.modalActions}>
               <button
                 className={styles.btnOutline}
-                onClick={() => setShowRevokeConfirm(false)}
+                onClick={closePermissionModal}
+                disabled={creatingPermission}
               >
                 Cancel
               </button>
               <button
                 className={styles.btnPrimary}
-                onClick={async () => {
-                  setShowRevokeConfirm(false);
-                  handleSave({ agreeRevokeAll: true });
-                }}
+                onClick={handleCreatePermission}
+                disabled={
+                  creatingPermission ||
+                  !newPermission.name.trim() ||
+                  !newPermission.description.trim() ||
+                  !newPermission.module.trim() ||
+                  !newPermission.path.trim()
+                }
               >
-                Yes, Revoke All
+                {creatingPermission ? "Creating…" : "Create Permission"}
               </button>
             </div>
           </div>
