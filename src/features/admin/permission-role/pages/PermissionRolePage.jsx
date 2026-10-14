@@ -35,7 +35,6 @@ export default function PermissionRolePage() {
   const [draftIds, setDraftIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [agreeRevokeAll, setAgreeRevokeAll] = useState(false);
 
   const [roleSearch, setRoleSearch] = useState("");
   const [permFilter, setPermFilter] = useState("");
@@ -172,7 +171,7 @@ export default function PermissionRolePage() {
     });
   };
 
-  const handleSave = async () => {
+  const handleSave = async ({ agreeRevokeAll = false }) => {
     if (draftIds.size === 0 && !agreeRevokeAll) {
       setShowRevokeConfirm(true);
       return;
@@ -196,7 +195,6 @@ export default function PermissionRolePage() {
       showToast("error", "Failed to save changes. Please try again.");
     } finally {
       setSaving(false);
-      setAgreeRevokeAll(false);
     }
   };
 
@@ -647,8 +645,7 @@ export default function PermissionRolePage() {
                 className={styles.btnPrimary}
                 onClick={async () => {
                   setShowRevokeConfirm(false);
-                  setAgreeRevokeAll(true);
-                  handleSave();
+                  handleSave({ agreeRevokeAll: true });
                 }}
               >
                 Yes, Revoke All

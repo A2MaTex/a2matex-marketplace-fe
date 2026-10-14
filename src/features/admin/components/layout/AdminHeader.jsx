@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { MdSearch, MdNotificationsNone } from "react-icons/md";
 import styles from "./AdminHeader.module.css";
 
-export default function AdminHeader() {
+export default function AdminHeader({ user }) {
   return (
     <header className={styles.header}>
       {/* Left: Logo + badge */}
@@ -35,8 +35,8 @@ export default function AdminHeader() {
         <div className={styles.userChip}>
           <div className={styles.avatarCircle}>A</div>
           <div className={styles.userText}>
-            <span className={styles.userNameText}>Alex Mercer</span>
-            <span className={styles.userRoleText}>SuperAdmin</span>
+            <span className={styles.userNameText}>{user.username}</span>
+            <span className={styles.userRoleText}>ADMIN</span>
           </div>
         </div>
       </div>
