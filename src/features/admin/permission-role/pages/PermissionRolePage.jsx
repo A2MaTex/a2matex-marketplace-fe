@@ -20,7 +20,6 @@ import styles from "./PermissionRolePage.module.css";
 import { permissionRoleApi } from "../api/permissionRoleApi";
 
 const HTTP_METHODS = ["ALL", "GET", "POST", "PUT", "DELETE", "PATCH"];
-const ITEMS_PER_PAGE = 10;
 
 function getModules(permissions) {
   const mods = [...new Set(permissions.map((p) => p.module))];
@@ -36,6 +35,7 @@ export default function PermissionRolePage() {
   const [draftIds, setDraftIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [agreeRevokeAll, setAgreeRevokeAll] = useState(false);
 
   const [roleSearch, setRoleSearch] = useState("");
   const [permFilter, setPermFilter] = useState("");
@@ -47,6 +47,8 @@ export default function PermissionRolePage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newRole, setNewRole] = useState({ name: "", description: "" });
   const [creating, setCreating] = useState(false);
+  // Confirmation modal for revoking all permissions before save
+  const [showRevokeConfirm, setShowRevokeConfirm] = useState(false);
 
   const fetchInitialData = async () => {
     try {
@@ -171,6 +173,10 @@ export default function PermissionRolePage() {
   };
 
   const handleSave = async () => {
+    if (draftIds.size === 0 && !agreeRevokeAll) {
+      setShowRevokeConfirm(true);
+      return;
+    }
     if (!selectedRoleId || !isDirty) return;
     setSaving(true);
     try {
@@ -190,6 +196,7 @@ export default function PermissionRolePage() {
       showToast("error", "Failed to save changes. Please try again.");
     } finally {
       setSaving(false);
+      setAgreeRevokeAll(false);
     }
   };
 
@@ -417,7 +424,6 @@ export default function PermissionRolePage() {
                   value={permFilter}
                   onChange={(e) => {
                     setPermFilter(e.target.value);
-                    setPage(1);
                   }}
                 />
               </div>
@@ -428,7 +434,6 @@ export default function PermissionRolePage() {
                     checked={showAssignedOnly}
                     onChange={(e) => {
                       setShowAssignedOnly(e.target.checked);
-                      setPage(1);
                     }}
                   />
                   <span className={styles.toggleSlider} />
@@ -451,7 +456,6 @@ export default function PermissionRolePage() {
                     className={`${styles.tab} ${activeModule === mod ? styles.activeTab : ""}`}
                     onClick={() => {
                       setActiveModule(mod);
-                      setPage(1);
                     }}
                   >
                     {mod === "All Modules"
@@ -471,7 +475,6 @@ export default function PermissionRolePage() {
                   className={`${styles.methodTab} ${activeMethod === m ? styles.activeMethod : ""}`}
                   onClick={() => {
                     setActiveMethod(m);
-                    setPage(1);
                   }}
                 >
                   {m}
@@ -618,6 +621,37 @@ export default function PermissionRolePage() {
                 disabled={!newRole.name.trim() || creating}
               >
                 {creating ? "Creating…" : "Create Role"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Revoke All Confirmation Modal */}
+      {showRevokeConfirm && (
+        <div
+          className={styles.modalOverlay}
+          onClick={() => setShowRevokeConfirm(false)}
+        >
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <h3>Confirm Revocation</h3>
+            <p>Are you sure you want to revoke all permissions of this role?</p>
+            <div className={styles.modalActions}>
+              <button
+                className={styles.btnOutline}
+                onClick={() => setShowRevokeConfirm(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className={styles.btnPrimary}
+                onClick={async () => {
+                  setShowRevokeConfirm(false);
+                  setAgreeRevokeAll(true);
+                  handleSave();
+                }}
+              >
+                Yes, Revoke All
               </button>
             </div>
           </div>
