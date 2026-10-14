@@ -1,3 +1,6 @@
+.link {
+  text-decoration: none;
+}
 /* ── Card base ── */
 .card {
   background: #0e1120;

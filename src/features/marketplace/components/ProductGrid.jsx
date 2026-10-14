@@ -109,7 +109,9 @@ const ProductGrid = ({ products = MOCK_PRODUCTS, total = 1420 }) => {
             <button
               key={opt}
               type="button"
-              className={[styles.sortBtn, sort === opt ? styles.sortActive : ""].filter(Boolean).join(" ")}
+              className={[styles.sortBtn, sort === opt ? styles.sortActive : ""]
+                .filter(Boolean)
+                .join(" ")}
               onClick={() => setSort(opt)}
             >
               {opt}

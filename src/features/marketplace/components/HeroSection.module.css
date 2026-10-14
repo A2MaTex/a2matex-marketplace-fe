@@ -20,7 +20,7 @@
 }
 
 .heading {
-  font-size: clamp(28px, 4vw, 44px);
+  font-size: 64px;
   font-weight: 800;
   line-height: 1.15;
   color: #f1f5f9;
@@ -37,7 +37,7 @@
 
 .sub {
   font-size: 14px;
-  color: #6b7280;
+  color: #a0a8b6;
   line-height: 1.7;
   max-width: 480px;
   margin: 0;
@@ -90,11 +90,11 @@
 
 /* ── Ambient glow ── */
 .glow {
-  position: absolute;
+  position: fixed;
   top: -60px;
-  left: 180px;
-  width: 460px;
-  height: 320px;
+  right: 80px;
+  width: 70vw;
+  height: 420px;
   border-radius: 50%;
   background: radial-gradient(
     ellipse,
