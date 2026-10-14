@@ -1,12 +1,32 @@
 import axios from "../../../../common/api/axios.js";
 import {
+  addPermissionUrl,
   addRoleUrl,
+  deletePermissionUrl,
   deleteRoleUrl,
+  editPermissionUrl,
   getPermissionsOfRoleUrl,
   getPermissionsUrl,
   getRolesUrl,
   saveRolePermissionsUrl,
 } from "./permissionRoleUrl.js";
+
+const createPermission = async (permission) => {
+  const response = await axios.post(addPermissionUrl, permission);
+  return response.data.data.id;
+};
+
+const updatePermission = async (id, permission) => {
+  const response = await axios.put(editPermissionUrl(id), permission);
+  return response.data;
+};
+
+const deletePermission = async (id) => {
+  const response = await axios.delete(deletePermissionUrl, {
+    data: { ids: [id] },
+  });
+  return response.data;
+};
 
 const getAllRoles = async () => {
   const response = await axios.get(getRolesUrl);
@@ -43,6 +63,9 @@ const deleteRole = async (...roleIds) => {
 };
 
 export const permissionRoleApi = {
+  createPermission,
+  updatePermission,
+  deletePermission,
   getAllRoles,
   getAllPermissions,
   getRolePermissions,
