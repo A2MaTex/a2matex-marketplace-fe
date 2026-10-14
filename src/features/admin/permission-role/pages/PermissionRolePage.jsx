@@ -18,6 +18,8 @@ import { HiOutlineShieldCheck } from "react-icons/hi";
 import { BsCheckCircleFill } from "react-icons/bs";
 import styles from "./PermissionRolePage.module.css";
 import { permissionRoleApi } from "../api/permissionRoleApi";
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../../../auth/store/authStore";
 
 const HTTP_METHODS = ["ALL", "GET", "POST", "PUT", "DELETE", "PATCH"];
 const ITEMS_PER_PAGE = 10;
@@ -208,25 +210,25 @@ export default function PermissionRolePage() {
     if (!newRole.name.trim()) return;
     setCreating(true);
     try {
-      const created = await permissionRoleApi.createRole(newRole);
-      setRoles((prev) => [...prev, created]);
-      showToast("success", `Role "${created.name}" created.`);
+      const createdId = await permissionRoleApi.createRole(newRole);
+      setRoles((prev) => [...prev, { id: createdId, ...newRole }]);
+      showToast("success", `Role "${newRole.name}" created.`);
     } catch {
-      const mock = {
-        id: Date.now(),
-        name: newRole.name.toUpperCase(),
-        description: newRole.description,
-        status: "ACTIVE",
-        permissionCount: 0,
-        totalPermissions: permissions.length,
-        accountCount: 0,
-      };
-      setRoles((prev) => [...prev, mock]);
-      showToast("success", `Role "${mock.name}" created.`);
+      showToast("error", `Failed to create role. Please try again.`);
     } finally {
       setCreating(false);
       setShowCreateModal(false);
       setNewRole({ name: "", description: "" });
+    }
+  };
+
+  const handleDeleteRole = async (roleId) => {
+    try {
+      await permissionRoleApi.deleteRole(roleId);
+      setRoles((prev) => prev.filter((r) => r.id !== roleId));
+      showToast("success", `Role deleted successfully.`);
+    } catch {
+      showToast("error", "Failed to delete role. Please try again.");
     }
   };
 
@@ -385,7 +387,7 @@ export default function PermissionRolePage() {
                     </button>
                     <button
                       className={`${styles.roleActionBtn} ${styles.danger}`}
-                      onClick={(e) => e.stopPropagation()}
+                      onClick={() => handleDeleteRole(role.id)}
                     >
                       <MdDelete size={10} /> Delete
                     </button>

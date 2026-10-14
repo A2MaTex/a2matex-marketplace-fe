@@ -4,7 +4,6 @@ import { IoSearchOutline } from "react-icons/io5";
 import { IoCashOutline } from "react-icons/io5";
 import { IoPersonCircleOutline } from "react-icons/io5";
 import styles from "./Header.module.css";
-import { useAuthStore } from "../../../features/auth/store/authStore";
 
 /* ── Logo (giữ custom vì cần gradient riêng) ── */
 const LogoIcon = () => (
@@ -43,12 +42,15 @@ const NAV_ITEMS = [
   { label: "Marketplace", to: "/" },
   { label: "Desktop Launcher", to: "/launcher" },
   { label: "A2MaTeX Studio", to: "/studio" },
+  { label: "Admin Hub", to: "/admin/permission-role", isAdminOnly: true },
 ];
 
-const Header = () => {
+const Header = ({ user }) => {
   const [search, setSearch] = useState("");
 
-  const user = useAuthStore.getState().user;
+  const checkIsAdmin = () => {
+    return user?.roles?.some((role) => role.name === "ADMIN");
+  };
 
   return (
     <header className={styles.header}>
@@ -61,20 +63,22 @@ const Header = () => {
           </Link>
 
           <nav className={styles.nav} aria-label="Main navigation">
-            {NAV_ITEMS.map(({ label, to }) => (
-              <NavLink
-                key={to}
-                to={to}
-                end={to === "/"}
-                className={({ isActive }) =>
-                  [styles.navLink, isActive ? styles.navActive : ""]
-                    .filter(Boolean)
-                    .join(" ")
-                }
-              >
-                {label}
-              </NavLink>
-            ))}
+            {NAV_ITEMS.map(({ label, to, isAdminOnly }) =>
+              isAdminOnly && !checkIsAdmin() ? null : (
+                <NavLink
+                  key={to}
+                  to={to}
+                  end={to === "/"}
+                  className={({ isActive }) =>
+                    [styles.navLink, isActive ? styles.navActive : ""]
+                      .filter(Boolean)
+                      .join(" ")
+                  }
+                >
+                  {label}
+                </NavLink>
+              ),
+            )}
           </nav>
         </div>
 

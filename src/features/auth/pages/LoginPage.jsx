@@ -58,8 +58,8 @@ const LoginPage = () => {
 
     setLoading(true);
     try {
-      const isAdmin = await authApi.login(form.account, form.password);
-      navigate(isAdmin ? "/admin/permission-role" : "/");
+      await authApi.login(form.account, form.password);
+      navigate("/");
     } catch (err) {
       console.error(err);
       const error = getErrorMessage({

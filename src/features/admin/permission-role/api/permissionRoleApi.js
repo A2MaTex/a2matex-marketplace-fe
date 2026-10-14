@@ -1,6 +1,7 @@
 import axios from "../../../../common/api/axios.js";
 import {
   addRoleUrl,
+  deleteRoleUrl,
   getPermissionsOfRoleUrl,
   getPermissionsUrl,
   getRolesUrl,
@@ -31,7 +32,14 @@ const saveRolePermissions = async (roleId, permissionIds) => {
 
 const createRole = async ({ name, description }) => {
   const response = await axios.post(addRoleUrl, { name, description });
-  return response.data.data;
+
+  return response.data.data.id;
+};
+
+const deleteRole = async (...roleIds) => {
+  await axios.delete(deleteRoleUrl, {
+    data: { ids: roleIds },
+  });
 };
 
 export const permissionRoleApi = {
@@ -39,5 +47,6 @@ export const permissionRoleApi = {
   getAllPermissions,
   getRolePermissions,
   saveRolePermissions,
+  deleteRole,
   createRole,
 };

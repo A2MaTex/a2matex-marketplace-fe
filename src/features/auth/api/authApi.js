@@ -1,7 +1,6 @@
 import { loginUrl, logoutUrl, registerUrl, sendOTP } from "./authUrl";
 import axios from "../../../common/api/axios.js";
 import { useAuthStore } from "../store/authStore.js";
-import { userApi } from "../../../common/api/user/userApi.js";
 
 const login = async (account, password) => {
   const response = await axios.post(loginUrl, {
@@ -11,10 +10,7 @@ const login = async (account, password) => {
 
   const { accessToken, refreshToken } = response.data.data;
   useAuthStore.getState().setCredentials(accessToken, refreshToken);
-
-  const user = await userApi.getMyProfile();
-  useAuthStore.getState().setUser(user);
-  return user.roles.some((item) => item.name === "ADMIN");
+  useAuthStore.getState().setUser(null);
 };
 
 const register = async ({
