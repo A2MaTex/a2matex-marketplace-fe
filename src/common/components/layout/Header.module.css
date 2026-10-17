@@ -192,3 +192,9 @@
   font-weight: 600;
   margin-right: 2px;
 }
+
+.usernameText {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e2e8f0;
+}

@@ -112,9 +112,9 @@ const LoginPage = () => {
           <div>
             <div className={styles.labelRow}>
               <span className={styles.passwordLabel}>MẬT KHẨU</span>
-              <a href="#" className={styles.forgotLink}>
+              <Link to="/auth/forgot-password" className={styles.forgotLink}>
                 Quên mật khẩu?
-              </a>
+              </Link>
             </div>
             <Input
               name="password"

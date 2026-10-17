@@ -138,15 +138,15 @@ const LauncherPage = () => {
                 centralized desktop application.
               </p>
 
-              <Button>
-                <a href="#download" className={styles.downloadBtn}>
-                  <FiMonitor size={18} />
-                  <span>Download for Windows</span>
-                  <span className={styles.downloadMeta}>
-                    x64 • v2.4.0 (.exe / 43.8 MB)
-                  </span>
-                  <FiDownload size={18} className={styles.downloadIcon} />
-                </a>
+              <Button
+                size="lg"
+                leftIcon={<FiDownload size={18} />}
+                href="/launcher#download"
+              >
+                <span>Download for Windows</span>
+                <span className={styles.downloadMeta}>
+                  x64 • v2.4.0 (.exe / 43.8 MB)
+                </span>
               </Button>
             </div>
 
@@ -345,11 +345,7 @@ const LauncherPage = () => {
                         <GoArrowRight size={13} />
                       </a>
                     </p>
-                    <Button>
-                      <a href="/" className={styles.sysCtaBtn}>
-                        Go to Market →
-                      </a>
-                    </Button>
+                    <Button href="/">Go to Market →</Button>
                   </div>
                 </div>
               </div>
@@ -359,11 +355,12 @@ const LauncherPage = () => {
 
         {/* ── Final CTA ──────────────────────────────────────────── */}
         <section id="download" className={styles.ctaSection}>
-          <Button>
-            <a href="#" className={styles.ctaBtn}>
-              <RiLoader4Line size={16} />
-              Download Launcher Now (.exe)
-            </a>
+          <Button
+            href="/launcher#download"
+            leftIcon={<RiLoader4Line size={16} />}
+            size="lg"
+          >
+            Download Launcher Now (.exe)
           </Button>
         </section>
       </div>

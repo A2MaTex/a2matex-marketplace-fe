@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import styles from "./Button.module.css";
 
 /**
@@ -22,6 +23,7 @@ const Button = ({
   type = "button",
   onClick,
   className = "",
+  href = "",
   ...rest
 }) => {
   const classes = [
@@ -34,6 +36,22 @@ const Button = ({
   ]
     .filter(Boolean)
     .join(" ");
+
+  if (href) {
+    return (
+      <Link to={href} className={classes} {...rest}>
+        {loading ? (
+          <span className={styles.spinner} aria-hidden="true" />
+        ) : (
+          leftIcon && <span className={styles.icon}>{leftIcon}</span>
+        )}
+        <span className={styles.label}>{children}</span>
+        {!loading && rightIcon && (
+          <span className={styles.icon}>{rightIcon}</span>
+        )}
+      </Link>
+    );
+  }
 
   return (
     <button

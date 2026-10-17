@@ -1,9 +1,10 @@
-import axios from "axios";
-import { updateMyProfileUrl } from "./profileUrl";
+import axios from "../../../common/api/axios";
+import { updateMyProfileUrl, changePassword as changePasswordUrl } from "./profileUrl";
 
 const updateMyProfile = (data) => axios.put(updateMyProfileUrl, data);
-const changePassword = ({ currentPassword, newPassword, confirmNewPassword }) =>
-  axios.put(updateMyProfileUrl, {
+
+const changePasswordApi = ({ currentPassword, newPassword, confirmNewPassword }) =>
+  axios.put(changePasswordUrl, {
     currentPassword,
     newPassword,
     confirmNewPassword,
@@ -11,5 +12,5 @@ const changePassword = ({ currentPassword, newPassword, confirmNewPassword }) =>
 
 export const profileApi = {
   updateMyProfile,
-  changePassword,
+  changePassword: changePasswordApi,
 };

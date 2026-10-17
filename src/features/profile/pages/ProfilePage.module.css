@@ -1,0 +1,597 @@
+/* ── Base ──────────────────────────────────────────────────────── */
+.page {
+  background: #060810;
+  color: #e2e8f0;
+  min-height: 100vh;
+  padding: 32px 0 60px;
+}
+
+.inner {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Loading ───────────────────────────────────────────────────── */
+.loadingWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 60vh;
+  color: #4b5268;
+  font-size: 14px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinIcon {
+  animation: spin 1s linear infinite;
+  color: #00e5cc;
+}
+
+/* ── Toast ─────────────────────────────────────────────────────── */
+.toast {
+  position: fixed;
+  top: 72px;
+  right: 24px;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  animation: slideIn 0.25s ease;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.toast_success {
+  background: rgba(0, 229, 204, 0.12);
+  border: 1px solid rgba(0, 229, 204, 0.35);
+  color: #00e5cc;
+}
+
+.toast_error {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #ef4444;
+}
+
+/* ── Banner ────────────────────────────────────────────────────── */
+.banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  background: #0d111e;
+  border: 1px solid #1e2537;
+  border-radius: 12px;
+  padding: 24px 28px;
+}
+
+/* Avatar */
+.avatarWrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+  background: #111827;
+  border: 1px solid #1e2537;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.avatarOnline {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #22c55e;
+  border: 2px solid #0d111e;
+}
+
+/* Banner info */
+.bannerInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bannerNameRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.bannerName {
+  font-size: 22px;
+  font-weight: 800;
+  color: #f1f5f9;
+  margin: 0;
+}
+
+.roleBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: #00e5cc;
+  background: rgba(0, 229, 204, 0.1);
+  border: 1px solid rgba(0, 229, 204, 0.25);
+  border-radius: 4px;
+  padding: 3px 8px;
+  text-transform: uppercase;
+}
+
+.bannerBio {
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.55;
+  margin: 0;
+  max-width: 440px;
+}
+
+.bannerMeta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: #4b5268;
+}
+
+.bannerMeta span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.metaBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.metaBtn:hover { color: #00e5cc; }
+
+.metaBtnDanger {
+  composes: metaBtn;
+  color: #6b7280;
+}
+
+.metaBtnDanger:hover { color: #ef4444; }
+
+/* Balance card */
+.balanceCard {
+  flex-shrink: 0;
+  min-width: 200px;
+  background: #111827;
+  border: 1px solid #1e2537;
+  border-radius: 10px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.balanceLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #4b5268;
+}
+
+.balanceAmount {
+  font-size: 26px;
+  font-weight: 800;
+  color: #f1f5f9;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.balanceCurrency {
+  font-size: 12px;
+  font-weight: 500;
+  color: #4b5268;
+}
+
+.balanceFuel {
+  font-size: 11px;
+  color: #00e5cc;
+  margin: 0;
+}
+
+.topUpBtn {
+  margin-top: 4px;
+  padding: 8px 0;
+  background: none;
+  border: 1px solid #1e2537;
+  border-radius: 6px;
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.topUpBtn:hover {
+  border-color: #00e5cc;
+  color: #00e5cc;
+}
+
+/* ── Publisher banner ──────────────────────────────────────────── */
+.publisherBanner {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: #0d111e;
+  border: 1px solid #1e2537;
+  border-left: 3px solid #00e5cc;
+  border-radius: 10px;
+  padding: 20px 24px;
+}
+
+.publisherIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: rgba(0, 229, 204, 0.08);
+  border: 1px solid rgba(0, 229, 204, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00e5cc;
+  flex-shrink: 0;
+}
+
+.publisherText {
+  flex: 1;
+}
+
+.publisherText h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin: 0 0 6px;
+}
+
+.publisherText p {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.publisherBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: rgba(0, 229, 204, 0.1);
+  border: 1px solid rgba(0, 229, 204, 0.3);
+  border-radius: 8px;
+  color: #00e5cc;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+
+.publisherBtn:hover {
+  background: rgba(0, 229, 204, 0.18);
+}
+
+/* ── Main grid ─────────────────────────────────────────────────── */
+.mainGrid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 20px;
+  align-items: start;
+}
+
+.leftCol,
+.rightCol {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Card ──────────────────────────────────────────────────────── */
+.card {
+  background: #0d111e;
+  border: 1px solid #1e2537;
+  border-radius: 12px;
+  padding: 24px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cardTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin: 0;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #1e2537;
+}
+
+/* ── Form helpers ──────────────────────────────────────────────── */
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fieldLabel {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  color: #4b5268;
+  text-transform: uppercase;
+}
+
+.verifiedHint {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #00e5cc;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+/* Gender radio */
+.genderRow {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.radioLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #94a3b8;
+  cursor: pointer;
+  user-select: none;
+}
+
+.radioCircle {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #1e2537;
+  background: #111827;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+
+.radioActive {
+  border-color: #00e5cc;
+  background: #00e5cc;
+}
+
+/* Bio */
+.bioLabelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bioCount {
+  font-size: 11px;
+  color: #4b5268;
+}
+
+.textarea {
+  width: 100%;
+  background: #111827;
+  border: 1px solid #1e2537;
+  border-radius: 8px;
+  color: #e2e8f0;
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 10px 14px;
+  resize: vertical;
+  outline: none;
+  box-sizing: border-box;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.textarea:focus {
+  border-color: #00e5cc;
+}
+
+.textarea::placeholder {
+  color: #374151;
+}
+
+/* ── Socials ───────────────────────────────────────────────────── */
+.connectedBadge {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 600;
+  color: #4b5268;
+  letter-spacing: 0.8px;
+}
+
+.socialsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.socialRow {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.socialLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  color: #4b5268;
+  text-transform: uppercase;
+}
+
+.socialInput {
+  width: 100%;
+  background: #111827;
+  border: 1px solid #1e2537;
+  border-radius: 6px;
+  color: #e2e8f0;
+  font-size: 12px;
+  padding: 8px 12px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.socialInput:focus {
+  border-color: #00e5cc;
+}
+
+.socialInput::placeholder {
+  color: #374151;
+}
+
+/* ── Security ──────────────────────────────────────────────────── */
+.twoFaBadge {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 700;
+  color: #22c55e;
+  letter-spacing: 0.6px;
+}
+
+.pwForm {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ── Action bar ────────────────────────────────────────────────── */
+.actionBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: #0d111e;
+  border: 1px solid #1e2537;
+  border-radius: 10px;
+  padding: 16px 24px;
+  flex-wrap: wrap;
+}
+
+.syncNote {
+  font-size: 12px;
+  color: #4b5268;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.accentLink {
+  color: #00e5cc;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.accentLink:hover { text-decoration: underline; }
+
+.actionBtns {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* ── Responsive ────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .mainGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .banner {
+    flex-direction: column;
+  }
+
+  .balanceCard {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+
+  .publisherBanner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .actionBar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .actionBtns {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}

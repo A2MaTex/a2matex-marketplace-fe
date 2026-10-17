@@ -4,6 +4,7 @@ import { IoSearchOutline } from "react-icons/io5";
 import { IoCashOutline } from "react-icons/io5";
 import { IoPersonCircleOutline } from "react-icons/io5";
 import styles from "./Header.module.css";
+import Button from "../common/Button";
 
 /* ── Logo (giữ custom vì cần gradient riêng) ── */
 const LogoIcon = () => (
@@ -102,11 +103,18 @@ const Header = ({ user }) => {
             <span className={styles.creditsValue}>4,850</span>
             <span className={styles.creditsCurrency}>CR</span>
           </div>
+          {!!user && (
+            <div className={styles.userBox}>
+              <span className={styles.usernameText}>
+                {user?.fullName || ""}
+              </span>
+            </div>
+          )}
 
           {!user ? (
-            <Link to="/login" className={styles.signInBtn} aria-label="Login">
+            <Button href="/login" size="sm">
               Sign In
-            </Link>
+            </Button>
           ) : (
             <Link to="/profile" className={styles.avatar} aria-label="Profile">
               <IoPersonCircleOutline size={22} />

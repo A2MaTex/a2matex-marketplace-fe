@@ -1,4 +1,4 @@
-import { loginUrl, logoutUrl, registerUrl, sendOTP } from "./authUrl";
+import { loginUrl, logoutUrl, registerUrl, sendOTP, forgotPasswordUrl } from "./authUrl";
 import axios from "../../../common/api/axios.js";
 import { useAuthStore } from "../store/authStore.js";
 
@@ -49,4 +49,13 @@ export const authApi = {
   register,
   logout,
   sendOtp,
+  forgotPassword: async ({ email, code, newPassword, confirmNewPassword }) => {
+    const response = await axios.post(forgotPasswordUrl, {
+      email,
+      code,
+      newPassword,
+      confirmNewPassword,
+    });
+    return response.data;
+  },
 };
