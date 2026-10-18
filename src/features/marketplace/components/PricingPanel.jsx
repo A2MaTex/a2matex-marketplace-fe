@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { IoShieldCheckmarkOutline, IoInformationCircleOutline } from "react-icons/io5";
+import { IoInformationCircleOutline } from "react-icons/io5";
 import { MdOutlineLocalOffer } from "react-icons/md";
 import Button from "../../../common/components/common/Button";
 import styles from "./PricingPanel.module.css";
@@ -24,7 +24,11 @@ const PricingPanel = ({ price = 199, credits = 1990 }) => {
         </div>
         <div className={styles.lineItem}>
           <span className={styles.lineLabelMuted}>
-            Tax <IoInformationCircleOutline size={13} style={{ verticalAlign: "middle" }} />
+            Tax{" "}
+            <IoInformationCircleOutline
+              size={13}
+              style={{ verticalAlign: "middle" }}
+            />
           </span>
           <span className={styles.lineFree}>FREE ($0.00)</span>
         </div>
@@ -41,12 +45,17 @@ const PricingPanel = ({ price = 199, credits = 1990 }) => {
             className={styles.promoInput}
             placeholder="PROMO / DEV CODE"
             value={promo}
-            onChange={(e) => { setPromo(e.target.value); setApplied(false); }}
+            onChange={(e) => {
+              setPromo(e.target.value);
+              setApplied(false);
+            }}
           />
         </div>
         <button
           type="button"
-          className={[styles.applyBtn, applied ? styles.applied : ""].filter(Boolean).join(" ")}
+          className={[styles.applyBtn, applied ? styles.applied : ""]
+            .filter(Boolean)
+            .join(" ")}
           onClick={handleApply}
         >
           {applied ? "✓" : "APPLY"}
@@ -62,8 +71,12 @@ const PricingPanel = ({ price = 199, credits = 1990 }) => {
           <span className={styles.totalValue}>${price.toFixed(2)}</span>
         </div>
         <div className={styles.creditsRow}>
-          <span className={styles.creditsLabel}>A2MaTeX Credit Equivalency</span>
-          <span className={styles.creditsValue}>= {credits.toLocaleString()} A2MaTeX CR</span>
+          <span className={styles.creditsLabel}>
+            A2MaTeX Credit Equivalency
+          </span>
+          <span className={styles.creditsValue}>
+            = {credits.toLocaleString()} A2MaTeX CR
+          </span>
         </div>
       </div>
 

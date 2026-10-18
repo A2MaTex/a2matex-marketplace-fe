@@ -1,15 +1,21 @@
 import axios from "axios";
+import { auth } from "./token";
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+const baseURL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/v1";
+
+const axiosInstance = axios.create({
+  baseURL,
+  timeout: 15000,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-api.interceptors.request.use(
+// Automatically attach Bearer Token to every request
+axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("accessToken");
+    const token = auth.getToken();
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -20,15 +26,17 @@ api.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
-api.interceptors.response.use(
+// Centralized response error handling
+axiosInstance.interceptors.response.use(
   (response) => response,
-  async (error) => {
+  (error) => {
     if (error.response?.status === 401) {
-      // xử lý refresh token / logout sau
+      // Handle unauthorized responses here if needed.
+      // Example: clear expired access token or trigger logout.
     }
 
     return Promise.reject(error);
   },
 );
 
-export default api;
+export default axiosInstance;

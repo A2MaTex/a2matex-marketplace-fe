@@ -1,4 +1,4 @@
-import axios from "../../../../common/api/axios.js";
+import axios from "@lib/axios.js";
 import {
   addPermissionUrl,
   addRoleUrl,

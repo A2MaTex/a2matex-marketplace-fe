@@ -1,8 +1,8 @@
-import Header from "./Header";
-import styles from "./AppLayout.module.css";
 import { useEffect, useState } from "react";
-import { useAuthStore } from "../../../features/auth/store/authStore";
-import { userApi } from "../../api/user/userApi";
+import { useAuthStore } from "@features/auth/store/authStore";
+import { userApi } from "@api/user/userApi";
+import Header from "@/common/components/layout/Header";
+import styles from "@/common/components/layout/AppLayout.module.css";
 
 const AppLayout = ({ children }) => {
   const [user, setUser] = useState(useAuthStore.getState().user);

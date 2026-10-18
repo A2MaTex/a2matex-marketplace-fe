@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Button from "../../../common/components/common/Button";
-import Input from "../../../common/components/common/Input";
+import Button from "@components/common/Button";
+import Input from "@components/common/Input";
 import styles from "../styles/AuthPage.module.css";
 
 import {
@@ -15,7 +15,7 @@ import {
 import { FaGithub } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { authApi } from "../api/authApi";
-import { getErrorMessage } from "../../../common/api/errorMessageHandler";
+import { getErrorMessage } from "@lib/errorMessageHandler";
 
 /* ── Icons ── */
 const UserPlusIcon = (props) => <FiUserPlus size={28} {...props} />;

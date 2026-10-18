@@ -1,13 +1,14 @@
-import axios from "axios";
+import axiosInstance from "@lib/axios";
 import { getStaticFileUrl, uploadStaticUrl } from "./staticUrl";
 
 const uploadStatic = ({ file, prefix }) =>
-  axios.post(uploadStaticUrl, {
+  axiosInstance.post(uploadStaticUrl, {
     file,
     prefix,
   });
 
-const getStaticById = (staticId) => axios.get(getStaticFileUrl(staticId));
+const getStaticById = (staticId) =>
+  axiosInstance.get(getStaticFileUrl(staticId));
 
 export const staticApi = {
   uploadStatic,

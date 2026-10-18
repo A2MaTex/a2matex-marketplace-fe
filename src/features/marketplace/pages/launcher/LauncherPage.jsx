@@ -1,4 +1,4 @@
-import AppLayout from "../../../common/components/layout/AppLayout";
+import AppLayout from "@components/layout/AppLayout";
 import styles from "./LauncherPage.module.css";
 
 import { FiDownload, FiMonitor, FiCpu, FiWifi } from "react-icons/fi";
@@ -13,7 +13,7 @@ import { HiOutlineTerminal } from "react-icons/hi";
 import { TbPlugConnected } from "react-icons/tb";
 import { GoArrowRight } from "react-icons/go";
 import { RiLoader4Line } from "react-icons/ri";
-import Button from "../../../common/components/common/Button";
+import Button from "@components/common/Button";
 
 /* ─── Data ───────────────────────────────────────────────────────── */
 

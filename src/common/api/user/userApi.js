@@ -1,9 +1,9 @@
-import { useAuthStore } from "../../../features/auth/store/authStore.js";
-import axios from "../axios.js";
-import { getMeUrl } from "./userUrl.js";
+import axiosInstance from "@lib/axios";
+import { useAuthStore } from "@features/auth/store/authStore";
+import { getMeUrl } from "./userUrl";
 
 const getMyProfile = async () => {
-  const response = await axios.get(getMeUrl);
+  const response = await axiosInstance.get(getMeUrl);
   useAuthStore.getState().setUser(response.data.data);
   return response.data.data;
 };

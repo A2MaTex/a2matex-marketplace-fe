@@ -3,15 +3,14 @@ import { useParams, Link } from "react-router-dom";
 import {
   IoStarSharp,
   IoShieldCheckmarkOutline,
-  IoDownloadOutline,
   IoChevronForwardOutline,
 } from "react-icons/io5";
 import { MdOutlineTerminal, MdVerified } from "react-icons/md";
 import { FiZap } from "react-icons/fi";
-import AppLayout from "../../../common/components/layout/AppLayout";
-import PricingPanel from "../components/PricingPanel";
-import LicenseTier from "../components/LicenseTier";
-import ReviewSection from "../components/ReviewSection";
+import AppLayout from "@components/layout/AppLayout";
+import PricingPanel from "../../components/PricingPanel";
+import LicenseTier from "../../components/LicenseTier";
+import ReviewSection from "../../components/ReviewSection";
 import styles from "./ProductDetailPage.module.css";
 
 /* ── Mock data (replace with real API call) ── */
@@ -45,20 +44,19 @@ const ProductDetailPage = () => {
     <AppLayout>
       <div className={styles.page}>
         <div className={styles.container}>
-
           {/* ── Breadcrumb ── */}
           <nav className={styles.breadcrumb} aria-label="breadcrumb">
-            <Link to="/" className={styles.breadLink}>Marketplace</Link>
+            <Link to="/" className={styles.breadLink}>
+              Marketplace
+            </Link>
             <IoChevronForwardOutline size={12} className={styles.breadSep} />
             <span className={styles.breadCurrent}>Product Detail</span>
           </nav>
 
           {/* ── Main 2-col layout ── */}
           <div className={styles.layout}>
-
             {/* ══ LEFT COLUMN ══ */}
             <div className={styles.left}>
-
               {/* Product header card */}
               <div className={styles.headerCard}>
                 {/* Title row */}
@@ -69,10 +67,14 @@ const ProductDetailPage = () => {
                   <div className={styles.titleBlock}>
                     <div className={styles.titleMeta}>
                       <h1 className={styles.title}>{product.title}</h1>
-                      <span className={styles.versionBadge}>{product.version}</span>
+                      <span className={styles.versionBadge}>
+                        {product.version}
+                      </span>
                     </div>
                     <div className={styles.authorRow}>
-                      <span className={styles.authorText}>by {product.author}</span>
+                      <span className={styles.authorText}>
+                        by {product.author}
+                      </span>
                       {product.authorVerified && (
                         <span className={styles.verifiedBadge}>
                           <MdVerified size={13} />
@@ -105,7 +107,7 @@ const ProductDetailPage = () => {
                 {/* Detail description (expandable) */}
                 <div className={styles.detailBlock}>
                   <span className={styles.detailLabel}>
-                  <FiZap size={11} /> DETAIL DESCRIPTION
+                    <FiZap size={11} /> DETAIL DESCRIPTION
                   </span>
                   <p className={styles.detailText}>
                     {expanded ? product.longDesc : shortLines}

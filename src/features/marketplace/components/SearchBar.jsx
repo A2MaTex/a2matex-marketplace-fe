@@ -2,7 +2,7 @@ import { useState } from "react";
 import { IoSearchOutline } from "react-icons/io5";
 import { RiEqualizerLine } from "react-icons/ri";
 import { IoChevronDownOutline } from "react-icons/io5";
-import Button from "../../../common/components/common/Button";
+import Button from "@components/common/Button";
 import styles from "./SearchBar.module.css";
 
 const QUICK_TAGS = [
@@ -57,7 +57,9 @@ const SearchBar = ({ onSearch, onFilter }) => {
             aria-label="License type"
           >
             {LICENSE_OPTIONS.map((opt) => (
-              <option key={opt} value={opt}>License: {opt}</option>
+              <option key={opt} value={opt}>
+                License: {opt}
+              </option>
             ))}
           </select>
           <IoChevronDownOutline className={styles.selectArrow} size={13} />
@@ -83,7 +85,9 @@ const SearchBar = ({ onSearch, onFilter }) => {
             <button
               key={tag}
               type="button"
-              className={[styles.tag, activeTag === tag ? styles.tagActive : ""].filter(Boolean).join(" ")}
+              className={[styles.tag, activeTag === tag ? styles.tagActive : ""]
+                .filter(Boolean)
+                .join(" ")}
               onClick={() => handleTagClick(tag)}
             >
               {tag}

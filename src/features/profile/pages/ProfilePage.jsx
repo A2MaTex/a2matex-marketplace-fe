@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import AppLayout from "../../../common/components/layout/AppLayout";
-import Input from "../../../common/components/common/Input";
-import Button from "../../../common/components/common/Button";
-import { userApi } from "../../../common/api/user/userApi";
+import AppLayout from "@components/layout/AppLayout";
+import Input from "@components/common/Input";
+import Button from "@components/common/Button";
 import { profileApi } from "../api/profileApi";
 import styles from "./ProfilePage.module.css";
 
@@ -32,6 +31,7 @@ import {
   FiLock,
 } from "react-icons/fi";
 import { MdOutlineAccountBalanceWallet } from "react-icons/md";
+import { userApi } from "@/common/api/user/userApi";
 
 /* ── helpers ─────────────────────────────────────────────────── */
 const GENDER_OPTIONS = ["Male", "Female", "Other", "Prefer not to say"];

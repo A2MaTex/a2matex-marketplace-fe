@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import styles from "./ForgotPasswordPage.module.css";
-import sharedStyles from "../../styles/AuthPage.module.css";
-import Input from "../../../../common/components/common/Input";
-import Button from "../../../../common/components/common/Button";
-import { authApi } from "../../api/authApi";
-import { getErrorMessage } from "../../../../common/api/errorMessageHandler";
+import styles from "../styles/ForgotPasswordPage.module.css";
+import sharedStyles from "../styles/AuthPage.module.css";
+import Input from "@components/common/Input";
+import Button from "@components/common/Button";
+import { authApi } from "../api/authApi";
+import { getErrorMessage } from "@lib/errorMessageHandler";
 
 import { FiMail, FiLock, FiShield, FiArrowLeft } from "react-icons/fi";
 import { BsShieldLock } from "react-icons/bs";
@@ -18,7 +18,10 @@ const OTP_LENGTH = 6;
 const OtpInput = ({ value, onChange, disabled }) => {
   const inputsRef = useRef([]);
 
-  const digits = value.split("").concat(Array(OTP_LENGTH).fill("")).slice(0, OTP_LENGTH);
+  const digits = value
+    .split("")
+    .concat(Array(OTP_LENGTH).fill(""))
+    .slice(0, OTP_LENGTH);
 
   const handleKey = (e, idx) => {
     if (e.key === "Backspace") {
@@ -28,8 +31,14 @@ const OtpInput = ({ value, onChange, disabled }) => {
       if (idx > 0) inputsRef.current[idx - 1]?.focus();
       return;
     }
-    if (e.key === "ArrowLeft" && idx > 0) { inputsRef.current[idx - 1]?.focus(); return; }
-    if (e.key === "ArrowRight" && idx < OTP_LENGTH - 1) { inputsRef.current[idx + 1]?.focus(); return; }
+    if (e.key === "ArrowLeft" && idx > 0) {
+      inputsRef.current[idx - 1]?.focus();
+      return;
+    }
+    if (e.key === "ArrowRight" && idx < OTP_LENGTH - 1) {
+      inputsRef.current[idx + 1]?.focus();
+      return;
+    }
   };
 
   const handleInput = (e, idx) => {
@@ -50,8 +59,13 @@ const OtpInput = ({ value, onChange, disabled }) => {
 
   const handlePaste = (e) => {
     e.preventDefault();
-    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, OTP_LENGTH);
-    onChange(pasted.padEnd(OTP_LENGTH, "").slice(0, OTP_LENGTH).replace(/\s/g, ""));
+    const pasted = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, OTP_LENGTH);
+    onChange(
+      pasted.padEnd(OTP_LENGTH, "").slice(0, OTP_LENGTH).replace(/\s/g, ""),
+    );
     const go = Math.min(pasted.length, OTP_LENGTH - 1);
     inputsRef.current[go]?.focus();
   };
@@ -88,7 +102,10 @@ const useCountdown = (active) => {
     setSeconds(RESEND_SECONDS);
     const id = setInterval(() => {
       setSeconds((s) => {
-        if (s <= 1) { clearInterval(id); return 0; }
+        if (s <= 1) {
+          clearInterval(id);
+          return 0;
+        }
         return s - 1;
       });
     }, 1000);
@@ -101,10 +118,10 @@ const useCountdown = (active) => {
    STEP 1 — Enter email
 ════════════════════════════════════════════════════════════════ */
 const StepEmail = ({ onNext }) => {
-  const [email, setEmail]         = useState("");
-  const [error, setError]         = useState("");
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
   const [serverError, setServerError] = useState("");
-  const [loading, setLoading]     = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const validate = () => {
     if (!email.trim()) return "Vui lòng nhập địa chỉ email.";
@@ -116,7 +133,10 @@ const StepEmail = ({ onNext }) => {
     e.preventDefault();
     setServerError("");
     const err = validate();
-    if (err) { setError(err); return; }
+    if (err) {
+      setError(err);
+      return;
+    }
 
     setLoading(true);
     try {
@@ -124,7 +144,11 @@ const StepEmail = ({ onNext }) => {
       onNext(email);
     } catch (ex) {
       const parsed = getErrorMessage({ message: ex?.response?.data?.message });
-      setServerError(parsed.isFormError ? Object.values(parsed.data).join(", ") : parsed.data);
+      setServerError(
+        parsed.isFormError
+          ? Object.values(parsed.data).join(", ")
+          : parsed.data,
+      );
     } finally {
       setLoading(false);
     }
@@ -136,9 +160,13 @@ const StepEmail = ({ onNext }) => {
         <FiMail size={26} />
       </div>
       <h1 className={sharedStyles.title}>FORGOT PASSWORD</h1>
-      <p className={sharedStyles.subtitle}>Enter your email to receive an OTP code.</p>
+      <p className={sharedStyles.subtitle}>
+        Enter your email to receive an OTP code.
+      </p>
 
-      {serverError && <div className={sharedStyles.serverError}>{serverError}</div>}
+      {serverError && (
+        <div className={sharedStyles.serverError}>{serverError}</div>
+      )}
 
       <form onSubmit={handleSubmit} noValidate className={sharedStyles.form}>
         <Input
@@ -147,21 +175,33 @@ const StepEmail = ({ onNext }) => {
           name="email"
           type="email"
           value={email}
-          onChange={(e) => { setEmail(e.target.value); setError(""); }}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            setError("");
+          }}
           leftIcon={<FiMail size={15} />}
           placeholder="your@email.com"
           error={error}
           autoFocus
         />
 
-        <Button type="submit" variant="primary" size="lg" fullWidth loading={loading} rightIcon={!loading && <span>→</span>}>
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          fullWidth
+          loading={loading}
+          rightIcon={!loading && <span>→</span>}
+        >
           SEND OTP
         </Button>
       </form>
 
       <p className={sharedStyles.switchText}>
         Remember password?{" "}
-        <Link to="/login" className={sharedStyles.switchLink}>Login now →</Link>
+        <Link to="/login" className={sharedStyles.switchLink}>
+          Login now →
+        </Link>
       </p>
     </div>
   );
@@ -171,10 +211,10 @@ const StepEmail = ({ onNext }) => {
    STEP 2 — Enter OTP
 ════════════════════════════════════════════════════════════════ */
 const StepOtp = ({ email, onNext, onBack }) => {
-  const [otp, setOtp]             = useState("");
-  const [error, setError]         = useState("");
+  const [otp, setOtp] = useState("");
+  const [error, setError] = useState("");
   const [serverError, setServerError] = useState("");
-  const [loading, setLoading]     = useState(false);
+  const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
   const [countdownActive, setCountdownActive] = useState(true);
   const seconds = useCountdown(countdownActive);
@@ -182,7 +222,10 @@ const StepOtp = ({ email, onNext, onBack }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setServerError("");
-    if (otp.length < OTP_LENGTH) { setError("Vui lòng nhập đủ 6 chữ số OTP."); return; }
+    if (otp.length < OTP_LENGTH) {
+      setError("Vui lòng nhập đủ 6 chữ số OTP.");
+      return;
+    }
 
     setLoading(true);
     try {
@@ -190,7 +233,11 @@ const StepOtp = ({ email, onNext, onBack }) => {
       onNext(otp);
     } catch (ex) {
       const parsed = getErrorMessage({ message: ex?.response?.data?.message });
-      setServerError(parsed.isFormError ? Object.values(parsed.data).join(", ") : parsed.data);
+      setServerError(
+        parsed.isFormError
+          ? Object.values(parsed.data).join(", ")
+          : parsed.data,
+      );
     } finally {
       setLoading(false);
     }
@@ -207,7 +254,11 @@ const StepOtp = ({ email, onNext, onBack }) => {
       setError("");
     } catch (ex) {
       const parsed = getErrorMessage({ message: ex?.response?.data?.message });
-      setServerError(parsed.isFormError ? Object.values(parsed.data).join(", ") : parsed.data);
+      setServerError(
+        parsed.isFormError
+          ? Object.values(parsed.data).join(", ")
+          : parsed.data,
+      );
     } finally {
       setResending(false);
     }
@@ -220,25 +271,45 @@ const StepOtp = ({ email, onNext, onBack }) => {
       </div>
       <h1 className={sharedStyles.title}>FORGOT PASSWORD</h1>
       <p className={sharedStyles.subtitle}>
-        Enter the 6-digit OTP sent to <strong className={styles.emailHighlight}>{email}</strong>
+        Enter the 6-digit OTP sent to{" "}
+        <strong className={styles.emailHighlight}>{email}</strong>
       </p>
 
-      {serverError && <div className={sharedStyles.serverError}>{serverError}</div>}
+      {serverError && (
+        <div className={sharedStyles.serverError}>{serverError}</div>
+      )}
 
       <form onSubmit={handleSubmit} noValidate className={sharedStyles.form}>
         <div>
-          <OtpInput value={otp} onChange={(v) => { setOtp(v); setError(""); }} disabled={loading} />
+          <OtpInput
+            value={otp}
+            onChange={(v) => {
+              setOtp(v);
+              setError("");
+            }}
+            disabled={loading}
+          />
           {error && <p className={styles.otpError}>{error}</p>}
         </div>
 
-        <Button type="submit" variant="primary" size="lg" fullWidth loading={loading} rightIcon={!loading && <span>→</span>}>
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          fullWidth
+          loading={loading}
+          rightIcon={!loading && <span>→</span>}
+        >
           SUBMIT
         </Button>
       </form>
 
       <p className={sharedStyles.switchText}>
         {seconds > 0 ? (
-          <>The resend code will be available after <strong className={styles.countdown}>{seconds}s</strong></>
+          <>
+            The resend code will be available after{" "}
+            <strong className={styles.countdown}>{seconds}s</strong>
+          </>
         ) : (
           <button
             className={styles.resendBtn}
@@ -264,10 +335,10 @@ const StepOtp = ({ email, onNext, onBack }) => {
 const StepNewPassword = ({ email, otp, onBack }) => {
   const navigate = useNavigate();
 
-  const [form, setForm]           = useState({ newPassword: "", confirmNewPassword: "" });
-  const [errors, setErrors]       = useState({});
+  const [form, setForm] = useState({ newPassword: "", confirmNewPassword: "" });
+  const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState("");
-  const [loading, setLoading]     = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const validate = () => {
     const errs = {};
@@ -288,7 +359,10 @@ const StepNewPassword = ({ email, otp, onBack }) => {
     e.preventDefault();
     setServerError("");
     const errs = validate();
-    if (Object.keys(errs).length) { setErrors(errs); return; }
+    if (Object.keys(errs).length) {
+      setErrors(errs);
+      return;
+    }
 
     setLoading(true);
     try {
@@ -316,7 +390,9 @@ const StepNewPassword = ({ email, otp, onBack }) => {
       <h1 className={sharedStyles.title}>RESET PASSWORD</h1>
       <p className={sharedStyles.subtitle}>Enter your new password below.</p>
 
-      {serverError && <div className={sharedStyles.serverError}>{serverError}</div>}
+      {serverError && (
+        <div className={sharedStyles.serverError}>{serverError}</div>
+      )}
 
       <form onSubmit={handleSubmit} noValidate className={sharedStyles.form}>
         <Input
@@ -343,7 +419,14 @@ const StepNewPassword = ({ email, otp, onBack }) => {
           error={errors.confirmNewPassword}
         />
 
-        <Button type="submit" variant="primary" size="lg" fullWidth loading={loading} rightIcon={!loading && <span>→</span>}>
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          fullWidth
+          loading={loading}
+          rightIcon={!loading && <span>→</span>}
+        >
           SUBMIT
         </Button>
       </form>
@@ -359,12 +442,18 @@ const StepNewPassword = ({ email, otp, onBack }) => {
    Root page — orchestrates 3 steps
 ════════════════════════════════════════════════════════════════ */
 const ForgotPasswordPage = () => {
-  const [step, setStep]   = useState(1); // 1 | 2 | 3
+  const [step, setStep] = useState(1); // 1 | 2 | 3
   const [email, setEmail] = useState("");
-  const [otp, setOtp]     = useState("");
+  const [otp, setOtp] = useState("");
 
-  const goStep2 = (resolvedEmail) => { setEmail(resolvedEmail); setStep(2); };
-  const goStep3 = (resolvedOtp)   => { setOtp(resolvedOtp);    setStep(3); };
+  const goStep2 = (resolvedEmail) => {
+    setEmail(resolvedEmail);
+    setStep(2);
+  };
+  const goStep3 = (resolvedOtp) => {
+    setOtp(resolvedOtp);
+    setStep(3);
+  };
 
   return (
     <div className={sharedStyles.page}>
@@ -372,17 +461,27 @@ const ForgotPasswordPage = () => {
       <div className={styles.stepIndicator}>
         {[1, 2, 3].map((n) => (
           <div key={n} className={styles.stepDotWrap}>
-            <div className={`${styles.stepDot} ${step === n ? styles.stepDotActive : step > n ? styles.stepDotDone : ""}`}>
+            <div
+              className={`${styles.stepDot} ${step === n ? styles.stepDotActive : step > n ? styles.stepDotDone : ""}`}
+            >
               {step > n ? "✓" : n}
             </div>
-            {n < 3 && <div className={`${styles.stepLine} ${step > n ? styles.stepLineDone : ""}`} />}
+            {n < 3 && (
+              <div
+                className={`${styles.stepLine} ${step > n ? styles.stepLineDone : ""}`}
+              />
+            )}
           </div>
         ))}
       </div>
 
       {step === 1 && <StepEmail onNext={goStep2} />}
-      {step === 2 && <StepOtp email={email} onNext={goStep3} onBack={() => setStep(1)} />}
-      {step === 3 && <StepNewPassword email={email} otp={otp} onBack={() => setStep(2)} />}
+      {step === 2 && (
+        <StepOtp email={email} onNext={goStep3} onBack={() => setStep(1)} />
+      )}
+      {step === 3 && (
+        <StepNewPassword email={email} otp={otp} onBack={() => setStep(2)} />
+      )}
     </div>
   );
 };

@@ -2,20 +2,30 @@ import { useState } from "react";
 import { IoStarSharp, IoStarOutline, IoThumbsUpOutline } from "react-icons/io5";
 import { BsCpuFill } from "react-icons/bs";
 import { MdOutlineMonitor } from "react-icons/md";
-import Button from "../../../common/components/common/Button";
+import Button from "@components/common/Button";
 import styles from "./ReviewSection.module.css";
 
 /* ── Helpers ── */
 const Stars = ({ value, size = 14, interactive = false, onChange }) => (
   <span className={styles.stars}>
     {[1, 2, 3, 4, 5].map((n) =>
-      value >= n
-        ? <IoStarSharp key={n} size={size} color="#00e5cc"
-            style={interactive ? { cursor: "pointer" } : {}}
-            onClick={() => interactive && onChange?.(n)} />
-        : <IoStarOutline key={n} size={size} color="#2e3448"
-            style={interactive ? { cursor: "pointer" } : {}}
-            onClick={() => interactive && onChange?.(n)} />
+      value >= n ? (
+        <IoStarSharp
+          key={n}
+          size={size}
+          color="#00e5cc"
+          style={interactive ? { cursor: "pointer" } : {}}
+          onClick={() => interactive && onChange?.(n)}
+        />
+      ) : (
+        <IoStarOutline
+          key={n}
+          size={size}
+          color="#2e3448"
+          style={interactive ? { cursor: "pointer" } : {}}
+          onClick={() => interactive && onChange?.(n)}
+        />
+      ),
     )}
   </span>
 );
@@ -50,7 +60,10 @@ const MOCK_REVIEWS = [
     body: "The memory footprint optimizations are genuine. Other Electron/Playwright bots leak 300MB+ per thread, but this Rust-backed Chromium bridge stays flat under 50MB. Sub-keys feature makes team delegation seamless.",
     helpful: 19,
     meta: [
-      { icon: <MdOutlineMonitor size={12} />, text: "HWID Synced via ExeFlow IPC" },
+      {
+        icon: <MdOutlineMonitor size={12} />,
+        text: "HWID Synced via ExeFlow IPC",
+      },
     ],
   },
 ];
@@ -102,7 +115,13 @@ const ReviewSection = () => {
         <div className={styles.formHeader}>
           <span className={styles.formLabel}>Post Verified User Review</span>
           <span className={styles.formRating}>
-            Rating: <Stars value={reviewRating} size={14} interactive onChange={setReviewRating} />
+            Rating:{" "}
+            <Stars
+              value={reviewRating}
+              size={14}
+              interactive
+              onChange={setReviewRating}
+            />
           </span>
         </div>
         <textarea
@@ -113,7 +132,9 @@ const ReviewSection = () => {
           rows={4}
         />
         <div className={styles.formFooter}>
-          <Button variant="primary" size="sm">Submit Review</Button>
+          <Button variant="primary" size="sm">
+            Submit Review
+          </Button>
         </div>
       </div>
 

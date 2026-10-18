@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { auth } from "../../../common/api/token";
+import { auth } from "@lib/token";
 
 export const useAuthStore = create((set) => ({
   accessToken: auth.getToken(),

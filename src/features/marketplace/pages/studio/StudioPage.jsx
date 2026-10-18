@@ -1,4 +1,4 @@
-import AppLayout from "../../../common/components/layout/AppLayout";
+import AppLayout from "@components/layout/AppLayout";
 import styles from "./StudioPage.module.css";
 
 import { FiDownload, FiMonitor, FiPackage, FiBook } from "react-icons/fi";
@@ -17,8 +17,7 @@ import {
 import { TbBrandNodejs, TbDragDrop } from "react-icons/tb";
 import { RiCodeSSlashLine, RiStore2Line } from "react-icons/ri";
 import { SiGitforwindows } from "react-icons/si";
-import Button from "../../../common/components/common/Button";
-import { Link } from "react-router-dom";
+import Button from "@components/common/Button";
 
 /* ─── Data ───────────────────────────────────────────────────────── */
 

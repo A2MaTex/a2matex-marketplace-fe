@@ -2,7 +2,7 @@ import { IoStarSharp } from "react-icons/io5";
 import { BsCartPlus } from "react-icons/bs";
 import { MdOutlineTerminal } from "react-icons/md";
 import { FiZap } from "react-icons/fi";
-import Button from "../../../common/components/common/Button";
+import Button from "@components/common/Button";
 import styles from "./ProductCard.module.css";
 import { Link } from "react-router-dom";
 

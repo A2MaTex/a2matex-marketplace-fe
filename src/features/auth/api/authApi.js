@@ -1,5 +1,11 @@
-import { loginUrl, logoutUrl, registerUrl, sendOTP, forgotPasswordUrl } from "./authUrl";
-import axios from "../../../common/api/axios.js";
+import {
+  loginUrl,
+  logoutUrl,
+  registerUrl,
+  sendOTP,
+  forgotPasswordUrl,
+} from "./authUrl";
+import axios from "@lib/axios.js";
 import { useAuthStore } from "../store/authStore.js";
 
 const login = async (account, password) => {

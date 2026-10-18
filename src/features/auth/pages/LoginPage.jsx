@@ -2,14 +2,14 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import styles from "../styles/AuthPage.module.css";
-import Button from "../../../common/components/common/Button";
-import Input from "../../../common/components/common/Input";
+import Button from "@components/common/Button";
+import Input from "@components/common/Input";
 
 import { FiMonitor, FiUser, FiLock } from "react-icons/fi";
 import { FaGithub } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { authApi } from "../api/authApi";
-import { getErrorMessage } from "../../../common/api/errorMessageHandler";
+import { getErrorMessage } from "@lib/errorMessageHandler";
 
 const MonitorIcon = (props) => <FiMonitor size={28} {...props} />;
 const UserIcon = (props) => <FiUser size={16} {...props} />;

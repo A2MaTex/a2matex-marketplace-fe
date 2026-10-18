@@ -1,5 +1,3 @@
-// import { RiTrendingUpLine } from "react-icons/ri";
-// import { GoDotFill } from "react-icons/go";
 import { GoDotFill } from "react-icons/go";
 import styles from "./HeroSection.module.css";
 import { FiTrendingUp } from "react-icons/fi";
@@ -23,13 +21,14 @@ const HeroSection = () => (
       {/* Text block */}
       <div className={styles.text}>
         <h1 className={styles.heading}>
-          Automate Everything.<br />
+          Automate Everything.
+          <br />
           <span className={styles.accent}>Verified Executable Tools.</span>
         </h1>
         <p className={styles.sub}>
-          Acquire standalone compiled production bots, headless automators, and scrapers.
-          Every .exe is audited against 70+ AV scanners and synchronized with your local
-          A2MaTeX Client Launcher in 1-click.
+          Acquire standalone compiled production bots, headless automators, and
+          scrapers. Every .exe is audited against 70+ AV scanners and
+          synchronized with your local A2MaTeX Client Launcher in 1-click.
         </p>
       </div>
 

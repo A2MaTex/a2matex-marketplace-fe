@@ -1,10 +1,10 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { userApi } from "@api/user/userApi";
+import { useAuthStore } from "@features/auth/store/authStore";
 import AdminHeader from "./AdminHeader";
 import AdminSidebar from "./AdminSidebar";
 import styles from "./AdminLayout.module.css";
-import { useEffect, useState } from "react";
-import { useAuthStore } from "../../../auth/store/authStore";
-import { useNavigate } from "react-router-dom";
-import { userApi } from "../../../../common/api/user/userApi";
 
 export default function AdminLayout({ children }) {
   const [user, setUser] = useState(useAuthStore.getState().user);
