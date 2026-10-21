@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
-import AppLayout from "@components/layout/AppLayout";
 import Input from "@components/common/Input";
 import Button from "@components/common/Button";
 import { profileApi } from "../api/profileApi";
+import AvatarUpload from "../components/AvatarUpload";
 import styles from "./ProfilePage.module.css";
 
 import {
   BsPersonBadge,
-  BsShieldLock,
   BsCheckCircleFill,
   BsPatchCheckFill,
   BsGlobe2,
@@ -17,7 +16,6 @@ import {
   BsInstagram,
   BsCameraFill,
   BsTrash3,
-  BsRocketTakeoff,
 } from "react-icons/bs";
 import {
   FiPhone,
@@ -32,6 +30,10 @@ import {
 } from "react-icons/fi";
 import { MdOutlineAccountBalanceWallet } from "react-icons/md";
 import { userApi } from "@/common/api/user/userApi";
+import { staticApi } from "@/common/api/static/staticApi";
+import { Avatar } from "../../../common/components/common/Avatar";
+import { cacheImage } from "@/lib/cache";
+import { useAuthStore } from "@/features/auth/store/authStore";
 
 /* ── helpers ─────────────────────────────────────────────────── */
 const GENDER_OPTIONS = ["Male", "Female", "Other", "Prefer not to say"];
@@ -75,22 +77,18 @@ const EMPTY_PROFILE = {
   roles: [],
 };
 
-const EMPTY_PW = {
-  currentPassword: "",
-  newPassword: "",
-  confirmNewPassword: "",
-};
-
 /* ── component ───────────────────────────────────────────────── */
 const ProfilePage = () => {
-  const [profile, setProfile] = useState(EMPTY_PROFILE);
-  const [form, setForm] = useState(EMPTY_PROFILE);
-  const [pwForm, setPwForm] = useState(EMPTY_PW);
-  const [pwErrors, setPwErrors] = useState({});
-  const [loading, setLoading] = useState(true);
+  const initProfile = { ...EMPTY_PROFILE, ...useAuthStore((s) => s.user) };
+
+  const [profile, setProfile] = useState(initProfile);
+  const [avatar, setAvatar] = useState();
+  const [form, setForm] = useState(initProfile);
+  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [pwSaving, setPwSaving] = useState(false);
   const [toast, setToast] = useState(null); // { msg, type }
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState(null); // local data-URL before save
 
   const showToast = (msg, type = "success") => {
     setToast({ msg, type });
@@ -106,7 +104,10 @@ const ProfilePage = () => {
   const handleGender = (val) => setForm((f) => ({ ...f, gender: val }));
 
   /* discard */
-  const handleDiscard = () => setForm({ ...profile });
+  const handleDiscard = () => {
+    setForm({ ...profile });
+    setAvatarPreview(null);
+  };
 
   /* save profile */
   const handleSave = async () => {
@@ -122,13 +123,23 @@ const ProfilePage = () => {
         github: form.github || null,
         instagram: form.instagram || null,
         gender: form.gender || null,
-        birthday: form.birthday || null,
+        birthday: form.birthday ? new Date(form.birthday) : null,
         address: form.address || null,
         phone: form.phone || null,
         email: form.email || null,
       };
       await profileApi.updateMyProfile(payload);
       setProfile({ ...form });
+      setAvatarPreview(null); // preview now committed — clear so server URL takes over
+
+      if (!!payload.avatarStaticId) {
+        const ava = await staticApi.getImageById({
+          imageId: payload.avatarStaticId,
+        });
+        setAvatar(ava.data);
+        cacheImage(profile.id, ava.data);
+      }
+
       showToast("Cập nhật thông tin thành công!");
     } catch (err) {
       const msg = err?.response?.data?.message || "Cập nhật thất bại.";
@@ -138,42 +149,18 @@ const ProfilePage = () => {
     }
   };
 
-  /* change password */
-  const handlePwChange = (e) => {
-    const { name, value } = e.target;
-    setPwForm((f) => ({ ...f, [name]: value }));
-    setPwErrors((e) => ({ ...e, [name]: "" }));
+  /* avatar upload done */
+  const handleAvatarDone = (staticId, previewUrl) => {
+    setForm((f) => ({ ...f, avatarStaticId: staticId }));
+    setAvatarPreview(previewUrl);
+    setShowAvatarModal(false);
+    showToast("Ảnh đã sẵn sàng — nhấn Save để lưu.");
   };
 
-  const validatePw = () => {
-    const errs = {};
-    if (!pwForm.currentPassword)
-      errs.currentPassword = "Vui lòng nhập mật khẩu hiện tại.";
-    if (!pwForm.newPassword || pwForm.newPassword.length < 6)
-      errs.newPassword = "Mật khẩu mới tối thiểu 6 ký tự.";
-    if (pwForm.newPassword !== pwForm.confirmNewPassword)
-      errs.confirmNewPassword = "Mật khẩu xác nhận không khớp.";
-    return errs;
-  };
-
-  const handlePwSubmit = async (e) => {
-    e.preventDefault();
-    const errs = validatePw();
-    if (Object.keys(errs).length) {
-      setPwErrors(errs);
-      return;
-    }
-    setPwSaving(true);
-    try {
-      await profileApi.changePassword(pwForm);
-      setPwForm(EMPTY_PW);
-      showToast("Đổi mật khẩu thành công!");
-    } catch (err) {
-      const msg = err?.response?.data?.message || "Đổi mật khẩu thất bại.";
-      showToast(msg, "error");
-    } finally {
-      setPwSaving(false);
-    }
+  /* delete avatar */
+  const handleDeleteAvatar = () => {
+    setForm((f) => ({ ...f, avatarStaticId: null }));
+    setAvatarPreview(null);
   };
 
   /* bio char count */
@@ -191,32 +178,40 @@ const ProfilePage = () => {
       })
     : "—";
 
+  const loadProfile = async () => {
+    try {
+      setLoading(true);
+      const myProfile = await userApi.getMyProfile();
+
+      const merged = { ...initProfile, ...myProfile.user };
+      setProfile(merged);
+      setForm(merged);
+      setAvatar(myProfile.imgBlob);
+    } catch (error) {
+      console.log(error);
+
+      showToast("Không thể tải thông tin tài khoản.", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   /* load */
   useEffect(() => {
-    userApi
-      .getMyProfile()
-      .then((data) => {
-        const merged = { ...EMPTY_PROFILE, ...data };
-        setProfile(merged);
-        setForm(merged);
-      })
-      .catch(() => showToast("Không thể tải thông tin tài khoản.", "error"))
-      .finally(() => setLoading(false));
+    loadProfile();
   }, []);
 
   if (loading) {
     return (
-      <AppLayout>
-        <div className={styles.loadingWrap}>
-          <FiRefreshCw className={styles.spinIcon} size={28} />
-          <span>Loading profile…</span>
-        </div>
-      </AppLayout>
+      <div className={styles.loadingWrap}>
+        <FiRefreshCw className={styles.spinIcon} size={28} />
+        <span>Loading profile…</span>
+      </div>
     );
   }
 
   return (
-    <AppLayout>
+    <>
       <div className={styles.page}>
         {/* ── Toast ── */}
         {toast && (
@@ -236,7 +231,17 @@ const ProfilePage = () => {
             {/* Avatar */}
             <div className={styles.avatarWrap}>
               <div className={styles.avatar}>
-                <FiUser size={36} color="#4b5268" />
+                {avatarPreview ? (
+                  <img
+                    src={avatarPreview}
+                    alt="avatar"
+                    className={styles.avatarImg}
+                  />
+                ) : form.avatarStaticId ? (
+                  <Avatar blob={avatar} />
+                ) : (
+                  <FiUser size={36} color="#4b5268" />
+                )}
               </div>
               <span className={styles.avatarOnline} />
             </div>
@@ -254,10 +259,17 @@ const ProfilePage = () => {
                 <span>
                   <FiCalendar size={11} /> Member since {joinedDate}
                 </span>
-                <button className={styles.metaBtn}>
+                <button
+                  className={styles.metaBtn}
+                  onClick={() => setShowAvatarModal(true)}
+                >
                   <BsCameraFill size={11} /> Upload New Avatar
                 </button>
-                <button className={styles.metaBtnDanger}>
+                <button
+                  className={styles.metaBtnDanger}
+                  onClick={handleDeleteAvatar}
+                  disabled={!form.avatarStaticId && !avatarPreview}
+                >
                   <BsTrash3 size={11} /> Delete
                 </button>
               </div>
@@ -281,24 +293,6 @@ const ProfilePage = () => {
               </p>
               <button className={styles.topUpBtn}>⊕ Top Up / Add Funds</button>
             </div>
-          </div>
-
-          {/* ══ Publisher CTA ════════════════════════════════════ */}
-          <div className={styles.publisherBanner}>
-            <div className={styles.publisherIcon}>
-              <BsRocketTakeoff size={20} />
-            </div>
-            <div className={styles.publisherText}>
-              <h3>Become an A2MaTeX Verified Publisher</h3>
-              <p>
-                Publish proprietary automation tools (.exe), obfuscate binaries
-                with hardware-bound DRM Enclave, and earn an 85% creator payout
-                revenue share with real-time telemetry.
-              </p>
-            </div>
-            <button className={styles.publisherBtn}>
-              <BsRocketTakeoff size={14} /> Activate Publisher Role
-            </button>
           </div>
 
           {/* ══ Main grid ════════════════════════════════════════ */}
@@ -445,56 +439,6 @@ const ProfilePage = () => {
                   ))}
                 </div>
               </div>
-
-              {/* Security */}
-              <div className={styles.card}>
-                <h2 className={styles.cardTitle}>
-                  <BsShieldLock size={15} /> Security &amp; Passkeys
-                  <span className={styles.twoFaBadge}>● 2FA: ACTIVE</span>
-                </h2>
-
-                <form onSubmit={handlePwSubmit} className={styles.pwForm}>
-                  <Input
-                    label="Current Password"
-                    name="currentPassword"
-                    type="password"
-                    value={pwForm.currentPassword}
-                    onChange={handlePwChange}
-                    error={pwErrors.currentPassword}
-                    leftIcon={<FiLock size={14} />}
-                    placeholder="Enter current password"
-                  />
-                  <Input
-                    label="New Password"
-                    name="newPassword"
-                    type="password"
-                    value={pwForm.newPassword}
-                    onChange={handlePwChange}
-                    error={pwErrors.newPassword}
-                    leftIcon={<FiLock size={14} />}
-                    placeholder="Min. 6 characters"
-                  />
-                  <Input
-                    label="Confirm New Password"
-                    name="confirmNewPassword"
-                    type="password"
-                    value={pwForm.confirmNewPassword}
-                    onChange={handlePwChange}
-                    error={pwErrors.confirmNewPassword}
-                    leftIcon={<FiLock size={14} />}
-                    placeholder="Repeat new password"
-                  />
-                  <Button
-                    type="submit"
-                    variant="secondary"
-                    fullWidth
-                    loading={pwSaving}
-                    leftIcon={<FiLock size={14} />}
-                  >
-                    Change Password
-                  </Button>
-                </form>
-              </div>
             </div>
           </div>
 
@@ -526,7 +470,13 @@ const ProfilePage = () => {
           </div>
         </div>
       </div>
-    </AppLayout>
+      {showAvatarModal && (
+        <AvatarUpload
+          onDone={handleAvatarDone}
+          onClose={() => setShowAvatarModal(false)}
+        />
+      )}
+    </>
   );
 };
 
