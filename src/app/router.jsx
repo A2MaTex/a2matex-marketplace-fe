@@ -8,12 +8,10 @@ import StudioPage from "@/features/marketplace/pages/studio/StudioPage";
 import ProfilePage from "@features/profile/pages/ProfilePage";
 import ForgotPasswordPage from "@/features/auth/pages/ForgotPasswordPage";
 import adminRoutes from "@/features/admin/routers/adminRoute";
+import AppLayout from "@/common/components/layout/AppLayout";
+import AdminLayout from "@/features/admin/components/layout/AdminLayout";
 
 export const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Marketplace />,
-  },
   {
     path: "/login",
     element: <LoginPage />,
@@ -27,21 +25,35 @@ export const router = createBrowserRouter([
     element: <ForgotPasswordPage />,
   },
   {
-    path: "/products/:productId",
-    element: <ProductDetailPage />,
-  },
-  {
-    path: "/launcher",
-    element: <LauncherPage />,
-  },
-  {
-    path: "/profile",
-    element: <ProfilePage />,
-  },
-  {
-    path: "/studio",
-    element: <StudioPage />,
+    // AppLayout mount một lần duy nhất, không bị destroy khi navigate
+    element: <AppLayout />,
+    children: [
+      {
+        path: "/",
+        element: <Marketplace />,
+      },
+
+      {
+        path: "/products/:productId",
+        element: <ProductDetailPage />,
+      },
+      {
+        path: "/launcher",
+        element: <LauncherPage />,
+      },
+      {
+        path: "/profile",
+        element: <ProfilePage />,
+      },
+      {
+        path: "/studio",
+        element: <StudioPage />,
+      },
+    ],
   },
   // ── Admin routes ──────────────────────────────────────────
-  ...adminRoutes(),
+  {
+    element: <AdminLayout />,
+    children: adminRoutes(),
+  },
 ]);

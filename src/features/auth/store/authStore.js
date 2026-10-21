@@ -5,6 +5,7 @@ export const useAuthStore = create((set) => ({
   accessToken: auth.getToken(),
   refreshToken: auth.getRefreshToken(),
   user: null,
+  avatarBlob: null,
   isAuthenticated: Boolean(auth.getToken()),
 
   setCredentials: (accessToken, refreshToken) => {
@@ -20,6 +21,8 @@ export const useAuthStore = create((set) => ({
 
   setUser: (user) => set({ user }),
 
+  setAvatarBlob: (avatarBlob) => set({ avatarBlob }),
+
   logout: () => {
     auth.removeToken();
     auth.removeRefreshToken();
@@ -28,6 +31,7 @@ export const useAuthStore = create((set) => ({
       accessToken: null,
       refreshToken: null,
       user: null,
+      avatarBlob: null,
       isAuthenticated: false,
     });
   },

@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 import { MdSearch, MdNotificationsNone } from "react-icons/md";
 import styles from "./AdminHeader.module.css";
+import { Avatar } from "@/common/components/common/Avatar";
 
-export default function AdminHeader({ user }) {
+export default function AdminHeader({ user, avatar }) {
   return (
     <header className={styles.header}>
       {/* Left: Logo + badge */}
@@ -33,7 +34,11 @@ export default function AdminHeader({ user }) {
         </button>
 
         <div className={styles.userChip}>
-          <div className={styles.avatarCircle}>A</div>
+          {avatar ? (
+            <Avatar blob={avatar} />
+          ) : (
+            <div className={styles.avatarCircle}>A</div>
+          )}
           <div className={styles.userText}>
             <span className={styles.userNameText}>{user?.fullName || ""}</span>
           </div>

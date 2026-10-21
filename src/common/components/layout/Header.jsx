@@ -5,39 +5,8 @@ import { IoCashOutline } from "react-icons/io5";
 import { IoPersonCircleOutline } from "react-icons/io5";
 import styles from "./Header.module.css";
 import Button from "../common/Button";
-
-/* ── Logo (giữ custom vì cần gradient riêng) ── */
-const LogoIcon = () => (
-  <svg
-    width="32"
-    height="32"
-    viewBox="0 0 32 32"
-    fill="none"
-    aria-hidden="true"
-  >
-    <rect width="32" height="32" rx="8" fill="url(#logo-grad)" />
-    <path
-      d="M8 22L14 10l4 8 3-5 5 9"
-      stroke="#fff"
-      strokeWidth="2.2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <defs>
-      <linearGradient
-        id="logo-grad"
-        x1="0"
-        y1="0"
-        x2="32"
-        y2="32"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop stopColor="#00d9f5" />
-        <stop offset="1" stopColor="#00f59b" />
-      </linearGradient>
-    </defs>
-  </svg>
-);
+import logo from "@/assets/logo.svg";
+import { Avatar } from "../common/Avatar";
 
 const NAV_ITEMS = [
   { label: "Marketplace", to: "/" },
@@ -46,8 +15,10 @@ const NAV_ITEMS = [
   { label: "Admin Hub", to: "/admin/permission-role", isAdminOnly: true },
 ];
 
-const Header = ({ user }) => {
+const Header = ({ user, avatar }) => {
   const [search, setSearch] = useState("");
+
+  console.log(avatar);
 
   const checkIsAdmin = () => {
     return user?.roles?.some((role) => role.name === "ADMIN");
@@ -59,7 +30,7 @@ const Header = ({ user }) => {
         {/* Left: logo + nav */}
         <div className={styles.left}>
           <Link to="/" className={styles.logo} aria-label="A2MaTeX home">
-            <LogoIcon />
+            <img src={logo} height={24} alt="logo" />
             <span className={styles.logoText}>A2MaTeX</span>
           </Link>
 
@@ -117,7 +88,11 @@ const Header = ({ user }) => {
             </Button>
           ) : (
             <Link to="/profile" className={styles.avatar} aria-label="Profile">
-              <IoPersonCircleOutline size={22} />
+              {avatar ? (
+                <Avatar blob={avatar} />
+              ) : (
+                <IoPersonCircleOutline size={22} />
+              )}
             </Link>
           )}
         </div>

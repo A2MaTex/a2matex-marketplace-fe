@@ -1,4 +1,3 @@
-import AdminLayout from "@features/admin/components/layout/AdminLayout";
 import PermissionRolePage from "@features/admin/pages/permission-role/pages/PermissionRolePage";
 import Violation from "../pages/violations/page/Violation";
 import RevenuePayout from "../pages/revenue-payout/page/RevenuePayout";
@@ -15,24 +14,12 @@ import {
 export default function adminRoutes() {
   const adminRoutes = [
     {
-      path: "/admin",
-      element: (
-        <AdminLayout>
-          <div />
-        </AdminLayout>
-      ),
-    },
-    {
       label: "Review Queue",
       icon: <MdOutlineRateReview />,
       path: "/admin/review-queue",
       badge: 12,
       badgeType: "danger",
-      element: (
-        <AdminLayout>
-          <ReviewQueue />
-        </AdminLayout>
-      ),
+      element: <ReviewQueue />,
     },
     {
       label: "Violations",
@@ -40,41 +27,25 @@ export default function adminRoutes() {
       path: "/admin/violations",
       badge: 5,
       badgeType: "warn",
-      element: (
-        <AdminLayout>
-          <Violation />
-        </AdminLayout>
-      ),
+      element: <Violation />,
     },
     {
       label: "Revenue & Payout",
       path: "/admin/revenue",
       icon: <MdOutlineAttachMoney />,
-      element: (
-        <AdminLayout>
-          <RevenuePayout />
-        </AdminLayout>
-      ),
+      element: <RevenuePayout />,
     },
     {
       label: "Audit & Security Logs",
       icon: <MdOutlineSecurity />,
       path: "/admin/audit",
-      element: (
-        <AdminLayout>
-          <AuditLog />
-        </AdminLayout>
-      ),
+      element: <AuditLog />,
     },
     {
       label: "Roles & Permissions",
       icon: <MdOutlineShield />,
       path: "/admin/permission-role",
-      element: (
-        <AdminLayout>
-          <PermissionRolePage />
-        </AdminLayout>
-      ),
+      element: <PermissionRolePage />,
     },
   ];
   return adminRoutes;

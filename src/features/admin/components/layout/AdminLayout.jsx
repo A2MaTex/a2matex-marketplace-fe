@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { userApi } from "@api/user/userApi";
 import { useAuthStore } from "@features/auth/store/authStore";
 import AdminHeader from "./AdminHeader";
 import AdminSidebar from "./AdminSidebar";
 import styles from "./AdminLayout.module.css";
 
-export default function AdminLayout({ children }) {
-  const [user, setUser] = useState(useAuthStore.getState().user);
+export default function AdminLayout() {
+  const user = useAuthStore.getState().user;
+  const avatar = useAuthStore.getState().avatarBlob;
   const navigate = useNavigate();
 
   const loadAdmin = async () => {
@@ -32,10 +33,12 @@ export default function AdminLayout({ children }) {
 
   return (
     <div className={styles.shell}>
-      <AdminHeader user={user} />
+      <AdminHeader user={user} avatar={avatar} />
       <div className={styles.body}>
         <AdminSidebar user={user} />
-        <main className={styles.main}>{children}</main>
+        <main className={styles.main}>
+          <Outlet />
+        </main>
       </div>
     </div>
   );

@@ -160,6 +160,7 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
+  overflow: hidden;
   background: #1a1f35;
   border: 1px solid #252840;
   display: flex;
