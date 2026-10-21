@@ -7,6 +7,7 @@ import styles from "./ProfilePage.module.css";
 
 import {
   BsPersonBadge,
+  BsShieldLock,
   BsCheckCircleFill,
   BsPatchCheckFill,
   BsGlobe2,
@@ -16,6 +17,7 @@ import {
   BsInstagram,
   BsCameraFill,
   BsTrash3,
+  BsRocketTakeoff,
 } from "react-icons/bs";
 import {
   FiPhone,
@@ -77,6 +79,12 @@ const EMPTY_PROFILE = {
   roles: [],
 };
 
+const EMPTY_PW = {
+  currentPassword: "",
+  newPassword: "",
+  confirmNewPassword: "",
+};
+
 /* ── component ───────────────────────────────────────────────── */
 const ProfilePage = () => {
   const initProfile = { ...EMPTY_PROFILE, ...useAuthStore((s) => s.user) };
@@ -89,6 +97,10 @@ const ProfilePage = () => {
   const [toast, setToast] = useState(null); // { msg, type }
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState(null); // local data-URL before save
+
+  const [pwForm, setPwForm] = useState(EMPTY_PW);
+  const [pwErrors, setPwErrors] = useState({});
+  const [pwSaving, setPwSaving] = useState(false);
 
   const showToast = (msg, type = "success") => {
     setToast({ msg, type });
@@ -196,6 +208,44 @@ const ProfilePage = () => {
     }
   };
 
+  /* change password */
+  const handlePwChange = (e) => {
+    const { name, value } = e.target;
+    setPwForm((f) => ({ ...f, [name]: value }));
+    setPwErrors((e) => ({ ...e, [name]: "" }));
+  };
+
+  const validatePw = () => {
+    const errs = {};
+    if (!pwForm.currentPassword)
+      errs.currentPassword = "Vui lòng nhập mật khẩu hiện tại.";
+    if (!pwForm.newPassword || pwForm.newPassword.length < 6)
+      errs.newPassword = "Mật khẩu mới tối thiểu 6 ký tự.";
+    if (pwForm.newPassword !== pwForm.confirmNewPassword)
+      errs.confirmNewPassword = "Mật khẩu xác nhận không khớp.";
+    return errs;
+  };
+
+  const handlePwSubmit = async (e) => {
+    e.preventDefault();
+    const errs = validatePw();
+    if (Object.keys(errs).length) {
+      setPwErrors(errs);
+      return;
+    }
+    setPwSaving(true);
+    try {
+      await profileApi.changePassword(pwForm);
+      setPwForm(EMPTY_PW);
+      showToast("Đổi mật khẩu thành công!");
+    } catch (err) {
+      const msg = err?.response?.data?.message || "Đổi mật khẩu thất bại.";
+      showToast(msg, "error");
+    } finally {
+      setPwSaving(false);
+    }
+  };
+
   /* load */
   useEffect(() => {
     loadProfile();
@@ -293,6 +343,24 @@ const ProfilePage = () => {
               </p>
               <button className={styles.topUpBtn}>⊕ Top Up / Add Funds</button>
             </div>
+          </div>
+
+          {/* ══ Publisher CTA ════════════════════════════════════ */}
+          <div className={styles.publisherBanner}>
+            <div className={styles.publisherIcon}>
+              <BsRocketTakeoff size={20} />
+            </div>
+            <div className={styles.publisherText}>
+              <h3>Become an A2MaTeX Verified Publisher</h3>
+              <p>
+                Publish proprietary automation tools (.exe), obfuscate binaries
+                with hardware-bound DRM Enclave, and earn an 85% creator payout
+                revenue share with real-time telemetry.
+              </p>
+            </div>
+            <button className={styles.publisherBtn}>
+              <BsRocketTakeoff size={14} /> Activate Publisher Role
+            </button>
           </div>
 
           {/* ══ Main grid ════════════════════════════════════════ */}
@@ -438,6 +506,56 @@ const ProfilePage = () => {
                     </div>
                   ))}
                 </div>
+              </div>
+
+              {/* Security */}
+              <div className={styles.card}>
+                <h2 className={styles.cardTitle}>
+                  <BsShieldLock size={15} /> Security &amp; Passkeys
+                  <span className={styles.twoFaBadge}>● 2FA: ACTIVE</span>
+                </h2>
+
+                <form onSubmit={handlePwSubmit} className={styles.pwForm}>
+                  <Input
+                    label="Current Password"
+                    name="currentPassword"
+                    type="password"
+                    value={pwForm.currentPassword}
+                    onChange={handlePwChange}
+                    error={pwErrors.currentPassword}
+                    leftIcon={<FiLock size={14} />}
+                    placeholder="Enter current password"
+                  />
+                  <Input
+                    label="New Password"
+                    name="newPassword"
+                    type="password"
+                    value={pwForm.newPassword}
+                    onChange={handlePwChange}
+                    error={pwErrors.newPassword}
+                    leftIcon={<FiLock size={14} />}
+                    placeholder="Min. 6 characters"
+                  />
+                  <Input
+                    label="Confirm New Password"
+                    name="confirmNewPassword"
+                    type="password"
+                    value={pwForm.confirmNewPassword}
+                    onChange={handlePwChange}
+                    error={pwErrors.confirmNewPassword}
+                    leftIcon={<FiLock size={14} />}
+                    placeholder="Repeat new password"
+                  />
+                  <Button
+                    type="submit"
+                    variant="secondary"
+                    fullWidth
+                    loading={pwSaving}
+                    leftIcon={<FiLock size={14} />}
+                  >
+                    Change Password
+                  </Button>
+                </form>
               </div>
             </div>
           </div>
