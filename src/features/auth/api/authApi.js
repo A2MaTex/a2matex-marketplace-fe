@@ -7,6 +7,7 @@ import {
 } from "./authUrl";
 import axios from "@lib/axios.js";
 import { useAuthStore } from "../store/authStore.js";
+import { auth } from "@/lib/token";
 
 const login = async (account, password) => {
   const response = await axios.post(loginUrl, {
@@ -38,7 +39,9 @@ const register = async ({
   return response.data;
 };
 const logout = async () => {
-  const response = await axios.post(logoutUrl);
+  const response = await axios.post(logoutUrl, {
+    refreshToken: auth.getRefreshToken(),
+  });
   useAuthStore.getState().logout();
   return response.data;
 };

@@ -1,7 +1,4 @@
 import { createBrowserRouter } from "react-router-dom";
-
-import AdminLayout from "@features/admin/components/layout/AdminLayout";
-import PermissionRolePage from "@features/admin/pages/permission-role/pages/PermissionRolePage";
 import LoginPage from "@features/auth/pages/LoginPage";
 import RegisterPage from "@features/auth/pages/RegisterPage";
 import LauncherPage from "@/features/marketplace/pages/launcher/LauncherPage";
@@ -10,6 +7,7 @@ import ProductDetailPage from "@/features/marketplace/pages/product-detail/Produ
 import StudioPage from "@/features/marketplace/pages/studio/StudioPage";
 import ProfilePage from "@features/profile/pages/ProfilePage";
 import ForgotPasswordPage from "@/features/auth/pages/ForgotPasswordPage";
+import adminRoutes from "@/features/admin/routers/adminRoute";
 
 export const router = createBrowserRouter([
   {
@@ -45,20 +43,5 @@ export const router = createBrowserRouter([
     element: <StudioPage />,
   },
   // ── Admin routes ──────────────────────────────────────────
-  {
-    path: "/admin",
-    element: (
-      <AdminLayout>
-        <div />
-      </AdminLayout>
-    ),
-  },
-  {
-    path: "/admin/permission-role",
-    element: (
-      <AdminLayout>
-        <PermissionRolePage />
-      </AdminLayout>
-    ),
-  },
+  ...adminRoutes(),
 ]);

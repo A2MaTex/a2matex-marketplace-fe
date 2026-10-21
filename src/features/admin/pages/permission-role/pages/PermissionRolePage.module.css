@@ -4,8 +4,6 @@
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  max-width: calc(100% - 228px);
-  margin-left: 228px;
   background: #0d1117;
   color: #e6edf3;
   font-family: 'Inter', 'Segoe UI', sans-serif;

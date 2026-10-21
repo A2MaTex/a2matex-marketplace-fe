@@ -175,3 +175,7 @@
   text-transform: uppercase;
   letter-spacing: 0.4px;
 }
+
+.logOutIcon {
+  cursor: pointer;
+}

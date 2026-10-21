@@ -1,52 +1,18 @@
-import { NavLink } from "react-router-dom";
-import {
-  MdOutlineRateReview,
-  MdOutlineBlock,
-  MdOutlineAttachMoney,
-  MdOutlinePeople,
-  MdOutlineSecurity,
-  MdOutlineShield,
-} from "react-icons/md";
+import { NavLink, useNavigate } from "react-router-dom";
 import styles from "./AdminSidebar.module.css";
-
-const NAV_ITEMS = [
-  {
-    label: "Review Queue",
-    to: "/admin/review-queue",
-    icon: <MdOutlineRateReview />,
-    badge: 12,
-    badgeType: "danger",
-  },
-  {
-    label: "Violations",
-    to: "/admin/violations",
-    icon: <MdOutlineBlock />,
-    badge: 5,
-    badgeType: "warn",
-  },
-  {
-    label: "Revenue & Payout",
-    to: "/admin/revenue",
-    icon: <MdOutlineAttachMoney />,
-  },
-  {
-    label: "User & Publisher",
-    to: "/admin/users",
-    icon: <MdOutlinePeople />,
-  },
-  {
-    label: "Audit & Security Logs",
-    to: "/admin/audit",
-    icon: <MdOutlineSecurity />,
-  },
-  {
-    label: "Permission & Rights",
-    to: "/admin/permission-role",
-    icon: <MdOutlineShield />,
-  },
-];
+import { FiLogOut } from "react-icons/fi";
+import { authApi } from "@/features/auth/api/authApi";
+import adminRoutes from "../../routers/adminRoute";
 
 export default function AdminSidebar({ user }) {
+  const navigate = useNavigate();
+  const handleLogout = async () => {
+    await authApi.logout();
+    navigate("/");
+  };
+
+  const NAV_ITEMS = adminRoutes().filter((e) => !!e.label);
+
   return (
     <aside className={styles.sidebar}>
       {/* Brand */}
@@ -61,8 +27,8 @@ export default function AdminSidebar({ user }) {
       <nav className={styles.navSection}>
         {NAV_ITEMS.map((item) => (
           <NavLink
-            key={item.to}
-            to={item.to}
+            key={item.path}
+            to={item.path}
             className={({ isActive }) =>
               [styles.navItem, isActive ? styles.active : ""]
                 .filter(Boolean)
@@ -94,6 +60,11 @@ export default function AdminSidebar({ user }) {
           <div className={styles.userName}>{user?.fullName || ""}</div>
           <div className={styles.userRole}>ADMIN</div>
         </div>
+        <FiLogOut
+          onClick={handleLogout}
+          className={styles.logOutIcon}
+          title="Logout"
+        />
       </div>
     </aside>
   );
