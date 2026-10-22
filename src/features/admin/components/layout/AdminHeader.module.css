@@ -153,6 +153,13 @@
   border-color: #484f58;
 }
 
+.avatar {
+  width: 32px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
 .avatarCircle {
   width: 26px;
   height: 26px;

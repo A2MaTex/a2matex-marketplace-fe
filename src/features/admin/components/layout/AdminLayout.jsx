@@ -7,33 +7,22 @@ import AdminSidebar from "./AdminSidebar";
 import styles from "./AdminLayout.module.css";
 
 export default function AdminLayout() {
-  const user = useAuthStore.getState().user;
-  const avatar = useAuthStore.getState().avatarBlob;
+  const user = useAuthStore((s) => s.user);
+  const [loaded, setLoaded] = useState(!!user);
+
   const navigate = useNavigate();
 
-  const loadAdmin = async () => {
-    try {
-      let fetchUser = user;
-      if (!fetchUser) {
-        fetchUser = await userApi.getMyProfile();
-        setUser(fetchUser);
-      }
-      if (!fetchUser || !fetchUser.roles.some((item) => item.name === "ADMIN"))
-        navigate("/");
-    } catch (error) {
-      console.error(error);
-
-      navigate("/");
-    }
-  };
-
   useEffect(() => {
-    loadAdmin();
+    if (loaded) return;
+    userApi
+      .getMyProfile()
+      .then(() => setLoaded(true))
+      .catch((e) => navigate("/"));
   }, []);
 
   return (
     <div className={styles.shell}>
-      <AdminHeader user={user} avatar={avatar} />
+      <AdminHeader user={user} avatar={user?.imgBlob || null} />
       <div className={styles.body}>
         <AdminSidebar user={user} />
         <main className={styles.main}>

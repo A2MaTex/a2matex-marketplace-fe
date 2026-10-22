@@ -3,6 +3,7 @@ import Input from "@components/common/Input";
 import Button from "@components/common/Button";
 import { profileApi } from "../api/profileApi";
 import AvatarUpload from "../components/AvatarUpload";
+import ActivatePublisherModal from "../components/ActivatePublisherModal";
 import styles from "./ProfilePage.module.css";
 
 import {
@@ -29,6 +30,7 @@ import {
   FiRefreshCw,
   FiSave,
   FiLock,
+  FiLogOut,
 } from "react-icons/fi";
 import { MdOutlineAccountBalanceWallet } from "react-icons/md";
 import { userApi } from "@/common/api/user/userApi";
@@ -36,9 +38,12 @@ import { staticApi } from "@/common/api/static/staticApi";
 import { Avatar } from "../../../common/components/common/Avatar";
 import { cacheImage } from "@/lib/cache";
 import { useAuthStore } from "@/features/auth/store/authStore";
+import ROLE from "@/constants/roles";
+import GENDER from "@/constants/gender";
+import { authApi } from "@/features/auth/api/authApi";
+import { useNavigate } from "react-router-dom";
 
 /* ── helpers ─────────────────────────────────────────────────── */
-const GENDER_OPTIONS = ["Male", "Female", "Other", "Prefer not to say"];
 
 const SOCIAL_FIELDS = [
   {
@@ -90,17 +95,20 @@ const ProfilePage = () => {
   const initProfile = { ...EMPTY_PROFILE, ...useAuthStore((s) => s.user) };
 
   const [profile, setProfile] = useState(initProfile);
-  const [avatar, setAvatar] = useState();
+  const [avatar, setAvatar] = useState(useAuthStore((s) => s.avatarBlob));
   const [form, setForm] = useState(initProfile);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState(null); // { msg, type }
   const [showAvatarModal, setShowAvatarModal] = useState(false);
+  const [showPublisherModal, setShowPublisherModal] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState(null); // local data-URL before save
 
   const [pwForm, setPwForm] = useState(EMPTY_PW);
   const [pwErrors, setPwErrors] = useState({});
   const [pwSaving, setPwSaving] = useState(false);
+
+  const navigate = useNavigate();
 
   const showToast = (msg, type = "success") => {
     setToast({ msg, type });
@@ -192,10 +200,13 @@ const ProfilePage = () => {
 
   const loadProfile = async () => {
     try {
-      setLoading(true);
-      const myProfile = await userApi.getMyProfile();
+      let myProfile = profile;
+      if (!myProfile) {
+        setLoading(true);
+        myProfile = await userApi.getMyProfile();
+      }
 
-      const merged = { ...initProfile, ...myProfile.user };
+      const merged = { ...initProfile, ...myProfile };
       setProfile(merged);
       setForm(merged);
       setAvatar(myProfile.imgBlob);
@@ -243,6 +254,16 @@ const ProfilePage = () => {
       showToast(msg, "error");
     } finally {
       setPwSaving(false);
+    }
+  };
+
+  const handleLogout = () => {
+    try {
+      authApi.logout();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      navigate("/");
     }
   };
 
@@ -346,22 +367,28 @@ const ProfilePage = () => {
           </div>
 
           {/* ══ Publisher CTA ════════════════════════════════════ */}
-          <div className={styles.publisherBanner}>
-            <div className={styles.publisherIcon}>
-              <BsRocketTakeoff size={20} />
+          {!profile.roles.some((e) => e.name === ROLE.PUBLISHER) && (
+            <div className={styles.publisherBanner}>
+              <div className={styles.publisherIcon}>
+                <BsRocketTakeoff size={20} />
+              </div>
+              <div className={styles.publisherText}>
+                <h3>Become an A2MaTeX Verified Publisher</h3>
+                <p>
+                  Publish proprietary automation tools (.exe), obfuscate
+                  binaries with hardware-bound DRM Enclave, and earn an 85%
+                  creator payout revenue share with real-time telemetry.
+                </p>
+              </div>
+              <Button
+                leftIcon={<BsRocketTakeoff size={14} />}
+                className={styles.publisherBtn}
+                onClick={() => setShowPublisherModal(true)}
+              >
+                Activate Publisher Role
+              </Button>
             </div>
-            <div className={styles.publisherText}>
-              <h3>Become an A2MaTeX Verified Publisher</h3>
-              <p>
-                Publish proprietary automation tools (.exe), obfuscate binaries
-                with hardware-bound DRM Enclave, and earn an 85% creator payout
-                revenue share with real-time telemetry.
-              </p>
-            </div>
-            <button className={styles.publisherBtn}>
-              <BsRocketTakeoff size={14} /> Activate Publisher Role
-            </button>
-          </div>
+          )}
 
           {/* ══ Main grid ════════════════════════════════════════ */}
           <div className={styles.mainGrid}>
@@ -428,7 +455,7 @@ const ProfilePage = () => {
                 <div className={styles.formGroup}>
                   <label className={styles.fieldLabel}>GENDER IDENTITY</label>
                   <div className={styles.genderRow}>
-                    {GENDER_OPTIONS.map((g) => (
+                    {Object.values(GENDER).map((g) => (
                       <label key={g} className={styles.radioLabel}>
                         <span
                           className={`${styles.radioCircle} ${form.gender === g ? styles.radioActive : ""}`}
@@ -562,11 +589,9 @@ const ProfilePage = () => {
 
           {/* ══ Footer action bar ════════════════════════════════ */}
           <div className={styles.actionBar}>
-            <span className={styles.syncNote}>
-              ⚡ All profile metadata synchronized with{" "}
-              <a href="#" className={styles.accentLink}>
-                A2MaTeX Auth Enclave v4.1
-              </a>
+            <span onClick={handleLogout} className={styles.syncNote}>
+              <FiLogOut size={18} />
+              Logout
             </span>
             <div className={styles.actionBtns}>
               <Button
@@ -592,6 +617,16 @@ const ProfilePage = () => {
         <AvatarUpload
           onDone={handleAvatarDone}
           onClose={() => setShowAvatarModal(false)}
+        />
+      )}
+      {showPublisherModal && (
+        <ActivatePublisherModal
+          onSuccess={() => {
+            setShowPublisherModal(false);
+            showToast("Publisher role activated successfully!");
+            setProfile(prev => prev.roles.push({code: ROLE.PUBLISHER}))
+          }}
+          onClose={() => setShowPublisherModal(false)}
         />
       )}
     </>

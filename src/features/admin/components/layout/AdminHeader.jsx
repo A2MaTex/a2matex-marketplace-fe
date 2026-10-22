@@ -8,7 +8,7 @@ export default function AdminHeader({ user, avatar }) {
     <header className={styles.header}>
       {/* Left: Logo + badge */}
       <div className={styles.left}>
-        <Link to="/admin" className={styles.logo}>
+        <Link to="/" className={styles.logo}>
           <span className={styles.logoText}>A2MaTeX</span>
         </Link>
         <span className={styles.portalBadge}>Admin Portal v2.5.0</span>
@@ -35,7 +35,9 @@ export default function AdminHeader({ user, avatar }) {
 
         <div className={styles.userChip}>
           {avatar ? (
-            <Avatar blob={avatar} />
+            <Link to={"/profile"} className={styles.avatar}>
+              <Avatar blob={avatar} />
+            </Link>
           ) : (
             <div className={styles.avatarCircle}>A</div>
           )}

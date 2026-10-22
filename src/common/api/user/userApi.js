@@ -7,7 +7,6 @@ import { staticApi } from "../static/staticApi";
 const getMyProfile = async () => {
   const response = await axiosInstance.get(getMeUrl);
   const user = response.data.data;
-  useAuthStore.getState().setUser(user);
   let imgBlob;
   if (user.avatarStaticId) {
     const avatar = await getCachedImage(user.id);
@@ -23,6 +22,8 @@ const getMyProfile = async () => {
     }
     useAuthStore.getState().setAvatarBlob(imgBlob);
   }
+
+  useAuthStore.getState().setUser({ ...user, imgBlob });
   return { user, imgBlob };
 };
 

@@ -18,8 +18,6 @@ const NAV_ITEMS = [
 const Header = ({ user, avatar }) => {
   const [search, setSearch] = useState("");
 
-  console.log(avatar);
-
   const checkIsAdmin = () => {
     return user?.roles?.some((role) => role.name === "ADMIN");
   };

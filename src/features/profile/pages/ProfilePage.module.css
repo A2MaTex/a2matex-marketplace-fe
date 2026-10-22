@@ -544,13 +544,17 @@
 }
 
 .syncNote {
-  font-size: 12px;
-  color: #4b5268;
+  font-size: 14px;
+  color: #838fb5;
   display: flex;
+  padding: 4px;
   align-items: center;
   gap: 6px;
 }
-
+.syncNote:hover {
+  color: white;
+  cursor: pointer;
+}
 .accentLink {
   color: #00e5cc;
   text-decoration: none;
