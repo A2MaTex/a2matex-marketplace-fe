@@ -29,14 +29,13 @@ const STATUS_OPTS = ["All Status", TERM_STATUS.ACTIVE, TERM_STATUS.DRAFT, TERM_S
 
 function formatDate(iso) {
   if (!iso) return "—";
-  return new Date(iso).toLocaleString("en-GB", {
+  return new Date(iso).toLocaleString("vi-VN", {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
     hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "UTC",
-  }) + " UTC";
+    minute: "2-digit"
+  });
 }
 
 function truncateId(id) {

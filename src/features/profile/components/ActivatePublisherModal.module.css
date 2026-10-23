@@ -22,7 +22,7 @@
   border: 1px solid #1e2537;
   border-radius: 14px;
   width: 100%;
-  max-width: 520px;
+  max-width: 920px;
   display: flex;
   flex-direction: column;
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
@@ -149,7 +149,7 @@
   border: 1px solid #1e2537;
   border-radius: 8px;
   padding: 16px;
-  max-height: 220px;
+  max-height: 320px;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: #1e2537 transparent;
@@ -283,3 +283,27 @@
 .spinIcon {
   animation: spin 0.8s linear infinite;
 }
+
+.termContent h1,
+.termContent h2,
+.termContent h3 {
+  color: #e6edf3;
+  font-weight: 700;
+  margin: 20px 0 8px;
+}
+
+.termContent h1 { font-size: 20px; }
+.termContent h2 { font-size: 17px; }
+.termContent h3 { font-size: 14px; }
+
+.termContent ul,
+.termContent ol {
+  padding-left: 22px;
+  margin: 6px 0 12px;
+}
+
+.termContent li { margin-bottom: 4px; }
+
+.termContent p { margin: 0 0 10px; }
+
+.termContent strong { color: #e6edf3; }
