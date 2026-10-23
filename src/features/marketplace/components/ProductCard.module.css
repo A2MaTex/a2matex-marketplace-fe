@@ -4,7 +4,7 @@
 /* ── Card base ── */
 .card {
   background: #0e1120;
-  border: 1px solid #1a1f35;
+  border: 1px solid transparent;
   border-radius: 12px;
   padding: 20px;
   display: flex;
@@ -21,8 +21,26 @@
 
 /* ── Featured variant (larger, left column spanning) ── */
 .featured {
-  border-color: #1e2a3a;
   background: #0c1018;
+  position: relative;
+  overflow: hidden;
+}
+.featured::after {
+  content: "";
+  display: block;
+  width: 400px;
+  aspect-ratio: 1;
+  position: absolute;
+  border-radius: 50%;
+  top: -100px;
+  right: -150px;
+  background: radial-gradient(
+    ellipse,
+    rgba(0, 214, 229, 0.253) 0%,
+    transparent 65%
+  );
+  pointer-events: none;
+  z-index: 0;
 }
 
 .featured:hover {
@@ -64,7 +82,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #4b5268;
+  color: #92a3dc;
   flex-shrink: 0;
 }
 

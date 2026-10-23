@@ -19,6 +19,8 @@ import {
   BsCameraFill,
   BsTrash3,
   BsRocketTakeoff,
+  BsThunderbolt,
+  BsUpload,
 } from "react-icons/bs";
 import {
   FiPhone,
@@ -31,6 +33,7 @@ import {
   FiSave,
   FiLock,
   FiLogOut,
+  FiUpload,
 } from "react-icons/fi";
 import { MdOutlineAccountBalanceWallet } from "react-icons/md";
 import { userApi } from "@/common/api/user/userApi";
@@ -42,6 +45,8 @@ import ROLE from "@/constants/roles";
 import GENDER from "@/constants/gender";
 import { authApi } from "@/features/auth/api/authApi";
 import { useNavigate } from "react-router-dom";
+import { AiOutlineThunderbolt } from "react-icons/ai";
+import { BiCheck } from "react-icons/bi";
 
 /* ── helpers ─────────────────────────────────────────────────── */
 
@@ -186,9 +191,6 @@ const ProfilePage = () => {
   /* bio char count */
   const bioLen = (form.bio || "").length;
 
-  /* role badge */
-  const roleName = profile.roles?.[0]?.name ?? "CUSTOMER";
-
   /* join date */
   const joinedDate = profile.createdAt
     ? new Date(profile.createdAt).toLocaleDateString("en-GB", {
@@ -321,27 +323,29 @@ const ProfilePage = () => {
             <div className={styles.bannerInfo}>
               <div className={styles.bannerNameRow}>
                 <h1 className={styles.bannerName}>{profile.fullName || "—"}</h1>
-                <span className={styles.roleBadge}>
-                  <BsPatchCheckFill size={11} /> {roleName}
-                </span>
+                {profile.roles.map((e) => (
+                  <span className={styles.roleBadge}>
+                    {e.name}
+                  </span>
+                ))}
               </div>
               <p className={styles.bannerBio}>{profile.bio || "No bio set."}</p>
               <div className={styles.bannerMeta}>
                 <span>
-                  <FiCalendar size={11} /> Member since {joinedDate}
+                  <FiCalendar size={12} /> Member since {joinedDate}
                 </span>
                 <button
                   className={styles.metaBtn}
                   onClick={() => setShowAvatarModal(true)}
                 >
-                  <BsCameraFill size={11} /> Upload New Avatar
+                  <FiUpload size={12} /> Upload New Avatar
                 </button>
                 <button
                   className={styles.metaBtnDanger}
                   onClick={handleDeleteAvatar}
                   disabled={!form.avatarStaticId && !avatarPreview}
                 >
-                  <BsTrash3 size={11} /> Delete
+                  <BsTrash3 size={12} /> Delete
                 </button>
               </div>
             </div>
@@ -349,8 +353,8 @@ const ProfilePage = () => {
             {/* Balance */}
             <div className={styles.balanceCard}>
               <div className={styles.balanceLabel}>
-                <MdOutlineAccountBalanceWallet size={14} />
                 ACCOUNT BALANCE
+                <MdOutlineAccountBalanceWallet color="#05ebd0" size={18} />
               </div>
               <div className={styles.balanceAmount}>
                 $
@@ -360,7 +364,8 @@ const ProfilePage = () => {
                 <span className={styles.balanceCurrency}>USD</span>
               </div>
               <p className={styles.balanceFuel}>
-                ⚡ Available Fuel: {profile.balance ?? 0} CR
+                <AiOutlineThunderbolt size={16} /> Available Fuel:{" "}
+                {profile.balance ?? 0} CR
               </p>
               <button className={styles.topUpBtn}>⊕ Top Up / Add Funds</button>
             </div>
@@ -624,7 +629,7 @@ const ProfilePage = () => {
           onSuccess={() => {
             setShowPublisherModal(false);
             showToast("Publisher role activated successfully!");
-            setProfile(prev => prev.roles.push({code: ROLE.PUBLISHER}))
+            setProfile((prev) => prev.roles.push({ code: ROLE.PUBLISHER }));
           }}
           onClose={() => setShowPublisherModal(false)}
         />

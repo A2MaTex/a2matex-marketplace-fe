@@ -3,12 +3,14 @@ import Violation from "../pages/violations/page/Violation";
 import RevenuePayout from "../pages/revenue-payout/page/RevenuePayout";
 import AuditLog from "../pages/audit/page/AuditLog";
 import ReviewQueue from "../pages/review-queue/page/ReviewQueue";
+import TermsPage from "../pages/terms/page/TermsPage";
 import {
   MdOutlineAttachMoney,
   MdOutlineBlock,
   MdOutlineRateReview,
   MdOutlineSecurity,
   MdOutlineShield,
+  MdOutlineGavel,
 } from "react-icons/md";
 
 export default function adminRoutes() {
@@ -46,6 +48,12 @@ export default function adminRoutes() {
       icon: <MdOutlineShield />,
       path: "/admin/permission-role",
       element: <PermissionRolePage />,
+    },
+    {
+      label: "Terms & Policy",
+      icon: <MdOutlineGavel />,
+      path: "/admin/terms",
+      element: <TermsPage />,
     },
   ];
   return adminRoutes;

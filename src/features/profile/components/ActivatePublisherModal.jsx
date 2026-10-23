@@ -29,7 +29,8 @@ const ActivatePublisherModal = ({ onSuccess, onClose }) => {
         setTerm(res.data?.data ?? res.data);
       } catch (err) {
         const msg =
-          err?.response?.data?.message || "Không thể tải điều khoản. Vui lòng thử lại.";
+          err?.response?.data?.message ||
+          "Không thể tải điều khoản. Vui lòng thử lại.";
         setTermError(msg);
       } finally {
         setLoadingTerm(false);
@@ -67,7 +68,12 @@ const ActivatePublisherModal = ({ onSuccess, onClose }) => {
       className={styles.overlay}
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="pub-modal-title">
+      <div
+        className={styles.modal}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="pub-modal-title"
+      >
         {/* ── Header ── */}
         <div className={styles.header}>
           <span className={styles.headerTitle} id="pub-modal-title">
@@ -105,15 +111,16 @@ const ActivatePublisherModal = ({ onSuccess, onClose }) => {
                   <span className={styles.termVersion}>{term.version}</span>
                 )}
                 {formattedDate && (
-                  <span className={styles.termDate}>Published {formattedDate}</span>
+                  <span className={styles.termDate}>
+                    Published {formattedDate}
+                  </span>
                 )}
               </div>
 
-              {/* Term content */}
-              <div className={styles.termContent}>
-                <p>{term.content}</p>
-              </div>
-
+              <div
+                className={styles.termContent}
+                dangerouslySetInnerHTML={{ __html: term.content }}
+              />
               {/* Checkbox */}
               <label className={styles.checkboxLabel}>
                 <input
@@ -154,7 +161,8 @@ const ActivatePublisherModal = ({ onSuccess, onClose }) => {
           >
             {activating ? (
               <>
-                <FiRefreshCw size={13} className={styles.spinIcon} /> Activating…
+                <FiRefreshCw size={13} className={styles.spinIcon} />{" "}
+                Activating…
               </>
             ) : (
               <>

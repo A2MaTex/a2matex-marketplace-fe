@@ -98,8 +98,8 @@
   border-radius: 50%;
   background: radial-gradient(
     ellipse,
-    rgba(0, 229, 204, 0.07) 0%,
-    transparent 65%
+    rgba(0, 229, 202, 0.151) 0%,
+    transparent 75%
   );
   pointer-events: none;
   z-index: 0;

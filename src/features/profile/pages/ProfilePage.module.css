@@ -26,7 +26,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .spinIcon {
@@ -47,13 +49,20 @@
   border-radius: 8px;
   font-size: 13px;
   font-weight: 600;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
   animation: slideIn 0.25s ease;
 }
 
 @keyframes slideIn {
-  from { opacity: 0; transform: translateY(-8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .toast_success {
@@ -73,10 +82,10 @@
   display: flex;
   align-items: flex-start;
   gap: 24px;
-  background: #0d111e;
+  background: linear-gradient(to right, #171b26, #181c27, #16252c, #152f30, #16252c, #181c27,#171b26);
   border: 1px solid #1e2537;
   border-radius: 12px;
-  padding: 24px 28px;
+  padding: 16px 20px;
 }
 
 /* Avatar */
@@ -86,7 +95,7 @@
 }
 
 .avatar {
-  width: 120px;
+  height: max-content;
   aspect-ratio: 1;
   border-radius: 50%;
   background: #111827;
@@ -126,7 +135,7 @@
 .bannerNameRow {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 4px;
   flex-wrap: wrap;
 }
 
@@ -135,26 +144,24 @@
   font-weight: 800;
   color: #f1f5f9;
   margin: 0;
+  margin-right: 10px;
 }
 
 .roleBadge {
   display: inline-flex;
-  align-items: center;
-  gap: 5px;
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.8px;
   color: #00e5cc;
   background: rgba(0, 229, 204, 0.1);
-  border: 1px solid rgba(0, 229, 204, 0.25);
-  border-radius: 4px;
-  padding: 3px 8px;
+  border-radius: 16px;
+  padding: 0px 8px;
+  font-family: monospace;
   text-transform: uppercase;
 }
 
 .bannerBio {
-  font-size: 12px;
-  color: #6b7280;
+  font-size: 13px;
+  color: #bac4d7;
   line-height: 1.55;
   margin: 0;
   max-width: 440px;
@@ -165,8 +172,8 @@
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
-  font-size: 11px;
-  color: #4b5268;
+  font-size: 12px;
+  color: #98a5ce;
 }
 
 .bannerMeta span {
@@ -181,21 +188,25 @@
   gap: 5px;
   background: none;
   border: none;
-  color: #94a3b8;
-  font-size: 11px;
+  color: #99bbea;
+  font-size: 12px;
   cursor: pointer;
   padding: 0;
   transition: color 0.15s;
 }
 
-.metaBtn:hover { color: #00e5cc; }
+.metaBtn:hover {
+  color: #00e5cc;
+}
 
 .metaBtnDanger {
   composes: metaBtn;
-  color: #6b7280;
+  color: #db6969;
 }
 
-.metaBtnDanger:hover { color: #ef4444; }
+.metaBtnDanger:hover {
+  color: #ef4444;
+}
 
 /* Balance card */
 .balanceCard {
@@ -204,18 +215,19 @@
   background: #111827;
   border: 1px solid #1e2537;
   border-radius: 10px;
-  padding: 16px 20px;
+  padding: 12px 16px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .balanceLabel {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  font-family: monospace;
   gap: 6px;
-  font-size: 10px;
-  letter-spacing: 1px;
+  font-size: 12px;
   text-transform: uppercase;
   color: #4b5268;
 }
@@ -237,7 +249,11 @@
 
 .balanceFuel {
   font-size: 11px;
+  font-family: monospace;
   color: #00e5cc;
+  display: flex;
+  align-items: center;
+  gap: 4px;
   margin: 0;
 }
 
@@ -247,7 +263,7 @@
   background: none;
   border: 1px solid #1e2537;
   border-radius: 6px;
-  color: #94a3b8;
+  color: #c2dbfe;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
@@ -551,17 +567,21 @@
   align-items: center;
   gap: 6px;
 }
+
 .syncNote:hover {
   color: white;
   cursor: pointer;
 }
+
 .accentLink {
   color: #00e5cc;
   text-decoration: none;
   font-weight: 600;
 }
 
-.accentLink:hover { text-decoration: underline; }
+.accentLink:hover {
+  text-decoration: underline;
+}
 
 .actionBtns {
   display: flex;
