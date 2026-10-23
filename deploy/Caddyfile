@@ -1,0 +1,26 @@
+{
+	email dongtx04@gmail.com
+}
+
+# www gom hết về apex, để nội dung chỉ có một địa chỉ chính thức.
+www.a2matex.com {
+	redir https://a2matex.com{uri} permanent
+}
+
+a2matex.com {
+	encode zstd gzip
+	root * /var/www/fe
+
+	# Tên file trong /assets có hash nội dung nên cache vĩnh viễn được.
+	@assets path /assets/*
+	header @assets Cache-Control "public, max-age=31536000, immutable"
+
+	# Phần còn lại phải revalidate, nếu không bản build mới không bao giờ
+	# tới được người dùng đã vào trang một lần.
+	@html not path /assets/*
+	header @html Cache-Control "no-cache"
+
+	# router dùng createBrowserRouter: path không trỏ tới file nào thì trả index.html.
+	try_files {path} /index.html
+	file_server
+}

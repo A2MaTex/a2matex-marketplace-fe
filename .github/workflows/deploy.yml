@@ -1,0 +1,97 @@
+# Build FE trên Actions rồi đẩy thư mục dist/ lên VM a2matex-fe.
+#
+# Khác backend ở hai chỗ, đều do FE là trang tĩnh:
+#   - Không đóng gói Docker image, không dùng GHCR. Artifact là dist/, rsync thẳng
+#     vào thư mục Caddy đang phục vụ (/var/www/fe). Không build gì trên máy đích.
+#   - Không cần restart gì sau khi đẩy. Caddy phục vụ file mới ngay.
+#
+# Không có bước lint: mã nguồn do nhóm khác giữ, workflow này chỉ lo build và deploy.
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Một lần deploy tại một thời điểm; push thứ hai xếp hàng chứ không chạy đua với push đầu.
+concurrency:
+  group: deploy-fe-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and deploy to VM
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      # Repo có package-lock.json nên dùng ci để cài đúng phiên bản đã khoá.
+      - name: Install dependencies
+        run: npm ci
+
+      # Vite thay thế mọi biến VITE_* ngay lúc build, không đọc được lúc chạy.
+      # Thiếu biến này thì bundle rơi về http://localhost:8080/api/v1 mà BUILD VẪN
+      # THÀNH CÔNG, rồi lên production mới phát hiện. Nên chặn ngay tại đây.
+      - name: Check build config
+        run: |
+          if [ -z "${{ vars.VITE_API_BASE_URL }}" ]; then
+            echo "::error::Thiếu repository variable VITE_API_BASE_URL (Settings > Secrets and variables > Actions > Variables)"
+            exit 1
+          fi
+          echo "VITE_API_BASE_URL = ${{ vars.VITE_API_BASE_URL }}"
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+
+      - name: Configure SSH
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+      # --delete để file của bản build cũ (tên có hash) không tồn đọng mãi trên đĩa.
+      - name: Upload to VM
+        env:
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+        run: |
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/deploy_key" \
+            dist/ "$VPS_USER@$VPS_HOST:/var/www/fe/"
+
+      # Không chỉ hỏi "site có sống không" mà hỏi "ĐÚNG bản vừa build đã lên chưa":
+      # đối chiếu tên file JS có hash trong dist/index.html với bản server trả về.
+      - name: Verify
+        run: |
+          asset=$(grep -o '/assets/index-[A-Za-z0-9_-]*\.js' dist/index.html | head -1)
+          echo "Asset của bản vừa build: $asset"
+          live=$(curl -sS --retry 3 --retry-delay 2 https://a2matex.com/)
+          if echo "$live" | grep -q "$asset"; then
+            echo "✓ https://a2matex.com đang phục vụ bản vừa build"
+          else
+            echo "::error::index.html trên server chưa trỏ tới $asset"
+            echo "$live"
+            exit 1
+          fi
+
+      - name: Summary
+        run: |
+          {
+            echo "### Đã deploy"
+            echo ""
+            echo "- Site: https://a2matex.com"
+            echo "- Commit: \`${GITHUB_SHA::7}\`"
+            echo "- API: ${{ vars.VITE_API_BASE_URL }}"
+          } >> "$GITHUB_STEP_SUMMARY"
