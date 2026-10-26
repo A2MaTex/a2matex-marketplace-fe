@@ -4,6 +4,7 @@ import {
   registerUrl,
   sendOTP,
   forgotPasswordUrl,
+  refreshTokenUrl,
 } from "./authUrl";
 import axios from "@lib/axios.js";
 import { useAuthStore } from "../store/authStore.js";
@@ -53,18 +54,36 @@ const sendOtp = async ({ email, type = "REGISTER" }) => {
 
   return response.data;
 };
+
+const refreshAccessToken = async (refreshToken) => {
+  const response = await axios.post(refreshTokenUrl, {
+    refreshToken,
+  });
+
+  const { accessToken, refreshToken: newRefreshToken } = response.data.data;
+  useAuthStore.getState().setCredentials(accessToken, newRefreshToken);
+};
+
+const forgotPassword = async ({
+  email,
+  code,
+  newPassword,
+  confirmNewPassword,
+}) => {
+  const response = await axios.post(forgotPasswordUrl, {
+    email,
+    code,
+    newPassword,
+    confirmNewPassword,
+  });
+  return response.data;
+};
+
 export const authApi = {
   login,
   register,
   logout,
   sendOtp,
-  forgotPassword: async ({ email, code, newPassword, confirmNewPassword }) => {
-    const response = await axios.post(forgotPasswordUrl, {
-      email,
-      code,
-      newPassword,
-      confirmNewPassword,
-    });
-    return response.data;
-  },
+  forgotPassword,
+  refreshAccessToken,
 };
