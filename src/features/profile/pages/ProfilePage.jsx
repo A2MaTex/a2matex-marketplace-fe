@@ -205,7 +205,11 @@ const ProfilePage = () => {
   const loadProfile = async () => {
     try {
       let myProfile = profile;
+      console.log(myProfile);
+      
       if (!myProfile) {
+        console.log("xx");
+        
         setLoading(true);
         myProfile = await userApi.getMyProfile();
       }
@@ -326,9 +330,7 @@ const ProfilePage = () => {
               <div className={styles.bannerNameRow}>
                 <h1 className={styles.bannerName}>{profile.fullName || "—"}</h1>
                 {profile.roles.map((e) => (
-                  <span className={styles.roleBadge}>
-                    {e.name}
-                  </span>
+                  <span className={styles.roleBadge}>{e.name}</span>
                 ))}
               </div>
               <p className={styles.bannerBio}>{profile.bio || "No bio set."}</p>
@@ -359,17 +361,19 @@ const ProfilePage = () => {
                 <MdOutlineAccountBalanceWallet color="#05ebd0" size={18} />
               </div>
               <div className={styles.balanceAmount}>
-                $
-                {(profile.balance ?? 0).toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                })}
-                <span className={styles.balanceCurrency}>USD</span>
+                {(profile.balance ?? 0).toLocaleString("vi-VN")}
+                <span className={styles.balanceCurrency}>VND</span>
               </div>
               <p className={styles.balanceFuel}>
                 <AiOutlineThunderbolt size={16} /> Available Fuel:{" "}
                 {profile.balance ?? 0} CR
               </p>
-              <button className={styles.topUpBtn} onClick={() => setShowTopUpModal(true)}>⊕ Top Up / Add Funds</button>
+              <button
+                className={styles.topUpBtn}
+                onClick={() => setShowTopUpModal(true)}
+              >
+                ⊕ Top Up / Add Funds
+              </button>
             </div>
           </div>
 
@@ -643,7 +647,9 @@ const ProfilePage = () => {
           onTopUpSuccess={(newBalance) => {
             setProfile((p) => ({ ...p, balance: newBalance }));
             setShowTopUpModal(false);
-            showToast(`Đã nạp thành công ${newBalance.toLocaleString("vi-VN")} VND vào tài khoản`);
+            showToast(
+              `Đã nạp thành công ${newBalance.toLocaleString("vi-VN")} VND vào tài khoản`,
+            );
           }}
         />
       )}

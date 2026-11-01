@@ -55,7 +55,9 @@ const TopUpModal = ({ balance, onClose, onTopUpSuccess }) => {
       const raw = err?.response?.data?.message;
       let msg;
       if (Array.isArray(raw)) {
-        msg = raw.map((item) => (typeof item === "object" ? item.message : item)).join(", ");
+        msg = raw
+          .map((item) => (typeof item === "object" ? item.message : item))
+          .join(", ");
       } else {
         msg = raw || "Failed to create top-up request. Please try again.";
       }
@@ -89,14 +91,25 @@ const TopUpModal = ({ balance, onClose, onTopUpSuccess }) => {
       className={styles.overlay}
       onClick={(e) => e.target === e.currentTarget && handleClose()}
     >
-      <div className={styles.dialog} role="dialog" aria-modal="true" aria-label="Top Up">
+      <div
+        className={styles.dialog}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Top Up"
+      >
         {/* Header */}
         <div className={styles.header}>
-          <span className={styles.balancePill}>
-            YOUR BALANCE: {balance.toLocaleString("vi-VN")} VND
-          </span>
-          <h2 className={styles.title}>Top-up To Your Account</h2>
-          <button className={styles.closeBtn} onClick={handleClose} aria-label="Close">
+          <div className={styles.headerContain}>
+            <span className={styles.balancePill}>
+              YOUR BALANCE: {balance.toLocaleString("vi-VN")} VND
+            </span>
+            <h2 className={styles.title}>Top-up To Your Account</h2>
+          </div>
+          <button
+            className={styles.closeBtn}
+            onClick={handleClose}
+            aria-label="Close"
+          >
             ✕
           </button>
         </div>
@@ -105,20 +118,22 @@ const TopUpModal = ({ balance, onClose, onTopUpSuccess }) => {
         <div className={styles.body}>
           {error && <div className={styles.errorBox}>{error}</div>}
 
-          <div className={styles.amountRow}>
-            <Input
-              label="AMOUNT"
-              type="number"
-              leftIcon={<MdOutlineAccountBalanceWallet size={14} />}
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              disabled={!!topUpData}
-              placeholder="Enter amount (VND)"
-              min="1"
-              step="1"
-            />
-            <span className={styles.vndSuffix}>VND</span>
-          </div>
+          {!topUpData && (
+            <div className={styles.amountRow}>
+              <Input
+                label="AMOUNT"
+                type="number"
+                leftIcon={<MdOutlineAccountBalanceWallet size={14} />}
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                disabled={!!topUpData}
+                placeholder="Enter amount (VND)"
+                min="1"
+                step="1"
+              />
+              <span className={styles.vndSuffix}>VND</span>
+            </div>
+          )}
 
           {/* QR section — shown after POST succeeds */}
           {topUpData && (
@@ -135,7 +150,9 @@ const TopUpModal = ({ balance, onClose, onTopUpSuccess }) => {
                 <div className={styles.paymentInfo}>
                   <div className={styles.infoRow}>
                     <span className={styles.infoLabel}>Reference Code</span>
-                    <span className={styles.infoValue}>{topUpData.referenceCode}</span>
+                    <span className={styles.infoValue}>
+                      {topUpData.referenceCode}
+                    </span>
                   </div>
                   <div className={styles.infoRow}>
                     <span className={styles.infoLabel}>Amount</span>
@@ -144,16 +161,26 @@ const TopUpModal = ({ balance, onClose, onTopUpSuccess }) => {
                     </span>
                   </div>
                   <div className={styles.infoRow}>
-                    <span className={styles.infoLabel}>Bank Account Number</span>
-                    <span className={styles.infoValue}>{topUpData.bankAccountNumber}</span>
+                    <span className={styles.infoLabel}>
+                      Bank Account Number
+                    </span>
+                    <span className={styles.infoValue}>
+                      {topUpData.bankAccountNumber}
+                    </span>
                   </div>
                   <div className={styles.infoRow}>
                     <span className={styles.infoLabel}>Bank Name</span>
-                    <span className={styles.infoValue}>{topUpData.bankName}</span>
+                    <span className={styles.infoValue}>
+                      {topUpData.bankName}
+                    </span>
                   </div>
                   <div className={styles.infoRow}>
-                    <span className={styles.infoLabel}>Account Holder Name</span>
-                    <span className={styles.infoValue}>{topUpData.accountHolderName}</span>
+                    <span className={styles.infoLabel}>
+                      Account Holder Name
+                    </span>
+                    <span className={styles.infoValue}>
+                      {topUpData.accountHolderName}
+                    </span>
                   </div>
                   <div className={styles.infoRow}>
                     <span className={styles.infoLabel}>Transfer Content</span>
@@ -162,7 +189,9 @@ const TopUpModal = ({ balance, onClose, onTopUpSuccess }) => {
                       <button
                         className={styles.copyBtn}
                         onClick={() =>
-                          navigator.clipboard.writeText(topUpData.transferContent)
+                          navigator.clipboard.writeText(
+                            topUpData.transferContent,
+                          )
                         }
                         aria-label="Copy transfer content"
                         title="Copy"
@@ -174,7 +203,9 @@ const TopUpModal = ({ balance, onClose, onTopUpSuccess }) => {
                 </div>
               </div>
               {polling && (
-                <p className={styles.pollingNote}>⟳ Waiting for payment confirmation…</p>
+                <p className={styles.pollingNote}>
+                  ⟳ Waiting for payment confirmation…
+                </p>
               )}
             </div>
           )}
@@ -182,7 +213,11 @@ const TopUpModal = ({ balance, onClose, onTopUpSuccess }) => {
 
         {/* Footer */}
         <div className={styles.footer}>
-          <Button variant="ghost" onClick={handleClose} leftIcon={<FiX size={14} />}>
+          <Button
+            variant="ghost"
+            onClick={handleClose}
+            leftIcon={<FiX size={14} />}
+          >
             Cancel / Discard
           </Button>
           {!topUpData && (

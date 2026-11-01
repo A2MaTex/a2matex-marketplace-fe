@@ -69,7 +69,9 @@ const Header = ({ user, avatar }) => {
 
           <div className={styles.credits}>
             <IoCashOutline size={15} />
-            <span className={styles.creditsValue}>4,850</span>
+            <span className={styles.creditsValue}>
+              {user?.balance.toLocaleString("vi-VN") || 0}
+            </span>
             <span className={styles.creditsCurrency}>CR</span>
           </div>
           {!!user && (

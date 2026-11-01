@@ -9,8 +9,7 @@ const AppLayout = () => {
   const user = useAuthStore((s) => s.user);
   const imgBlob = useAuthStore((s) => s.imgBlob);
   const [loaded, setLoaded] = useState(!!user);
-  console.log(user);
-  console.log(imgBlob);
+  
   useEffect(() => {
     if (loaded) return;
     userApi.getMyProfile().then(() => setLoaded(true));

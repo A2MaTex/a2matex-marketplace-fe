@@ -1,0 +1,238 @@
+/* ─── Overlay ──────────────────────────────────────────── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  backdrop-filter: blur(2px);
+}
+
+/* ─── Modal ────────────────────────────────────────────── */
+.modal {
+  background: #161b22;
+  border-radius: 12px;
+  width: 540px;
+  max-width: calc(100vw - 40px);
+  max-height: calc(100vh - 60px);
+  overflow-y: auto;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.modal::-webkit-scrollbar { width: 4px; }
+.modal::-webkit-scrollbar-track { background: transparent; }
+.modal::-webkit-scrollbar-thumb { background: #30363d; border-radius: 2px; }
+
+/* ─── Header ───────────────────────────────────────────── */
+.modalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px 22px 16px;
+  gap: 12px;
+}
+
+.modalHeaderLeft {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.modalIcon {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  background: rgba(0, 255, 255, 0.1);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0ff;
+  flex-shrink: 0;
+}
+
+.modalTitle {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #e6edf3;
+  letter-spacing: -0.2px;
+  line-height: 1.3;
+}
+
+.modalSub {
+  font-size: 11.5px;
+  color: #7d8590;
+  margin-top: 3px;
+}
+
+.draftBadge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #d29922;
+  background: rgba(210, 153, 34, 0.1);
+  border: 1px solid rgba(210, 153, 34, 0.3);
+  border-radius: 4px;
+  padding: 3px 9px;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+/* ─── Fields ───────────────────────────────────────────── */
+.fieldGroup {
+  padding: 0 22px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.fieldRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fieldLabel {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: #7d8590;
+}
+
+.fieldHint {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #484f58;
+}
+
+/* Version input */
+.versionInputWrap {
+  position: relative;
+}
+
+.versionIcon {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #0ff;
+  pointer-events: none;
+}
+
+.versionInput {
+  width: 100%;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 7px;
+  padding: 10px 12px 10px 32px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0ff;
+  outline: none;
+  box-sizing: border-box;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  transition: border-color 0.15s;
+}
+
+.versionInput::placeholder { color: #30363d; font-weight: 400; }
+.versionInput:focus { border-color: #0ff; box-shadow: 0 0 0 2px rgba(0, 255, 255, 0.1); }
+
+/* Textarea */
+.textarea {
+  width: 100%;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 7px;
+  padding: 10px 12px;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  color: #c9d1d9;
+  outline: none;
+  box-sizing: border-box;
+  resize: vertical;
+  line-height: 1.65;
+  transition: border-color 0.15s;
+}
+
+.textarea::placeholder { color: #30363d; }
+.textarea:focus { border-color: #58a6ff; box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.1); }
+
+/* ─── Error ─────────────────────────────────────────────── */
+.errorMsg {
+  margin: 0 22px 10px;
+  padding: 8px 12px;
+  background: rgba(248, 81, 73, 0.08);
+  border: 1px solid rgba(248, 81, 73, 0.3);
+  border-radius: 6px;
+  color: #f85149;
+  font-size: 12px;
+}
+
+/* ─── File info ─────────────────────────────────────────── */
+.fileInfo {
+  margin: 0 22px 16px;
+  padding: 10px 14px;
+  background: #0d1117;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fileInfoRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.fileInfoLabel {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #484f58;
+  flex-shrink: 0;
+  min-width: 96px;
+}
+
+.fileInfoValue {
+  font-size: 11.5px;
+  color: #7d8590;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  word-break: break-all;
+}
+
+/* ─── Actions ───────────────────────────────────────────── */
+.actions {
+  padding: 0 22px 22px;
+}
+
+.btnSave {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border-radius: 7px;
+  background: #0ff;
+  color: #0d1117;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.15s;
+  letter-spacing: 0.2px;
+}
+
+.btnSave:hover:not(:disabled) { opacity: 0.88; }
+.btnSave:disabled { opacity: 0.4; cursor: not-allowed; }

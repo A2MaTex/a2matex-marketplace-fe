@@ -4,6 +4,7 @@ import RevenuePayout from "../pages/revenue-payout/page/RevenuePayout";
 import AuditLog from "../pages/audit/page/AuditLog";
 import ReviewQueue from "../pages/review-queue/page/ReviewQueue";
 import TermsPage from "../pages/terms/page/TermsPage";
+import LauncherReleasePage from "../pages/launcher-release/page/LauncherReleasePage";
 import {
   MdOutlineAttachMoney,
   MdOutlineBlock,
@@ -11,6 +12,7 @@ import {
   MdOutlineSecurity,
   MdOutlineShield,
   MdOutlineGavel,
+  MdOutlineRocketLaunch,
 } from "react-icons/md";
 
 export default function adminRoutes() {
@@ -54,6 +56,12 @@ export default function adminRoutes() {
       icon: <MdOutlineGavel />,
       path: "/admin/terms",
       element: <TermsPage />,
+    },
+    {
+      label: "Launcher Releases",
+      icon: <MdOutlineRocketLaunch />,
+      path: "/admin/launcher-releases",
+      element: <LauncherReleasePage />,
     },
   ];
   return adminRoutes;
