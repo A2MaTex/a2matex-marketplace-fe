@@ -4,6 +4,7 @@ import Button from "@components/common/Button";
 import { profileApi } from "../api/profileApi";
 import AvatarUpload from "../components/AvatarUpload";
 import ActivatePublisherModal from "../components/ActivatePublisherModal";
+import TopUpModal from "../components/top-up/TopUpModal";
 import styles from "./ProfilePage.module.css";
 
 import {
@@ -107,6 +108,7 @@ const ProfilePage = () => {
   const [toast, setToast] = useState(null); // { msg, type }
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [showPublisherModal, setShowPublisherModal] = useState(false);
+  const [showTopUpModal, setShowTopUpModal] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState(null); // local data-URL before save
 
   const [pwForm, setPwForm] = useState(EMPTY_PW);
@@ -367,7 +369,7 @@ const ProfilePage = () => {
                 <AiOutlineThunderbolt size={16} /> Available Fuel:{" "}
                 {profile.balance ?? 0} CR
               </p>
-              <button className={styles.topUpBtn}>⊕ Top Up / Add Funds</button>
+              <button className={styles.topUpBtn} onClick={() => setShowTopUpModal(true)}>⊕ Top Up / Add Funds</button>
             </div>
           </div>
 
@@ -632,6 +634,17 @@ const ProfilePage = () => {
             setProfile((prev) => prev.roles.push({ code: ROLE.PUBLISHER }));
           }}
           onClose={() => setShowPublisherModal(false)}
+        />
+      )}
+      {showTopUpModal && (
+        <TopUpModal
+          balance={profile.balance ?? 0}
+          onClose={() => setShowTopUpModal(false)}
+          onTopUpSuccess={(newBalance) => {
+            setProfile((p) => ({ ...p, balance: newBalance }));
+            setShowTopUpModal(false);
+            showToast(`Đã nạp thành công ${newBalance.toLocaleString("vi-VN")} VND vào tài khoản`);
+          }}
         />
       )}
     </>
