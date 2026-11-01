@@ -13,6 +13,9 @@ import { TbPlugConnected } from "react-icons/tb";
 import { GoArrowRight } from "react-icons/go";
 import { RiLoader4Line } from "react-icons/ri";
 import Button from "@components/common/Button";
+import { releaseApi } from "@/features/admin/pages/launcher-release/api/api";
+import { useEffect, useState } from "react";
+import { staticApi } from "@/common/api/static/staticApi";
 
 /* ─── Data ───────────────────────────────────────────────────────── */
 
@@ -113,6 +116,45 @@ const LOG_LINES = [
 /* ─── Component ─────────────────────────────────────────────────── */
 
 const LauncherPage = () => {
+  const [currentRelease, setCurrentRelease] = useState();
+
+  const handleDownload = async () => {
+    try {
+      const response = await staticApi.getFileDownloadUrl(
+        currentRelease.staticId,
+      );
+
+      const { downloadUrl } = response.data.data;
+
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.style.display = "none";
+
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleGetCurrentRelease = async () => {
+    try {
+      const res = await releaseApi.getCurrentRelease();
+      setCurrentRelease(
+        res?.data?.data || {
+          version: "v0.0.0",
+        },
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    handleGetCurrentRelease();
+  }, []);
+
   return (
     <div className={styles.page}>
       {/* ── Hero ───────────────────────────────────────────────── */}
@@ -122,7 +164,8 @@ const LauncherPage = () => {
           <div className={styles.heroLeft}>
             <div className={styles.badge}>
               <span className={styles.badgeDot} />
-              CLIENT RUNTIME ENGINE v2.4.0 &nbsp;/&nbsp; FOR TOOL RUNNERS
+              CLIENT RUNTIME ENGINE {currentRelease?.version || "v0.0.0"}{" "}
+              &nbsp;/&nbsp; FOR TOOL RUNNERS
             </div>
 
             <h1 className={styles.heroTitle}>A2MaTeX Client Launcher</h1>
@@ -139,11 +182,11 @@ const LauncherPage = () => {
             <Button
               size="lg"
               leftIcon={<FiDownload size={18} />}
-              href="/launcher#download"
+              onClick={handleDownload}
             >
               <span>Download for Windows</span>
               <span className={styles.downloadMeta}>
-                x64 • v2.4.0 (.exe / 43.8 MB)
+                x64 • {currentRelease?.version || "v0.0.0"}
               </span>
             </Button>
           </div>

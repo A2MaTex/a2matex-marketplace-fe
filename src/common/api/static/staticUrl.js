@@ -7,3 +7,4 @@ export const getImageUrl = (imageId, variant) =>
 export const startMultipartUploadUrl = "/statics/files/multipart/start";
 export const getPresignUrlsUrl = "/statics/files/multipart/urls";
 export const completeMultipartUploadUrl = "/statics/files/multipart/complete";
+export const getDownloadUrlUrl = (staticId) => `/statics/files/${staticId}/download-url`;

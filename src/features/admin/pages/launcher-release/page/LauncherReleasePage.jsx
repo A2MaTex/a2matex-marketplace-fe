@@ -424,6 +424,7 @@ export default function LauncherReleasePage() {
               loading={detailLoading}
               onActivate={() => handleActivate(selected.id)}
               activating={activating}
+              showToast={showToast}
             />
           )}
         </div>
@@ -514,8 +515,32 @@ function ReleaseCard({
 }
 
 // ─── Detail panel ──────────────────────────────────────────
-function ReleaseDetail({ release, loading, onActivate, activating }) {
-  const staticObj = release.static ?? {};
+function ReleaseDetail({
+  release,
+  loading,
+  onActivate,
+  activating,
+  showToast,
+}) {
+  const staticObj = release.static ?? {};  
+  const handleDownload = async () => {   
+    try {
+      const response = await staticApi.getFileDownloadUrl(release.staticId);
+      
+      const { downloadUrl } = response.data.data;
+      
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.style.display = "none";
+
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (error) {
+      console.error(error);
+      showToast("error", "Failed to get download url. Please try again.");
+    }
+  };
 
   return (
     <div className={styles.detail}>
@@ -622,7 +647,7 @@ function ReleaseDetail({ release, loading, onActivate, activating }) {
 
       {/* Footer: download button */}
       <div className={styles.detailFooter}>
-        <button className={styles.btnDownload}>
+        <button onClick={handleDownload} className={styles.btnDownload}>
           <MdDownload size={15} />
           Download Installer (.exe)
           <span className={styles.downloadSize}>
