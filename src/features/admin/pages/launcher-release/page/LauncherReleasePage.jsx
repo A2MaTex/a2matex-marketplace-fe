@@ -15,10 +15,10 @@ import { releaseApi } from "../api/api";
 import { staticApi } from "@/common/api/static/staticApi";
 import ConfigureReleaseModal from "./components/ConfigureReleaseModal";
 import styles from "./LauncherReleasePage.module.css";
-import { CHUNK_SIZE } from "@/common/api/static/constants";
 import { formatBytes, formatDate } from "../helpers";
 import { uploadAllChunksWithRecovery } from "../helpers/upload";
 import { StatusBadge } from "./components/StatusBadge";
+import { CHUNK_SIZE, MAX_PARTS_PER_BATCH } from "@/constants/static";
 
 const FILTER_TABS = ["All", "Active", "Staged"];
 
@@ -121,30 +121,32 @@ export default function LauncherReleasePage() {
       try {
         // ── 1. Tách file thành các chunk theo CHUNK_SIZE ──────
         const totalChunks = Math.max(1, Math.ceil(file.size / CHUNK_SIZE));
-        const requestedPartNumbers = Array.from(
-          { length: totalChunks },
-          (_, i) => i + 1, // partNumber là 1-indexed
+
+        // Batch đầu tiên: chỉ xin tối đa 100 partNumber
+        const firstBatchParts = Array.from(
+          { length: Math.min(totalChunks, MAX_PARTS_PER_BATCH) },
+          (_, i) => i + 1,
         );
 
-        // ── 2. Khởi động session + lấy toàn bộ presigned URLs ─
-        //      (start đã gộp luôn việc lấy uploadUrls)
+        // ── 2. Khởi động session + lấy URLs cho batch đầu tiên ─
         const startRes = await staticApi.startMultipartUpload({
           originalFileName: file.name,
           lastModified: file.lastModified,
           contentType: file.type || "application/octet-stream",
           size: file.size,
-          requestedPartNumbers,
+          requestedPartNumbers: firstBatchParts,
         });
 
         const startData = startRes?.data?.data ?? startRes?.data ?? {};
         const sessionId = startData?.sessionId?.id ?? startData?.sessionId;
-        const uploadUrls = startData?.uploadUrls ?? startData?.urls ?? [];
+        const firstUploadUrls = startData?.uploadUrls ?? startData?.urls ?? [];
 
-        if (!sessionId || uploadUrls.length === 0) {
+        if (!sessionId || firstUploadUrls.length === 0) {
           throw new Error("Invalid startMultipartUpload response");
         }
 
-        // ── 3. Upload chunk (có retry + tự xin URL mới cho chunk fail) ─
+        // ── 3. Upload từng batch, mỗi batch tối đa 100 chunk ──
+        //      batch đầu dùng URL từ start, các batch sau xin qua getUrlsForRetry
         let uploadedChunks = 0;
         const handleChunkDone = () => {
           uploadedChunks += 1;
@@ -152,13 +154,56 @@ export default function LauncherReleasePage() {
           setUploadProgress(pct);
         };
 
-        const parts = await uploadAllChunksWithRecovery({
-          file,
-          sessionId,
-          uploadUrls,
-          signal: abortController.signal,
-          onChunkDone: handleChunkDone,
-        });
+        const allParts = [];
+        let currentUrls = firstUploadUrls;
+        let nextPartStart = firstBatchParts.length + 1; // partNumber tiếp theo chưa có URL
+
+        while (currentUrls.length > 0) {
+          if (abortController.signal.aborted)
+            throw new DOMException("Aborted", "AbortError");
+
+          // Upload batch hiện tại (có recovery cho chunk fail trong batch)
+          const batchParts = await uploadAllChunksWithRecovery({
+            file,
+            sessionId,
+            uploadUrls: currentUrls,
+            signal: abortController.signal,
+            onChunkDone: handleChunkDone,
+          });
+          allParts.push(...batchParts);
+
+          // Còn batch tiếp theo không?
+          if (nextPartStart > totalChunks) break;
+
+          // Xin URL cho batch tiếp theo (tối đa 100 part)
+          const nextBatchParts = Array.from(
+            {
+              length: Math.min(
+                MAX_PARTS_PER_BATCH,
+                totalChunks - nextPartStart + 1,
+              ),
+            },
+            (_, i) => nextPartStart + i,
+          );
+
+          const retryRes = await staticApi.getUrlsForRetry({
+            sessionId,
+            partNumbers: nextBatchParts,
+          });
+          const retryData = retryRes?.data?.data ?? retryRes?.data ?? {};
+          currentUrls = retryData?.uploadUrls ?? retryData?.urls ?? [];
+
+          if (currentUrls.length === 0) {
+            throw new Error(
+              `Failed to obtain URLs for parts ${nextBatchParts[0]}–${nextBatchParts.at(-1)}`,
+            );
+          }
+
+          nextPartStart += nextBatchParts.length;
+        }
+
+        allParts.sort((a, b) => a.partNumber - b.partNumber);
+        const parts = allParts;
 
         if (abortController.signal.aborted)
           throw new DOMException("Aborted", "AbortError");
