@@ -1,0 +1,22 @@
+{
+  "data": {
+    "projectStatus": "ACTIVE",
+    "draft": {
+      "id": "10000000-0000-4000-8000-000000000004",
+      "projectId": "20000000-0000-4000-8000-000000000004",
+      "version": 1,
+      "editorGraph": {
+        "schemaVersion": 999,
+        "entryNodeId": "missing",
+        "nodes": "not-an-array",
+        "edges": []
+      },
+      "inputSchema": {},
+      "runtimeIr": null,
+      "validationSummary": {},
+      "contentHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "savedAt": "2026-11-17T05:30:00.000Z"
+    }
+  },
+  "statusCode": 200
+}

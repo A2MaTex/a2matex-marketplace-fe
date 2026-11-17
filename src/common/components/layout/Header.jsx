@@ -5,7 +5,7 @@ import { IoCashOutline } from "react-icons/io5";
 import { IoPersonCircleOutline } from "react-icons/io5";
 import styles from "./Header.module.css";
 import Button from "../common/Button";
-import logo from "@/assets/logo.svg";
+import logo from "@/assets/text-logo.svg";
 import { Avatar } from "../common/Avatar";
 import ROLE from "@/constants/roles";
 
@@ -19,7 +19,7 @@ const ADMIN_ITEMS = [{ label: "Admin Hub", to: "/admin/permission-role" }];
 const PUBLISHER_ITEMS = [
   {
     label: "Publisher Hub",
-    to: "/publisher/publisher-hub",
+    to: "/publisher/publisher-hub/projects",
   },
 ];
 
@@ -49,8 +49,7 @@ const Header = ({ user, avatar }) => {
         {/* Left: logo + nav */}
         <div className={styles.left}>
           <Link to="/" className={styles.logo} aria-label="A2MaTeX home">
-            <img src={logo} height={24} alt="logo" />
-            <span className={styles.logoText}>A2MaTeX</span>
+            <img src={logo} height={32} alt="logo" />
           </Link>
 
           <nav className={styles.nav} aria-label="Main navigation">

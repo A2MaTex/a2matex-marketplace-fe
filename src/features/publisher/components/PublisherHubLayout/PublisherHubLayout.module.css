@@ -1,0 +1,199 @@
+.shell {
+  display: grid;
+  grid-template-columns: 214px minmax(0, 1fr);
+  height: calc(100svh - 56px);
+  min-height: 560px;
+  overflow: hidden;
+  background: #070a12;
+  color: #e2e8f0;
+}
+
+.shell,
+.shell * {
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: #2b3748 transparent;
+}
+
+.shell *::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.shell *::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.shell *::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #2b3748;
+}
+
+.shell *::-webkit-scrollbar-thumb:hover {
+  background: #3b4a5f;
+}
+
+.sidebar {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #080b14;
+  border-right: 1px solid #171c2c;
+}
+
+.statusCard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 18px 16px 14px;
+}
+
+.statusCard > span:last-child {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.statusCard strong {
+  color: #dce8f5;
+  font-size: 11px;
+  line-height: 1.25;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.statusCard small {
+  color: #68758b;
+  font-size: 10px;
+  line-height: 1.25;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #42e6b1;
+  box-shadow: 0 0 12px rgba(66, 230, 177, 0.55);
+}
+
+.navigation {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 9px 18px;
+}
+
+.group + .group {
+  margin-top: 19px;
+}
+
+.groupLabel {
+  margin: 0 9px 7px;
+  color: #566176;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.groupItems {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.navItem {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 9px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: #8a96aa;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.2;
+  text-decoration: none;
+  transition: color 140ms ease, background 140ms ease, border-color 140ms ease;
+}
+
+.navItem:hover {
+  color: #d8e4f1;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.navItemActive {
+  color: #8eeaff;
+  border-color: transparent;
+  background: rgba(69, 190, 213, 0.09);
+}
+
+.sidebarFooter {
+  padding: 13px 14px 16px;
+  background: rgba(6, 9, 15, 0.55);
+}
+
+.sidebarFooter p {
+  margin-top: 7px;
+  color: #59657a;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.readOnlyBadge {
+  display: inline-flex;
+  color: #73d9ec;
+  font-family: var(--mono);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.content {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
+}
+
+@media (max-width: 920px) {
+  .shell {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .sidebar {
+    border-right: 0;
+    border-bottom: 1px solid #171c2c;
+  }
+
+  .statusCard,
+  .sidebarFooter,
+  .groupLabel {
+    display: none;
+  }
+
+  .navigation {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 8px 10px;
+  }
+
+  .group,
+  .group + .group,
+  .groupItems {
+    display: contents;
+    margin: 0;
+  }
+
+  .navItem {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+}

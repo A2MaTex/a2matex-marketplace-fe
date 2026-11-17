@@ -7,11 +7,13 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
+    "test": "node --test",
     "preview": "vite preview"
   },
   "dependencies": {
     "@eaeao/summernote-react": "^1.4.1",
     "@tailwindcss/vite": "^4.3.3",
+    "@xyflow/react": "^12.12.1",
     "axios": "^1.20.0",
     "idb": "^8.0.4",
     "react": "^19.2.8",
@@ -20,6 +22,7 @@
     "react-image-crop": "^11.1.2",
     "react-router-dom": "^7.18.4",
     "tailwindcss": "^4.3.3",
+    "zod": "^4.6.7",
     "zustand": "^5.0.15"
   },
   "devDependencies": {

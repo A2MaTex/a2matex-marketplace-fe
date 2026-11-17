@@ -1,0 +1,181 @@
+import { lazy, Suspense } from "react";
+import {
+  FiArchive,
+  FiClock,
+  FiGitBranch,
+  FiRefreshCw,
+} from "react-icons/fi";
+import { getGraphSummary } from "./model/projectContract";
+import styles from "./ProjectDraftOverview.module.css";
+
+const ProjectCanvasPreview = lazy(() => import("./ProjectCanvasPreview"));
+
+const formatSavedAt = (value) => {
+  if (!value) return "Unknown";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Unknown";
+  return new Intl.DateTimeFormat("en", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
+};
+
+const StatePanel = ({ title, description, action }) => (
+  <div className={styles.statePanel}>
+    <span className={styles.stateIcon} aria-hidden="true">
+      <FiGitBranch size={21} />
+    </span>
+    <h2>{title}</h2>
+    <p>{description}</p>
+    {action}
+  </div>
+);
+
+const ProjectDraftOverview = ({
+  selectedProjectId,
+  project,
+  projectLoading,
+  projectError,
+  draftData,
+  draftLoading,
+  draftError,
+  onRetryDraft,
+  onOpenWorkflow,
+}) => {
+  if (!selectedProjectId) {
+    return (
+      <section className={styles.overview}>
+        <StatePanel
+          title="Select a project"
+          description="Choose a project from the directory to inspect its latest cloud draft."
+        />
+      </section>
+    );
+  }
+
+  if (projectLoading || draftLoading) {
+    return (
+      <section className={styles.overview} aria-busy="true" aria-label="Loading project draft">
+        <div className={styles.skeletonHeader} />
+        <div className={styles.skeletonGrid}>
+          <span />
+          <span />
+          <span />
+        </div>
+        <div className={styles.skeletonCanvas} />
+      </section>
+    );
+  }
+
+  if (projectError || draftError) {
+    const error = projectError ?? draftError;
+    return (
+      <section className={styles.overview}>
+        <StatePanel
+          title="Draft unavailable"
+          description={error.message}
+          action={
+            draftError ? (
+              <button type="button" className={styles.secondaryButton} onClick={onRetryDraft}>
+                <FiRefreshCw aria-hidden="true" /> Retry draft
+              </button>
+            ) : null
+          }
+        />
+      </section>
+    );
+  }
+
+  const draft = draftData?.draft ?? null;
+  const status = draftData?.projectStatus ?? project?.status ?? "UNKNOWN";
+  if (!draft) {
+    return (
+      <section className={styles.overview}>
+        <div className={styles.projectHeader}>
+          <div>
+            <p className={styles.eyebrow}>Selected project</p>
+            <h1>{project?.name ?? "Project"}</h1>
+            <p className={styles.projectDescription}>
+              {project?.description || "No project description"}
+            </p>
+          </div>
+          <span className={`${styles.statusBadge} ${status === "ACTIVE" ? styles.active : styles.archived}`}>
+            {status}
+          </span>
+        </div>
+        <StatePanel
+          title="No cloud draft"
+          description="This project does not have a synchronized draft yet. Open it in A2MaTeX Studio to create one."
+        />
+      </section>
+    );
+  }
+
+  const graph = getGraphSummary(draft);
+
+  return (
+    <section className={styles.overview}>
+      <div className={styles.projectHeader}>
+        <div className={styles.projectTitle}>
+          <p className={styles.eyebrow}>Cloud project draft</p>
+          <div className={styles.titleRow}>
+            <h1>{project?.name ?? "Project"}</h1>
+          </div>
+          <p className={styles.projectDescription}>
+            {project?.description || "No project description"}
+          </p>
+        </div>
+        <span className={`${styles.statusBadge} ${status === "ACTIVE" ? styles.active : styles.archived}`}>
+          {status === "ARCHIVED" ? <FiArchive aria-hidden="true" /> : null}
+          {status}
+        </span>
+      </div>
+
+      <div className={styles.stats}>
+        <article>
+          <span>Draft version</span>
+          <strong>v{draft.version}</strong>
+        </article>
+        <article>
+          <span>Workflow nodes</span>
+          <strong>{graph.nodeCount}</strong>
+        </article>
+        <article>
+          <span>Connections</span>
+          <strong>{graph.edgeCount}</strong>
+        </article>
+        <article>
+          <span>Graph schema</span>
+          <strong>{graph.schemaVersion ?? "Unknown"}</strong>
+        </article>
+      </div>
+
+      <div className={styles.summaryCard}>
+        <div className={styles.summaryHeading}>
+          <div>
+            <p className={styles.eyebrow}>Workflow summary</p>
+            <h2>Draft graph is ready for the viewer</h2>
+          </div>
+          <button type="button" className={styles.primaryButton} onClick={onOpenWorkflow}>
+            <FiGitBranch aria-hidden="true" /> Open workflow tab
+          </button>
+        </div>
+
+        <div className={styles.graphPreview}>
+          <Suspense fallback={<div className={styles.previewLoading}>Preparing graph...</div>}>
+            <ProjectCanvasPreview draft={draft} />
+          </Suspense>
+        </div>
+
+        <dl className={styles.metadata}>
+          <div>
+            <dt><FiClock aria-hidden="true" /> Last synchronized</dt>
+            <dd>{formatSavedAt(draft.savedAt)}</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+  );
+};
+
+export default ProjectDraftOverview;

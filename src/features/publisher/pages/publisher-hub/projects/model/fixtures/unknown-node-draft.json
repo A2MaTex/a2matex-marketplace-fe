@@ -1,0 +1,31 @@
+{
+  "data": {
+    "projectStatus": "ACTIVE",
+    "draft": {
+      "id": "10000000-0000-4000-8000-000000000003",
+      "projectId": "20000000-0000-4000-8000-000000000003",
+      "version": 2,
+      "editorGraph": {
+        "schemaVersion": 1,
+        "entryNodeId": "unknown",
+        "nodes": [
+          {
+            "id": "unknown",
+            "type": "custom.future_node",
+            "config": { "fixtureValue": "synthetic-only" },
+            "editor": { "x": 0, "y": 0 },
+            "bindings": {},
+            "errorPolicy": "STOP"
+          }
+        ],
+        "edges": []
+      },
+      "inputSchema": {},
+      "runtimeIr": null,
+      "validationSummary": {},
+      "contentHash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "savedAt": "2026-11-17T05:20:00.000Z"
+    }
+  },
+  "statusCode": 200
+}

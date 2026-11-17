@@ -1,0 +1,55 @@
+{
+  "data": {
+    "projectStatus": "ACTIVE",
+    "draft": {
+      "id": "10000000-0000-4000-8000-000000000001",
+      "projectId": "20000000-0000-4000-8000-000000000001",
+      "version": 3,
+      "editorGraph": {
+        "schemaVersion": 1,
+        "entryNodeId": "start",
+        "nodes": [
+          {
+            "id": "start",
+            "type": "flow.start",
+            "config": {},
+            "editor": { "x": 40, "y": 80 },
+            "bindings": {},
+            "errorPolicy": "STOP"
+          },
+          {
+            "id": "tap",
+            "type": "android.tap",
+            "name": "Tap target",
+            "config": { "targetMode": "absolute" },
+            "editor": { "x": 260, "y": 80 },
+            "bindings": {
+              "x": { "kind": "literal", "value": 320 },
+              "y": { "kind": "literal", "value": 640 }
+            },
+            "errorPolicy": "ERROR_BRANCH"
+          }
+        ],
+        "edges": [
+          {
+            "id": "edge-start-tap",
+            "sourcePort": "out",
+            "sourceNodeId": "start",
+            "targetNodeId": "tap"
+          }
+        ]
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "runtimeIr": null,
+      "validationSummary": {},
+      "contentHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "savedAt": "2026-11-17T05:00:00.000Z"
+    }
+  },
+  "statusCode": 200
+}

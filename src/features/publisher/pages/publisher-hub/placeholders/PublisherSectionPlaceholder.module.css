@@ -1,0 +1,66 @@
+.page {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  place-items: center;
+  overflow: auto;
+  padding: 32px;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(0, 196, 224, 0.07), transparent 34%),
+    #070a12;
+}
+
+.card {
+  width: min(500px, 100%);
+  padding: 36px;
+  border: 1px solid #1b2435;
+  border-radius: 14px;
+  background: rgba(13, 17, 29, 0.9);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.24);
+  text-align: center;
+}
+
+.icon {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 16px;
+  border-radius: 10px;
+  color: #74def0;
+  background: rgba(35, 193, 221, 0.09);
+  border: 1px solid rgba(35, 193, 221, 0.18);
+}
+
+.eyebrow {
+  color: #5e6c82;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.card h1 {
+  margin-top: 6px;
+  color: #e7edf5;
+  font-size: 25px;
+}
+
+.description {
+  max-width: 410px;
+  margin: 12px auto 20px;
+  color: #778398;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.badge {
+  display: inline-flex;
+  padding: 5px 9px;
+  border: 1px solid #2a3547;
+  border-radius: 5px;
+  color: #8c99ad;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}

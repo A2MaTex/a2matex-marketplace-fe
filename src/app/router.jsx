@@ -4,7 +4,7 @@ import RegisterPage from "@features/auth/pages/RegisterPage";
 import LauncherPage from "@/features/marketplace/pages/launcher/LauncherPage";
 import Marketplace from "@/features/marketplace/pages/home/Marketplace";
 import ProductDetailPage from "@/features/marketplace/pages/product-detail/ProductDetailPage";
-import StudioPage from "@/features/marketplace/pages/studio/StudioPage";
+import StudioPage from "@/features/marketplace/pages/studio/StudioLandingPage";
 import ProfilePage from "@features/profile/pages/ProfilePage";
 import ForgotPasswordPage from "@/features/auth/pages/ForgotPasswordPage";
 import adminRoutes from "@/features/admin/routers/adminRoute";

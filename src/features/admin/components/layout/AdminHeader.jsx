@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { MdSearch, MdNotificationsNone } from "react-icons/md";
 import styles from "./AdminHeader.module.css";
+import logo from "@/assets/text-logo.svg";
 import { Avatar } from "@/common/components/common/Avatar";
 
 export default function AdminHeader({ user, avatar }) {
@@ -9,7 +10,7 @@ export default function AdminHeader({ user, avatar }) {
       {/* Left: Logo + badge */}
       <div className={styles.left}>
         <Link to="/" className={styles.logo}>
-          <span className={styles.logoText}>A2MaTeX</span>
+          <img src={logo} height={32} alt="logo" />
         </Link>
         <span className={styles.portalBadge}>Admin Portal v2.5.0</span>
       </div>
