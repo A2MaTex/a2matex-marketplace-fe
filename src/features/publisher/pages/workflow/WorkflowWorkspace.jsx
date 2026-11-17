@@ -6,7 +6,7 @@ import {
   FiMaximize,
   FiMinimize,
 } from "react-icons/fi";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { useProjectDetails } from "../projects/hooks/useProjectDetails";
 import { useProjectDraft } from "../projects/hooks/useProjectDraft";
 import WorkflowCanvas from "./WorkflowCanvas";
@@ -48,7 +48,6 @@ const WorkflowWorkspace = () => {
   const workspaceRef = useRef(null);
   const { projectId, workflowKey } = useParams();
   const location = useLocation();
-  const navigate = useNavigate();
   const projectState = useProjectDetails(projectId);
   const draftState = useProjectDraft(projectId);
   const catalogState = useNodeCatalog();
@@ -58,7 +57,7 @@ const WorkflowWorkspace = () => {
   );
   const [selection, setSelection] = useState({ workflowKey: null, nodeId: null });
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const backTo = `/publisher/publisher-hub/projects/${projectId}/draft${location.search}`;
+  const backTo = `/publisher/projects/${projectId}/draft${location.search}`;
 
   useEffect(() => {
     const syncFullscreenState = () => {
@@ -120,12 +119,6 @@ const WorkflowWorkspace = () => {
     : [];
   const studioHref = `a2matex-studio://cloud-project/${encodeURIComponent(projectId)}?workflow=${encodeURIComponent(workflowEntry.key)}&action=open`;
 
-  const selectWorkflow = (nextKey) => {
-    navigate(
-      `/publisher/publisher-hub/projects/${projectId}/draft/workflows/${encodeURIComponent(nextKey)}${location.search}`,
-    );
-  };
-
   return (
     <section ref={workspaceRef} className={styles.workspace}>
       <header className={styles.toolbar}>
@@ -134,10 +127,9 @@ const WorkflowWorkspace = () => {
         </Link>
         <div className={styles.title}>
           <span>{projectState.data?.name || "Project workflow"}</span>
-          <small>Draft v{draftState.data.draft.version}</small>
         </div>
         <div className={styles.tabs} role="tablist" aria-label="Project workflows">
-          {decoded.workflows.map((entry) => (
+          {/* {decoded.workflows.map((entry) => (
             <button
               key={entry.key}
               type="button"
@@ -148,7 +140,7 @@ const WorkflowWorkspace = () => {
             >
               {entry.label}
             </button>
-          ))}
+          ))} */}
         </div>
         <button
           type="button"

@@ -1,14 +1,14 @@
 import { Navigate } from "react-router-dom";
 import PublisherHubLayout from "../components/PublisherHubLayout/PublisherHubLayout";
-import ProjectsDraftsPage from "../pages/publisher-hub/projects/ProjectsDraftsPage";
-import PublisherSectionPlaceholder from "../pages/publisher-hub/placeholders/PublisherSectionPlaceholder";
-import WorkflowWorkspaceRoute from "../pages/publisher-hub/workflow/WorkflowWorkspaceRoute";
+import ProjectsDraftsPage from "../pages/projects/ProjectsDraftsPage";
+import PublisherSectionPlaceholder from "../pages/placeholders/PublisherSectionPlaceholder";
+import WorkflowWorkspaceRoute from "../pages/workflow/WorkflowWorkspaceRoute";
 
 export default function publisherRoutes() {
   return [
     {
       label: "Publisher Hub",
-      path: "/publisher/publisher-hub",
+      path: "/publisher",
       element: <PublisherHubLayout />,
       children: [
         {

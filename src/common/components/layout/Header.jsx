@@ -19,7 +19,7 @@ const ADMIN_ITEMS = [{ label: "Admin Hub", to: "/admin/permission-role" }];
 const PUBLISHER_ITEMS = [
   {
     label: "Publisher Hub",
-    to: "/publisher/publisher-hub/projects",
+    to: "/publisher/projects",
   },
 ];
 

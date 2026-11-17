@@ -13,7 +13,7 @@
 }
 
 .toolbar {
-  min-height: 40px;
+  min-height: 60px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -41,7 +41,6 @@
 .title {
   min-width: 0;
   display: grid;
-  margin-top: 8px;
 }
 
 .title span {

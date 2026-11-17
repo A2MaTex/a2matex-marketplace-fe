@@ -5,6 +5,7 @@ const ERROR_MESSAGES = {
   "Error.PublisherNotActivated": "Activate your publisher account to access projects.",
   "Error.PublisherBlocked": "Your publisher account is currently blocked.",
   "Error.ProjectNotFound": "This project is unavailable or outside your access scope.",
+  "Error.ProjectArchived": "Archived projects can no longer be edited.",
 };
 
 export const isCanceledRequest = (error) =>

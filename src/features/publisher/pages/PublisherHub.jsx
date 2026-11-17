@@ -1,8 +1,8 @@
 import { useState, useCallback } from "react";
-import { usePublisherData } from "./hooks/usePublisherData";
-import ProjectSidebar from "./components/ProjectSidebar";
-import ProductForm from "./components/ProductForm";
-import styles from "./PublisherHub.module.css";
+import { usePublisherData } from "./publisher-hub/hooks/usePublisherData";
+import ProjectSidebar from "./publisher-hub/components/ProjectSidebar";
+import ProductForm from "./publisher-hub/components/ProductForm";
+import styles from "./publisher-hub/PublisherHub.module.css";
 
 export const PublisherHub = () => {
   const {

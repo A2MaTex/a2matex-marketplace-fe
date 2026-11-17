@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 import {
   FiArchive,
   FiClock,
+  FiEdit3,
   FiGitBranch,
   FiRefreshCw,
 } from "react-icons/fi";
@@ -31,6 +32,38 @@ const StatePanel = ({ title, description, action }) => (
   </div>
 );
 
+const ProjectHeaderActions = ({ status, onEditProject, onArchiveProject }) => {
+  const archived = status === "ARCHIVED";
+  return (
+    <div className={styles.headerActions}>
+      <div className={styles.projectActions}>
+        <button
+          type="button"
+          className={styles.projectActionButton}
+          onClick={onEditProject}
+          disabled={archived}
+          title={archived ? "Archived projects cannot be edited" : "Edit project information"}
+        >
+          <FiEdit3 aria-hidden="true" /> Edit project
+        </button>
+        <button
+          type="button"
+          className={styles.archiveActionButton}
+          onClick={onArchiveProject}
+          disabled={archived}
+          title={archived ? "This project is already archived" : "Archive project"}
+        >
+          <FiArchive aria-hidden="true" /> {archived ? "Archived" : "Archive"}
+        </button>
+      </div>
+      <span className={`${styles.statusBadge} ${status === "ACTIVE" ? styles.active : styles.archived}`}>
+        {status === "ARCHIVED" ? <FiArchive aria-hidden="true" /> : null}
+        {status}
+      </span>
+    </div>
+  );
+};
+
 const ProjectDraftOverview = ({
   selectedProjectId,
   project,
@@ -41,6 +74,9 @@ const ProjectDraftOverview = ({
   draftError,
   onRetryDraft,
   onOpenWorkflow,
+  onEditProject,
+  onArchiveProject,
+  notice,
 }) => {
   if (!selectedProjectId) {
     return (
@@ -87,7 +123,7 @@ const ProjectDraftOverview = ({
   }
 
   const draft = draftData?.draft ?? null;
-  const status = draftData?.projectStatus ?? project?.status ?? "UNKNOWN";
+  const status = project?.status ?? draftData?.projectStatus ?? "UNKNOWN";
   if (!draft) {
     return (
       <section className={styles.overview}>
@@ -99,12 +135,15 @@ const ProjectDraftOverview = ({
               {project?.description || "No project description"}
             </p>
           </div>
-          <span className={`${styles.statusBadge} ${status === "ACTIVE" ? styles.active : styles.archived}`}>
-            {status}
-          </span>
+          <ProjectHeaderActions
+            status={status}
+            onEditProject={onEditProject}
+            onArchiveProject={onArchiveProject}
+          />
         </div>
+        {notice ? <p className={styles.notice} role="status">{notice.message}</p> : null}
         <StatePanel
-          title="No cloud draft"
+          title="No cloud draft yet"
           description="This project does not have a synchronized draft yet. Open it in A2MaTeX Studio to create one."
         />
       </section>
@@ -125,17 +164,16 @@ const ProjectDraftOverview = ({
             {project?.description || "No project description"}
           </p>
         </div>
-        <span className={`${styles.statusBadge} ${status === "ACTIVE" ? styles.active : styles.archived}`}>
-          {status === "ARCHIVED" ? <FiArchive aria-hidden="true" /> : null}
-          {status}
-        </span>
+        <ProjectHeaderActions
+          status={status}
+          onEditProject={onEditProject}
+          onArchiveProject={onArchiveProject}
+        />
       </div>
 
+      {notice ? <p className={styles.notice} role="status">{notice.message}</p> : null}
+
       <div className={styles.stats}>
-        <article>
-          <span>Draft version</span>
-          <strong>v{draft.version}</strong>
-        </article>
         <article>
           <span>Workflow nodes</span>
           <strong>{graph.nodeCount}</strong>
