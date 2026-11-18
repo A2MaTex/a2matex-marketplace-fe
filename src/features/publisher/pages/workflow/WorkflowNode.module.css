@@ -16,6 +16,20 @@
   transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
+.iconOnly {
+  width: 60px;
+}
+
+.iconOnly .body {
+  justify-content: center;
+  padding: 12px;
+}
+
+.iconOnly .activity {
+  top: 8px;
+  right: 8px;
+}
+
 .node::before {
   content: "";
   position: absolute;

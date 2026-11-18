@@ -27,11 +27,14 @@ const nodeTone = (data) => {
 };
 
 const WorkflowNode = ({ data, selected }) => {
+  const iconOnly = data.labelMode === "icon";
+
   return (
     <div
-      className={`${styles.node} ${selected ? styles.selected : ""} ${data.disabled ? styles.disabled : ""}`}
+      className={`${styles.node} ${iconOnly ? styles.iconOnly : ""} ${selected ? styles.selected : ""} ${data.disabled ? styles.disabled : ""}`}
       data-tone={nodeTone(data)}
       aria-label={`${data.label}, ${data.nodeType}`}
+      title={data.description || data.label}
     >
       {!data.isEntry ? (
         <Handle
@@ -47,10 +50,12 @@ const WorkflowNode = ({ data, selected }) => {
         <span className={styles.icon}>
           <NodeIcon data={data} />
         </span>
-        <span className={styles.text}>
-          <strong>{data.label}</strong>
-          <small className={styles.type}>{data.nodeType}</small>
-        </span>
+        {!iconOnly ? (
+          <span className={styles.text}>
+            <strong>{data.label}</strong>
+            <small className={styles.type}>{data.nodeType}</small>
+          </span>
+        ) : null}
         <span className={styles.activity} aria-hidden="true" />
       </div>
 

@@ -33,7 +33,7 @@ const NodeDetailDrawer = ({ node, definition, issues = [], onClose }) => {
       <header className={styles.header}>
         <div>
           <p>Node detail</p>
-          <h2>{node.name?.trim() || definition?.displayName || node.type}</h2>
+          <h2>{node.editor.name?.trim() || definition?.displayName || node.type}</h2>
         </div>
         <button type="button" onClick={onClose} aria-label="Close node details">
           <FiX aria-hidden="true" />
@@ -43,7 +43,7 @@ const NodeDetailDrawer = ({ node, definition, issues = [], onClose }) => {
       <div className={styles.body}>
         <section className={styles.identity}>
           <span className={styles.type}>{node.type}</span>
-          <p>{definition?.description || node.description || "No catalog description is available."}</p>
+          <p>{node.editor.description || definition?.description || "No description is available."}</p>
           <dl>
             <div><dt>Status</dt><dd>{node.disabled ? "Disabled" : "Enabled"}</dd></div>
             <div><dt>Error policy</dt><dd>{node.errorPolicy}</dd></div>

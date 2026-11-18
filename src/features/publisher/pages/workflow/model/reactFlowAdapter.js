@@ -14,15 +14,18 @@ export const toReactFlowNodes = (workflow, definitions, selectedNodeId = null) =
 
   return workflow.nodes.map((node) => {
     const definition = definitions.get(node.type);
+    const editorName = node.editor.name?.trim();
     const persistedPorts = [...(outgoingPorts.get(node.id) ?? [])];
     const outputPorts = [...new Set([...(definition?.outputPorts ?? []), ...persistedPorts])];
     return {
       id: node.id,
       type: "workflowNode",
-      position: { ...node.editor },
+      position: { x: node.editor.x, y: node.editor.y },
       selected: node.id === selectedNodeId,
       data: {
-        label: node.name?.trim() || definition?.displayName || node.type,
+        label: editorName || definition?.displayName || node.type,
+        description: node.editor.description,
+        labelMode: node.editor.labelMode ?? "icon-and-name",
         nodeType: node.type,
         category: definition?.category ?? "UNKNOWN",
         disabled: node.disabled ?? false,

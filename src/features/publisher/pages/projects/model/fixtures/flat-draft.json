@@ -13,16 +13,27 @@
             "id": "start",
             "type": "flow.start",
             "config": {},
-            "editor": { "x": 40, "y": 80 },
+            "editor": {
+              "x": 40,
+              "y": 80,
+              "name": "Start automation",
+              "description": "Start new workflow",
+              "labelMode": "icon-and-name"
+            },
             "bindings": {},
             "errorPolicy": "STOP"
           },
           {
             "id": "tap",
             "type": "android.tap",
-            "name": "Tap target",
             "config": { "targetMode": "absolute" },
-            "editor": { "x": 260, "y": 80 },
+            "editor": {
+              "x": 260,
+              "y": 80,
+              "name": "Tap target",
+              "description": "Tap the configured target",
+              "labelMode": "icon"
+            },
             "bindings": {
               "x": { "kind": "literal", "value": 320 },
               "y": { "kind": "literal", "value": 640 }

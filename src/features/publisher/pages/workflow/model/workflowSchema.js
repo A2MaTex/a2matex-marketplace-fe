@@ -6,15 +6,15 @@ export const workflowNodeSchema = z
   .object({
     id: z.string().min(1).max(128),
     type: z.string().min(1).max(128),
-    name: z.string().max(100).optional(),
-    labelMode: z.enum(["icon", "icon-and-name"]).optional(),
-    description: z.string().max(20_000).optional(),
     disabled: z.boolean().optional(),
     config: jsonRecord,
     editor: z
       .object({
         x: z.number().finite(),
         y: z.number().finite(),
+        name: z.string().max(100).optional(),
+        description: z.string().max(20_000).optional(),
+        labelMode: z.enum(["icon", "icon-and-name"]).optional(),
       })
       .strict(),
     bindings: z.record(
