@@ -30,7 +30,7 @@ const ProjectsDraftsPage = () => {
   const [notice, setNotice] = useState(null);
   const page = positivePage(searchParams.get("page"));
   const requestedStatus = searchParams.get("status") ?? "";
-  const status = VALID_STATUSES.has(requestedStatus) ? requestedStatus : "";
+  const status = VALID_STATUSES.has(requestedStatus) ? requestedStatus : "ACTIVE";
 
   const projectsState = usePublisherProjects({ page, limit: PAGE_SIZE, status });
   const selectedFromPage =

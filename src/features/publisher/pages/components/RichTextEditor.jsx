@@ -1,15 +1,15 @@
 import { useRef, useState, useCallback } from "react";
+import { FiCode, FiImage, FiLink, FiList } from "react-icons/fi";
 import styles from "./RichTextEditor.module.css";
 
 // ─── Toolbar button definitions ───────────────────────────────────────────────
 const TOOLBAR_ACTIONS = [
-  { id: "bold",        label: "B",    title: "Bold",            before: "**",  after: "**"  },
-  { id: "italic",      label: "/",    title: "Italic",          before: "_",   after: "_"   },
-  { id: "code",        label: "</>",  title: "Inline code",     before: "`",   after: "`"   },
-  { id: "codeblock",   label: "```",  title: "Code block",      before: "```\n", after: "\n```" },
-  { id: "ul",          label: "• —",  title: "Bullet list",     before: "\n- ", after: ""   },
-  { id: "link",        label: "🔗",   title: "Link",            before: "[",   after: "](url)" },
-  { id: "image",       label: "🖼",   title: "Image",           before: "![alt](", after: ")" },
+  { id: "bold", label: "B", title: "Bold", before: "**", after: "**" },
+  { id: "italic", label: "/", title: "Italic", before: "_", after: "_" },
+  { id: "code", icon: FiCode, title: "Inline code", before: "`", after: "`" },
+  { id: "ul", icon: FiList, title: "Bullet list", before: "\n- ", after: "" },
+  { id: "link", icon: FiLink, title: "Link", before: "[", after: "](url)" },
+  { id: "image", icon: FiImage, title: "Image", before: "![alt](", after: ")" },
 ];
 
 /**
@@ -22,7 +22,14 @@ const TOOLBAR_ACTIONS = [
  *  - placeholder: string
  *  - rows: number (textarea rows, default 8)
  */
-const RichTextEditor = ({ value = "", onChange, placeholder = "Enter markdown...", rows = 8 }) => {
+const RichTextEditor = ({
+  value = "",
+  onChange,
+  placeholder = "Enter markdown...",
+  rows = 8,
+  disabled = false,
+  ariaLabel,
+}) => {
   const textareaRef = useRef(null);
   const [previewOk] = useState(true); // placeholder badge
 
@@ -31,6 +38,7 @@ const RichTextEditor = ({ value = "", onChange, placeholder = "Enter markdown...
    */
   const applyAction = useCallback(
     ({ before, after }) => {
+      if (disabled) return;
       const ta = textareaRef.current;
       if (!ta) return;
 
@@ -58,33 +66,36 @@ const RichTextEditor = ({ value = "", onChange, placeholder = "Enter markdown...
         void cursorPos; // suppress unused warning
       });
     },
-    [value, onChange]
+    [disabled, value, onChange]
   );
 
   return (
-    <div className={styles.wrapper}>
+    <div className={`${styles.wrapper} ${disabled ? styles.disabled : ""}`}>
       {/* Toolbar */}
       <div className={styles.toolbar}>
         <div className={styles.toolbarButtons}>
-          {TOOLBAR_ACTIONS.map((action) => (
-            <button
-              key={action.id}
-              type="button"
-              title={action.title}
-              className={styles.toolbarBtn}
-              onMouseDown={(e) => {
-                // Prevent textarea from losing focus
-                e.preventDefault();
-                applyAction(action);
-              }}
-            >
-              {action.label}
-            </button>
-          ))}
+          {TOOLBAR_ACTIONS.map((action) => {
+            const Icon = action.icon;
+            return (
+              <button
+                key={action.id}
+                type="button"
+                title={action.title}
+                aria-label={action.title}
+                className={styles.toolbarBtn}
+                disabled={disabled}
+                onMouseDown={(event) => {
+                  event.preventDefault();
+                  applyAction(action);
+                }}
+              >
+                {Icon ? <Icon aria-hidden="true" /> : action.label}
+              </button>
+            );
+          })}
         </div>
 
         <div className={styles.toolbarRight}>
-          <span className={styles.modeBadge}>Markdown Mode</span>
           {previewOk && (
             <span className={styles.previewBadge}>Preview sync: OK</span>
           )}
@@ -100,6 +111,8 @@ const RichTextEditor = ({ value = "", onChange, placeholder = "Enter markdown...
         placeholder={placeholder}
         rows={rows}
         spellCheck={false}
+        disabled={disabled}
+        aria-label={ariaLabel}
       />
     </div>
   );

@@ -3,15 +3,12 @@ import {
   FiArrowDownRight,
   FiCheck,
   FiChevronRight,
-  FiCpu,
   FiDownload,
   FiLayers,
-  FiPlay,
   FiShield,
   FiZap,
 } from "react-icons/fi";
 import { FaLinux, FaWindows } from "react-icons/fa";
-import { MdOutlineAutoAwesome } from "react-icons/md";
 import { TbCloudUpload, TbDragDrop, TbRoute } from "react-icons/tb";
 import demoVideo from "@/assets/demo.mp4";
 import styles from "./StudioLandingPage.module.css";
@@ -89,13 +86,6 @@ const STEPS = [
     title: "Publish",
     text: "Sync a versioned draft and continue the release workflow from Publisher Hub.",
   },
-];
-
-const REQUIREMENTS = [
-  ["Operating system", "Windows 10/11 or Ubuntu 20.04+ (64-bit)"],
-  ["Processor", "4-core Intel Core i5 / AMD Ryzen 5 or newer"],
-  ["Memory", "8 GB RAM minimum · 16 GB recommended"],
-  ["Storage", "1 GB free space · SSD recommended"],
 ];
 
 const SIGNALS = [

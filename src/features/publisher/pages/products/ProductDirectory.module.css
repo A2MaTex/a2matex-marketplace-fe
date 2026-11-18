@@ -1,0 +1,147 @@
+.directory {
+  flex: 0 0 auto;
+  border-bottom: 1px solid #192130;
+  background: #0a0f18;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px 18px 12px;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #58677c;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.titleRow { display: flex; align-items: baseline; gap: 10px; margin-top: 3px; }
+.titleRow h1 { margin: 0; color: #e1e9f2; font-size: 22px; line-height: 1.2; }
+.titleRow span { color: #718096; font-size: 12px; }
+
+.newButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid #246576;
+  border-radius: 7px;
+  color: #9cebf8;
+  background: rgba(45, 189, 214, 0.09);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 18px 10px;
+}
+
+.searchBox {
+  min-width: 180px;
+  max-width: 440px;
+  height: 32px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: #526178;
+  background: #111824;
+}
+
+.searchBox:focus-within { border-color: #258da2; color: #65d9ed; }
+.searchBox input { min-width: 0; flex: 1; border: 0; outline: 0; color: #d6e0eb; background: transparent; font: inherit; font-size: 14px; }
+.searchBox input::placeholder { color: #465267; }
+
+.filters { display: flex; align-items: center; gap: 3px; overflow-x: auto; }
+.filters button {
+  min-height: 27px;
+  padding: 0 9px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: #68768b;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+}
+.filters button:hover { color: #a7b5c7; background: rgba(255,255,255,0.03); }
+.filters .filterActive { background: rgba(255, 255, 255, 0.035); }
+.filters .filterDRAFT.filterActive { border-color: rgba(224, 202, 121, 0.38); color: #efc474; background: rgba(224, 202, 121, 0.08); }
+.filters .filterACTIVE.filterActive { border-color: rgba(65, 220, 174, 0.38); color: #56e3b8; background: rgba(65, 220, 174, 0.08); }
+.filters .filterSUSPENDED.filterActive { border-color: rgba(255, 111, 126, 0.4); color: #ff929d; background: rgba(255, 105, 118, 0.08); }
+.filters .filterARCHIVED.filterActive { border-color: rgba(249, 143, 64, 0.4); color: #f5a05f; background: rgba(249, 143, 64, 0.08); }
+
+.loadingBar { width: 30%; height: 2px; background: linear-gradient(90deg, transparent, #4bd7ef, transparent); animation: loading 1.1s ease-in-out infinite; }
+@keyframes loading { from { transform: translateX(-100%); } to { transform: translateX(430%); } }
+
+.productArea { min-height: 104px; max-height: 196px; overflow: auto hidden; padding: 0 18px 12px; }
+.productList { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(270px, 330px); grid-template-rows: 1fr; justify-content: start; gap: 8px; margin-top: 10px; padding: 0; list-style: none; }
+.productList li { min-width: 0; }
+.productCard {
+  width: 100%;
+  min-height: 72px;
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+  padding: 9px;
+  border: 1px solid #1e2938;
+  border-radius: 8px;
+  color: inherit;
+  background: #101722;
+  cursor: pointer;
+  text-align: left;
+}
+.productCard:hover { border-color: #304154; background: #121b28; }
+.productCardSelected { border-color: #2fc5df; box-shadow: inset 0 0 0 1px rgba(47,197,223,0.12); }
+.productIcon, .productIconFallback { width: 56px; height: 56px; border-radius: 7px; border: 1px solid #263345; background: #0a1019; object-fit: cover; }
+.productIconFallback { display: grid; place-items: center; color: #4b5a6e; }
+.productCardBody { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.productCardBody strong, .productCardBody small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.productCardBody strong { color: #d9e3ee; font-size: 14px; }
+.productCardBody small { color: #718096; font-family: var(--mono); font-size: 11px; }
+.productCardBody em { overflow: hidden; color: #607188; font-size: 11px; font-style: normal; text-overflow: ellipsis; white-space: nowrap; }
+
+.status { padding: 3px 6px; border: 1px solid #344052; border-radius: 4px; color: #8490a2; font-family: var(--mono); font-size: 10px; font-weight: 800; }
+.statusDRAFT { color: #e6d158; border-color: rgba(224,184,121,0.28); background: rgba(224,184,121,0.06); }
+.statusACTIVE { color: #51dfad; border-color: rgba(81,223,173,0.27); background: rgba(81,223,173,0.06); }
+.statusSUSPENDED { color: #ff9ca5; border-color: rgba(255,105,118,0.25); background: rgba(255,105,118,0.06); }
+
+.state { min-height: 80px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; color: #647188; }
+.state strong { color: #aebacc; font-size: 14px; margin-top: 8px }
+.state p { margin: 0; font-size: 12px; }
+.state button { min-height: 32px; display: inline-flex; align-items: center; gap: 5px; padding: 0 10px; border: 1px solid #263a49; border-radius: 6px; color: #77daec; background: #0e1721; cursor: pointer; font: inherit; font-size: 12px; margin: 8px 0 }
+
+.pagination { min-height: 39px; display: flex; align-items: center; justify-content: center; gap: 10px; border-top: 1px solid #171f2c; color: #718096; font-size: 11px; }
+.pagination strong { color: #b6c2d1; }
+.pagination button { width: 25px; height: 25px; display: grid; place-items: center; border: 1px solid #253145; border-radius: 5px; color: #8290a3; background: #0d141f; cursor: pointer; }
+.pagination button:disabled { opacity: 0.35; cursor: not-allowed; }
+
+@media (max-width: 760px) {
+  .header, .toolbar { align-items: stretch; }
+  .header { padding: 14px; }
+  .toolbar { flex-direction: column; padding: 0 14px 10px; }
+  .searchBox { width: 100%; max-width: none; }
+  .productArea { padding-inline: 14px; }
+  .productList { grid-auto-columns: minmax(260px, 88vw); }
+}
+
+@media (prefers-reduced-motion: reduce) { .loadingBar { animation: none; } }

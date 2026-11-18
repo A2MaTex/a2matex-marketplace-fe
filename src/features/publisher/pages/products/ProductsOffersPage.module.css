@@ -1,0 +1,85 @@
+.page {
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: #dce6f2;
+  background: #070b12;
+}
+
+.workspace {
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.workspaceState {
+  min-width: 0;
+  min-height: 300px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 36px;
+  color: #647189;
+  text-align: center;
+}
+
+.emptyArtwork {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 5px;
+  border: 1px solid #243247;
+  border-radius: 16px;
+  color: #4e6079;
+  background: linear-gradient(145deg, #101925, #0a1019);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+}
+.emptyArtwork svg { width: 28px; height: 28px; }
+.emptyEyebrow { color: #54667e; font-size: 8px; font-weight: 750; letter-spacing: 0.14em; text-transform: uppercase; }
+.workspaceState > svg { width: 36px; height: 36px; color: #354157; }
+.workspaceState strong { color: #c3ceda; font-size: 15px; }
+.workspaceState p { max-width: 480px; margin: 0; font-size: 12px; line-height: 1.65; }
+.workspaceActions { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.workspaceState button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid #2a4050;
+  border-radius: 7px;
+  color: #74d9ed;
+  background: #101924;
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+}
+.workspaceState .primaryAction { border-color: #2d8294; color: #061317; background: #4bcde4; }
+.workspaceState .primaryAction:hover { background: #69d9eb; }
+.workspaceState .secondaryAction { border-color: #29384b; color: #90a2b7; background: #0d151f; }
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(72, 206, 230, 0.2);
+  border-top-color: #48cee6;
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 760px) {
+  .page { overflow-y: auto; }
+  .workspace { min-height: 520px; overflow: visible; }
+}
+
+@media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }

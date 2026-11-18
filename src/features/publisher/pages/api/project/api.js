@@ -6,12 +6,17 @@ import {
   getProjectsUrl,
 } from "./url";
 
-const getProjects = ({ page = 1, limit = 10, status, signal } = {}) =>
+const getProjects = ({
+  page = 1,
+  limit = 10,
+  status,
+  signal,
+} = {}) =>
   axiosInstance.get(getProjectsUrl, {
     params: {
       page,
       limit,
-      ...(status ? { status } : {}),
+      ...(status ? { status } : {})
     },
     signal,
   });

@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   border: 1px solid #1e2537;
-  border-radius: 8px;
+  border-radius: 3px;
   overflow: hidden;
   background: #080b14;
   transition: border-color 0.2s;
@@ -18,9 +18,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 10px;
+  min-height: 40px;
+  padding: 5px 10px;
   border-bottom: 1px solid #1e2537;
-  background: #0a0e1a;
+  background: #272c38;
   gap: 8px;
   flex-wrap: wrap;
 }
@@ -36,14 +37,14 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 32px;
+  min-width: 34px;
   height: 28px;
   padding: 0 8px;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 5px;
-  color: #94a3b8;
-  font-size: 12px;
+  border-radius: 3px;
+  color: #b9c3d1;
+  font-size: 14px;
   font-weight: 600;
   font-family: ui-monospace, "Cascadia Code", monospace;
   cursor: pointer;
@@ -60,6 +61,9 @@
   background: #252a3d;
 }
 
+.toolbarBtn:disabled { opacity: 0.48; cursor: not-allowed; }
+.toolbarBtn svg { width: 15px; height: 15px; }
+
 /* ── Right badges ── */
 .toolbarRight {
   display: flex;
@@ -68,20 +72,14 @@
   flex-shrink: 0;
 }
 
-.modeBadge {
-  font-size: 11px;
-  color: #4b5268;
-  font-family: inherit;
-}
-
 .previewBadge {
   font-size: 11px;
-  font-weight: 600;
-  color: #00e5cc;
-  background: rgba(0, 229, 204, 0.08);
-  border: 1px solid rgba(0, 229, 204, 0.2);
-  border-radius: 4px;
-  padding: 2px 7px;
+  font-weight: 400;
+  color: #98a3b3;
+  background: transparent;
+  border: 0;
+  padding: 2px 0;
+  font-family: ui-monospace, "Cascadia Code", monospace;
 }
 
 /* ── Textarea ── */
@@ -97,7 +95,7 @@
   line-height: 1.6;
   padding: 12px 14px;
   caret-color: #00e5cc;
-  min-height: 120px;
+  min-height: 210px;
 }
 
 .textarea::placeholder {
@@ -116,3 +114,7 @@
   background: #1e2537;
   border-radius: 3px;
 }
+
+.disabled { opacity: 0.72; }
+.disabled:focus-within { border-color: #1e2537; box-shadow: none; }
+.textarea:disabled { cursor: not-allowed; }

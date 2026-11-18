@@ -1,6 +1,8 @@
 import { Navigate } from "react-router-dom";
 import PublisherHubLayout from "../components/PublisherHubLayout/PublisherHubLayout";
 import ProjectsDraftsPage from "../pages/projects/ProjectsDraftsPage";
+import CreateProductPage from "../pages/products/CreateProductPage";
+import ProductsOffersPage from "../pages/products/ProductsOffersPage";
 import PublisherSectionPlaceholder from "../pages/placeholders/PublisherSectionPlaceholder";
 import WorkflowWorkspaceRoute from "../pages/workflow/WorkflowWorkspaceRoute";
 
@@ -33,13 +35,19 @@ export default function publisherRoutes() {
         },
         {
           path: "products",
-          element: (
-            <PublisherSectionPlaceholder
-              eyebrow="Catalog"
-              title="Products & Offers"
-              description="Product packaging and offer management will live in this section."
-            />
-          ),
+          element: <ProductsOffersPage />,
+        },
+        {
+          path: "products/new",
+          element: <CreateProductPage />,
+        },
+        {
+          path: "products/create",
+          element: <CreateProductPage />,
+        },
+        {
+          path: "products/:productId",
+          element: <ProductsOffersPage />,
         },
         {
           path: "submissions",

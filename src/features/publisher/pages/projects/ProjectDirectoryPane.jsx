@@ -93,7 +93,6 @@ const ProjectDirectoryPane = ({
               onChange={(event) => onStatusChange(event.target.value)}
               aria-label="Filter projects by status"
             >
-              <option value="">All</option>
               <option value="ACTIVE">Active</option>
               <option value="ARCHIVED">Archived</option>
             </select>
