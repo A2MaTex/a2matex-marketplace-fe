@@ -17,6 +17,7 @@ const nodeTypes = { workflowNode: WorkflowNode };
 const WorkflowCanvas = ({
   workflow,
   catalog,
+  graphKey,
   selectedNodeId = null,
   onNodeSelect,
   preview = false,
@@ -31,6 +32,7 @@ const WorkflowCanvas = ({
   return (
     <div className={`${styles.canvas} ${preview ? styles.preview : ""}`}>
       <ReactFlow
+        key={graphKey}
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}

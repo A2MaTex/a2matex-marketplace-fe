@@ -165,6 +165,7 @@ const WorkflowWorkspace = () => {
             </div>
           ) : null}
           <WorkflowCanvas
+            graphKey={`${draftState.data.draft.id}:${draftState.data.draft.version}:${draftState.data.draft.contentHash}:${workflowEntry.key}`}
             workflow={workflowEntry.document}
             catalog={catalogState.data}
             selectedNodeId={selectedNodeId}

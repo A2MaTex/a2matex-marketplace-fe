@@ -10,17 +10,17 @@ import {
 import styles from "./WorkflowNode.module.css";
 
 const NodeIcon = ({ data }) => {
-  if (data.catalogMissing) return <FiAlertCircle aria-hidden="true" size={14} />;
   if (data.isEntry) return <FiPlay aria-hidden="true" size={14} />;
   if (data.isTerminal) return <FiStopCircle aria-hidden="true" size={14} />;
+  if (data.catalogMissing) return <FiAlertCircle aria-hidden="true" size={14} />;
   if (data.category === "ANDROID") return <FiSmartphone aria-hidden="true" size={14} />;
   if (data.category === "UTILITY") return <FiZap aria-hidden="true" size={14} />;
   return <FiBox aria-hidden="true" size={14} />;
 };
 
 const nodeTone = (data) => {
-  if (data.catalogMissing) return "warning";
   if (data.isEntry || data.isTerminal) return "flow";
+  if (data.catalogMissing) return "warning";
   if (data.category === "ANDROID") return "android";
   if (data.category === "UTILITY") return "utility";
   return "default";

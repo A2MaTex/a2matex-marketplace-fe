@@ -27,10 +27,15 @@ export function useProjectDraft(projectId) {
 
     const controller = new AbortController();
     let active = true;
-    if (cachedDraft(projectId)) return undefined;
 
     const load = async () => {
-      setState({ projectId, data: null, loading: true, error: null });
+      const cachedData = cachedDraft(projectId);
+      setState({
+        projectId,
+        data: cachedData,
+        loading: !cachedData,
+        error: null,
+      });
       try {
         const response = await publisherProjectApi.getProjectDraft(projectId, {
           signal: controller.signal,

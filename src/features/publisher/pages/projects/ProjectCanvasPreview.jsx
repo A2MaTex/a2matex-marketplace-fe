@@ -30,6 +30,7 @@ const ProjectCanvasPreview = ({ draft }) => {
 
   return (
     <WorkflowCanvas
+      graphKey={`${draft.id}:${draft.version}:${draft.contentHash}:${entry.key}`}
       workflow={entry.document}
       catalog={catalogState.data}
       preview
