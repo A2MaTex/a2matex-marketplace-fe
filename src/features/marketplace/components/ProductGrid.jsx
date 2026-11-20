@@ -1,141 +1,88 @@
-import { useState } from "react";
+import { FiAlertTriangle, FiPackage, FiRefreshCw } from "react-icons/fi";
+import MarketplacePagination from "./MarketplacePagination";
 import ProductCard from "./ProductCard";
 import styles from "./ProductGrid.module.css";
 
-const SORT_OPTIONS = ["Most Popular", "Alphabet A-Z", "New Release"];
+const ProductSkeleton = () => (
+  <div className={styles.skeleton} aria-hidden="true">
+    <span className={styles.skeletonVisual} />
+    <span />
+    <span />
+    <span />
+  </div>
+);
 
-/* ── Mock data ── */
-const MOCK_PRODUCTS = [
-  {
-    id: "1",
-    title: "TikTok Auto-Uploader & Farm Pro",
-    author: "DevX Labs",
-    description:
-      "High-throughput automation worker with automated caption generation, smart schedule queueing, audio track randomizer, and session isolation. Fully native Win32 .exe compiled binary.",
-    price: 29,
-    lifetimePrice: 199,
-    rating: 4.8,
-    reviews: 898,
-    badge: "Most Popular",
-    featured: true,
-    version: "v8.4.1",
-  },
-  {
-    id: "2",
-    title: "Shopee & Lazada Auto-Fulfill",
-    author: "eComBots",
-    description:
-      "Synchronizes dropshipping inventory orders, binds multiple proxy pools, and automatically triggers OCR & AI captcha solver...",
-    price: 45,
-    rating: 4.8,
-    reviews: 898,
-    featured: false,
-  },
-  {
-    id: "3",
-    title: "Shopee & Lazada Auto-Fulfill",
-    author: "eComBots",
-    description:
-      "Synchronizes dropshipping inventory orders, binds multiple proxy pools, and automatically triggers OCR & AI captcha solver...",
-    price: 45,
-    rating: 4.8,
-    reviews: 898,
-    featured: false,
-  },
-  {
-    id: "4",
-    title: "Shopee & Lazada Auto-Fulfill",
-    author: "eComBots",
-    description:
-      "Synchronizes dropshipping inventory orders, binds multiple proxy pools, and automatically triggers OCR & AI captcha solver...",
-    price: 45,
-    rating: 4.8,
-    reviews: 898,
-    featured: false,
-  },
-  {
-    id: "5",
-    title: "Shopee & Lazada Auto-Fulfill",
-    author: "eComBots",
-    description:
-      "Synchronizes dropshipping inventory orders, binds multiple proxy pools, and automatically triggers OCR & AI captcha solver...",
-    price: 45,
-    rating: 4.8,
-    reviews: 898,
-    featured: false,
-  },
-  {
-    id: "6",
-    title: "Shopee & Lazada Auto-Fulfill",
-    author: "eComBots",
-    description:
-      "Synchronizes dropshipping inventory orders, binds multiple proxy pools, and automatically triggers OCR & AI captcha solver...",
-    price: 45,
-    rating: 4.8,
-    reviews: 898,
-    featured: false,
-  },
-  {
-    id: "7",
-    title: "Shopee & Lazada Auto-Fulfill",
-    author: "eComBots",
-    description:
-      "Synchronizes dropshipping inventory orders, binds multiple proxy pools, and automatically triggers OCR & AI captcha solver...",
-    price: 45,
-    rating: 4.8,
-    reviews: 898,
-    featured: false,
-  },
-];
-
-const ProductGrid = ({ products = MOCK_PRODUCTS, total = 1420 }) => {
-  const [sort, setSort] = useState("Most Popular");
-
-  const featured = products.find((p) => p.featured);
-  const rest = products.filter((p) => !p.featured);
+const ProductGrid = ({
+  data,
+  loading,
+  error,
+  query,
+  onRetry,
+  onPageChange,
+}) => {
+  const hasProducts = data.items.length > 0;
 
   return (
     <div className={styles.wrap}>
-      {/* ── Controls bar ── */}
       <div className={styles.controls}>
-        <p className={styles.count}>
-          Showing <strong>{products.length}</strong> Verified Executables of{" "}
-          <strong>{total.toLocaleString()}</strong>
+        <p className={styles.count} aria-live="polite">
+          {loading && !hasProducts ? (
+            "Loading published tools…"
+          ) : (
+            <>
+              <strong>{data.totalItems.toLocaleString("vi-VN")}</strong>{" "}
+              published {data.totalItems === 1 ? "tool" : "tools"}
+              {query ? <> matching “{query}”</> : null}
+            </>
+          )}
         </p>
+        <span className={styles.orderNote}>Newest releases first</span>
+      </div>
 
-        <div className={styles.sortRow}>
-          <span className={styles.sortLabel}>SORT BY:</span>
-          {SORT_OPTIONS.map((opt) => (
-            <button
-              key={opt}
-              type="button"
-              className={[styles.sortBtn, sort === opt ? styles.sortActive : ""]
-                .filter(Boolean)
-                .join(" ")}
-              onClick={() => setSort(opt)}
-            >
-              {opt}
-            </button>
+      {error ? (
+        <div className={styles.stateCard} role="alert">
+          <FiAlertTriangle aria-hidden="true" />
+          <h2>Marketplace unavailable</h2>
+          <p>{error.message}</p>
+          <button type="button" onClick={onRetry}>
+            <FiRefreshCw aria-hidden="true" /> Try again
+          </button>
+        </div>
+      ) : loading && !hasProducts ? (
+        <div className={styles.grid} aria-label="Loading products">
+          {Array.from({ length: 6 }, (_, index) => (
+            <ProductSkeleton key={index} />
           ))}
         </div>
-      </div>
-
-      {/* ── Grid ── */}
-      <div className={styles.grid}>
-        {/* Featured card spans full left column (2 rows on desktop) */}
-        {featured && (
-          <div className={styles.featuredSlot}>
-            <ProductCard {...featured} />
+      ) : !hasProducts ? (
+        <div className={styles.stateCard}>
+          <FiPackage aria-hidden="true" />
+          <h2>{query ? "No matching tools" : "No published tools yet"}</h2>
+          <p>
+            {query
+              ? "Try a different product name or description."
+              : "Published products will appear here when they are ready."}
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className={styles.grid} aria-busy={loading}>
+            {data.items.map((product, index) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                featured={index === 0}
+              />
+            ))}
           </div>
-        )}
-
-        {/* Regular cards fill remaining slots */}
-        {rest.map((product) => (
-          <div key={product.id} className={styles.regularSlot}>
-            <ProductCard {...product} />
-          </div>
-        ))}
-      </div>
+          <MarketplacePagination
+            page={data.page}
+            totalPages={data.totalPages}
+            loading={loading}
+            onPageChange={onPageChange}
+          />
+        </>
+      )}
     </div>
   );
 };

@@ -1,7 +1,40 @@
+.page {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 9% 72%, rgba(42, 157, 181, 0.08), transparent 30%),
+    #060b12;
+}
+
 .searchSection {
-  padding: 0 0 24px;
+  position: relative;
+  z-index: 4;
+  margin-top: -36px;
+  padding: 0 0 30px;
+  scroll-margin-top: 84px;
 }
 
 .gridSection {
+  position: relative;
+  z-index: 2;
   flex: 1;
+  scroll-margin-top: 84px;
+}
+
+.gridSection::before {
+  position: absolute;
+  top: 50px;
+  right: -180px;
+  width: 440px;
+  height: 440px;
+  border-radius: 50%;
+  background: rgba(58, 183, 210, 0.07);
+  filter: blur(90px);
+  content: "";
+  pointer-events: none;
+}
+
+@media (max-width: 600px) {
+  .searchSection { margin-top: -22px; padding-bottom: 20px; }
 }

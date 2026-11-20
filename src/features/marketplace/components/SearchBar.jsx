@@ -1,94 +1,82 @@
 import { useState } from "react";
 import { IoSearchOutline } from "react-icons/io5";
-import { RiEqualizerLine } from "react-icons/ri";
-import { IoChevronDownOutline } from "react-icons/io5";
 import Button from "@components/common/Button";
 import styles from "./SearchBar.module.css";
 
-const QUICK_TAGS = [
-  "TikTok Automation",
-  "Facebook Automation",
-  "Crypto Arbitrage Bot",
-  "Telegram Marketing",
-  "Social Multi-Account",
-  "Fingerprint Spoofer",
+const QUICK_SEARCHES = [
+  "TikTok automation",
+  "Browser automation",
+  "Telegram",
+  "E-commerce",
 ];
 
-const LICENSE_OPTIONS = ["Any Type", "Monthly", "Lifetime", "Free"];
+const SearchBar = ({ initialQuery = "", onSearch, loading }) => {
+  const [query, setQuery] = useState(initialQuery);
 
-const SearchBar = ({ onSearch, onFilter }) => {
-  const [query, setQuery] = useState("");
-  const [license, setLicense] = useState("Any Type");
-  const [activeTag, setActiveTag] = useState("TikTok Automation");
-
-  const handleTagClick = (tag) => {
-    setActiveTag(tag);
-    onSearch?.({ query: tag, license });
+  const submit = (nextQuery) => {
+    const normalized = nextQuery.trim();
+    onSearch?.(normalized);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSearch?.({ query, license });
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    submit(query);
+  };
+
+  const clearSearch = () => {
+    setQuery("");
+    submit("");
   };
 
   return (
     <div className={styles.wrap}>
-      {/* ── Main search row ── */}
-      <form className={styles.row} onSubmit={handleSubmit}>
+      <form className={styles.row} onSubmit={handleSubmit} role="search">
         <div className={styles.inputWrap}>
-          <IoSearchOutline className={styles.inputIcon} size={16} />
+          <IoSearchOutline className={styles.inputIcon} aria-hidden="true" />
           <input
             type="search"
             className={styles.input}
-            placeholder="Search compiled automations, target platforms, or authors..."
+            placeholder="Search by product name or description…"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            maxLength={100}
+            onChange={(event) => setQuery(event.target.value)}
             aria-label="Search marketplace"
           />
-          <kbd className={styles.kbd}>Ctrl+F</kbd>
+          {query ? (
+            <button
+              type="button"
+              className={styles.clearButton}
+              onClick={clearSearch}
+              aria-label="Clear search"
+            >
+              Clear
+            </button>
+          ) : null}
         </div>
 
-        {/* License dropdown */}
-        <div className={styles.selectWrap}>
-          <select
-            className={styles.select}
-            value={license}
-            onChange={(e) => setLicense(e.target.value)}
-            aria-label="License type"
-          >
-            {LICENSE_OPTIONS.map((opt) => (
-              <option key={opt} value={opt}>
-                License: {opt}
-              </option>
-            ))}
-          </select>
-          <IoChevronDownOutline className={styles.selectArrow} size={13} />
-        </div>
-
-        {/* Filter button */}
         <Button
+          className={styles.searchButton}
           type="submit"
           variant="primary"
           size="md"
-          leftIcon={<RiEqualizerLine size={15} />}
-          onClick={() => onFilter?.()}
+          disabled={loading}
         >
-          Filter
+          {loading ? "Searching…" : "Search"}
         </Button>
       </form>
 
-      {/* ── Quick stack tags ── */}
-      <div className={styles.tagsRow}>
-        <span className={styles.tagsLabel}>QUICK STACK:</span>
+      <div className={styles.tagsRow} aria-label="Suggested searches">
+        <span className={styles.tagsLabel}>TRY SEARCHING</span>
         <div className={styles.tags}>
-          {QUICK_TAGS.map((tag) => (
+          {QUICK_SEARCHES.map((tag) => (
             <button
               key={tag}
               type="button"
-              className={[styles.tag, activeTag === tag ? styles.tagActive : ""]
-                .filter(Boolean)
-                .join(" ")}
-              onClick={() => handleTagClick(tag)}
+              className={styles.tag}
+              onClick={() => {
+                setQuery(tag);
+                submit(tag);
+              }}
             >
               {tag}
             </button>

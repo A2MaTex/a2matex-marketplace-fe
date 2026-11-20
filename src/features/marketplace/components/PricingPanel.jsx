@@ -1,91 +1,28 @@
-import { useState } from "react";
-import { IoInformationCircleOutline } from "react-icons/io5";
-import { MdOutlineLocalOffer } from "react-icons/md";
-import Button from "../../../common/components/common/Button";
+import { FiCheckCircle, FiInfo } from "react-icons/fi";
+import { formatOfferDuration, formatVnd } from "../utils/formatVnd";
 import styles from "./PricingPanel.module.css";
 
-const PricingPanel = ({ price = 199, credits = 1990 }) => {
-  const [promo, setPromo] = useState("");
-  const [applied, setApplied] = useState(false);
-
-  const handleApply = () => {
-    if (promo.trim()) setApplied(true);
-  };
-
+export default function PricingPanel({ offer }) {
   return (
-    <aside className={styles.panel}>
-      <h2 className={styles.heading}>Provisioning Ledger</h2>
+    <aside className={styles.panel} aria-label="Selected offer summary">
+      <span className={styles.eyebrow}>Offer summary</span>
+      <h2>{offer.type === "ONE_TIME" ? "One-time access" : "Subscription access"}</h2>
+      <div className={styles.price}>{formatVnd(offer.priceAmount)}</div>
 
-      {/* Line items */}
-      <div className={styles.lines}>
-        <div className={styles.lineItem}>
-          <span className={styles.lineLabel}>Annual Scaler License</span>
-          <span className={styles.lineValue}>${price.toFixed(2)}</span>
-        </div>
-        <div className={styles.lineItem}>
-          <span className={styles.lineLabelMuted}>
-            Tax{" "}
-            <IoInformationCircleOutline
-              size={13}
-              style={{ verticalAlign: "middle" }}
-            />
-          </span>
-          <span className={styles.lineFree}>FREE ($0.00)</span>
-        </div>
+      <dl className={styles.details}>
+        <div><dt>Access period</dt><dd>{formatOfferDuration(offer)}</dd></div>
+        <div><dt>Offer type</dt><dd>{offer.type === "ONE_TIME" ? "One-time" : "Recurring period"}</dd></div>
+      </dl>
+
+      <div className={styles.selectedNote}>
+        <FiCheckCircle aria-hidden="true" />
+        <span>This is the offer currently selected above.</span>
       </div>
 
-      <div className={styles.divider} />
-
-      {/* Promo code */}
-      <div className={styles.promoRow}>
-        <div className={styles.promoInputWrap}>
-          <MdOutlineLocalOffer size={14} className={styles.promoIcon} />
-          <input
-            type="text"
-            className={styles.promoInput}
-            placeholder="PROMO / DEV CODE"
-            value={promo}
-            onChange={(e) => {
-              setPromo(e.target.value);
-              setApplied(false);
-            }}
-          />
-        </div>
-        <button
-          type="button"
-          className={[styles.applyBtn, applied ? styles.applied : ""]
-            .filter(Boolean)
-            .join(" ")}
-          onClick={handleApply}
-        >
-          {applied ? "✓" : "APPLY"}
-        </button>
+      <div className={styles.checkoutNote}>
+        <FiInfo aria-hidden="true" />
+        <p>Checkout is not available yet. This page shows the publisher&apos;s public offer without starting a purchase.</p>
       </div>
-
-      <div className={styles.divider} />
-
-      {/* Total */}
-      <div className={styles.totalBlock}>
-        <div className={styles.totalRow}>
-          <span className={styles.totalLabel}>TOTAL PAYABLE</span>
-          <span className={styles.totalValue}>${price.toFixed(2)}</span>
-        </div>
-        <div className={styles.creditsRow}>
-          <span className={styles.creditsLabel}>
-            A2MaTeX Credit Equivalency
-          </span>
-          <span className={styles.creditsValue}>
-            = {credits.toLocaleString()} A2MaTeX CR
-          </span>
-        </div>
-      </div>
-
-      {/* CTA */}
-      <Button variant="primary" size="lg" fullWidth>
-        Purchase Right Now
-      </Button>
     </aside>
   );
-};
-
-export default PricingPanel;
+}

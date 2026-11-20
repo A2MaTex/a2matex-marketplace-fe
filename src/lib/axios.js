@@ -1,12 +1,10 @@
 import axios from "axios";
 import { auth } from "./token";
 import { authApi } from "@/features/auth/api/authApi";
-
-const baseURL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/v1";
+import { API_BASE_URL } from "./apiBaseUrl";
 
 const axiosInstance = axios.create({
-  baseURL,
+  baseURL: API_BASE_URL,
   timeout: 15000,
   headers: {
     "Content-Type": "application/json",
@@ -74,7 +72,7 @@ axiosInstance.interceptors.response.use(
         // Retry original request with the new access token
         config.headers.Authorization = `Bearer ${auth.getToken()}`;
         return axiosInstance(config);
-      } catch (refreshError) {
+      } catch {
         // Refresh failed — reject with the original error
         return Promise.reject(error);
       }

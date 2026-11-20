@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { IoSearchOutline } from "react-icons/io5";
 import { IoCashOutline } from "react-icons/io5";
 import { IoPersonCircleOutline } from "react-icons/io5";
@@ -25,6 +25,13 @@ const PUBLISHER_ITEMS = [
 
 const Header = ({ user, avatar }) => {
   const [search, setSearch] = useState("");
+  const navigate = useNavigate();
+
+  const submitSearch = (event) => {
+    event.preventDefault();
+    const query = search.trim().slice(0, 100);
+    navigate(query ? `/?q=${encodeURIComponent(query)}` : "/");
+  };
 
   const getDisplayNavItems = () => {
     let displayNavItems = NAV_ITEMS;
@@ -72,18 +79,19 @@ const Header = ({ user, avatar }) => {
 
         {/* Right: search + credits + avatar */}
         <div className={styles.right}>
-          <div className={styles.searchWrap}>
+          <form className={styles.searchWrap} role="search" onSubmit={submitSearch}>
             <IoSearchOutline className={styles.searchIcon} size={16} />
             <input
               type="search"
               className={styles.searchInput}
-              placeholder="Search by keyword, author..."
+              placeholder="Search products..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              aria-label="Search"
+              maxLength={100}
+              aria-label="Search marketplace products"
             />
-            <kbd className={styles.kbd}>⌘K</kbd>
-          </div>
+            <kbd className={styles.kbd}>↵</kbd>
+          </form>
 
           <div className={styles.credits}>
             <IoCashOutline size={15} />

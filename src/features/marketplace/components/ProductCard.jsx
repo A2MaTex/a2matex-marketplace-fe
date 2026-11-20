@@ -1,118 +1,88 @@
-import { IoStarSharp } from "react-icons/io5";
-import { BsCartPlus } from "react-icons/bs";
-import { MdOutlineTerminal } from "react-icons/md";
-import { FiZap } from "react-icons/fi";
-import Button from "@components/common/Button";
-import styles from "./ProductCard.module.css";
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import { FiBox, FiCalendar, FiLayers } from "react-icons/fi";
+import styles from "./ProductCard.module.css";
+import { formatMinimumOffer } from "../utils/formatVnd";
+import {
+  buildMarketplaceImageUrl,
+  selectMarketplaceMedia,
+} from "../utils/marketplaceMedia";
 
-/**
- * @param {{
- *   title: string,
- *   author: string,
- *   description: string,
- *   price: number,
- *   lifetimePrice?: number,
- *   rating: number,
- *   reviews: number,
- *   badge?: string,
- *   featured?: boolean,
- *   version?: string,
- * }} props
- */
-const ProductCard = ({
-  id,
-  title,
-  author,
-  description,
-  price,
-  lifetimePrice,
-  rating,
-  reviews,
-  badge,
-  featured = false,
-  version,
-}) => {
+const formatReleaseDate = (value) => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+};
+
+const ProductCard = ({ product, featured = false }) => {
+  const [imageFailed, setImageFailed] = useState(false);
+  const visual = selectMarketplaceMedia(product.media).cardVisual;
+  const imageUrl = visual
+    ? buildMarketplaceImageUrl(visual.staticId, "medium")
+    : null;
+  const publishedAt = formatReleaseDate(product.currentRelease.publishedAt);
+
   return (
-    <Link className={styles.link} to={`/products/${id}`}>
-      <article
-        className={[styles.card, featured ? styles.featured : ""]
-          .filter(Boolean)
-          .join(" ")}
-      >
-        {/* Badge */}
-        {badge && (
-          <div className={styles.badge}>
-            <FiZap size={11} />
-            {badge}
+    <article
+      className={[styles.card, featured ? styles.featured : ""]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      <Link
+        className={styles.cardLink}
+        to={`/products/${product.id}`}
+        aria-label={`View ${product.name}`}
+      />
+
+      <div className={styles.visual}>
+        {imageUrl && !imageFailed ? (
+          <img
+            src={imageUrl}
+            alt={visual.altText ?? product.name}
+            loading="lazy"
+            decoding="async"
+            onError={() => setImageFailed(true)}
+          />
+        ) : (
+          <div className={styles.visualFallback} aria-hidden="true">
+            <FiBox />
           </div>
         )}
+        <span className={styles.version}>v{product.currentRelease.version}</span>
+      </div>
 
-        {/* Header row */}
-        <div className={styles.header}>
-          <div className={styles.iconWrap}>
-            <MdOutlineTerminal size={featured ? 22 : 20} />
-          </div>
-
-          {!featured && (
-            <div className={styles.ratingWrap}>
-              <IoStarSharp size={12} color="#f59e0b" />
-              <span className={styles.ratingValue}>{rating.toFixed(1)}</span>
-              <span className={styles.ratingCount}>
-                ({reviews.toLocaleString()})
-              </span>
-            </div>
-          )}
+      <div className={styles.body}>
+        <div className={styles.publisherRow}>
+          <Link
+            className={styles.publisherLink}
+            to={`/publishers/${encodeURIComponent(product.publisher.username)}`}
+          >
+            {product.publisher.displayName}
+          </Link>
+          {publishedAt ? (
+            <span className={styles.releaseDate}>
+              <FiCalendar aria-hidden="true" /> {publishedAt}
+            </span>
+          ) : null}
         </div>
+        <h2 className={styles.title}>{product.name}</h2>
+        <p className={styles.desc}>{product.shortDescription}</p>
+      </div>
 
-        {/* Body */}
-        <div className={styles.body}>
-          <h3 className={styles.title}>
-            {title}
-            {version && <span className={styles.version}>{version}</span>}
-          </h3>
-
-          {featured ? (
-            <p className={styles.authorFeatured}>
-              Authored by <span className={styles.authorLink}>{author}</span>
-            </p>
-          ) : (
-            <p className={styles.author}>By {author}</p>
-          )}
-
-          <p className={styles.desc}>{description}</p>
+      <footer className={styles.footer}>
+        <div className={styles.priceBlock}>
+          <span className={styles.priceLabel}>Subscription</span>
+          <strong>{formatMinimumOffer(product.minimumSubscriptionOffer)}</strong>
         </div>
-
-        {/* Footer */}
-        <div className={styles.footer}>
-          <div className={styles.pricing}>
-            <span className={styles.price}>${price}</span>
-            <span className={styles.pricePer}>/mo</span>
-            {lifetimePrice && (
-              <span className={styles.lifetime}>
-                or{" "}
-                <span className={styles.lifetimeVal}>
-                  ${lifetimePrice} Lifetime
-                </span>
-              </span>
-            )}
-          </div>
-
-          <div className={styles.actions}>
-            <button type="button" className={styles.cartBtn}>
-              Add To Cart
-            </button>
-            <Button
-              variant="primary"
-              size="sm"
-              leftIcon={featured ? <BsCartPlus size={14} /> : undefined}
-            >
-              {featured ? "Purchase Now" : "Purchase"}
-            </Button>
-          </div>
-        </div>
-      </article>
-    </Link>
+        <span className={styles.detailsLabel}>
+          <FiLayers aria-hidden="true" /> View details
+        </span>
+      </footer>
+    </article>
   );
 };
 

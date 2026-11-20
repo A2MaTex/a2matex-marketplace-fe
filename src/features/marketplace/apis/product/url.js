@@ -1,2 +1,2 @@
-export const getProductListUrl = "/products";
-export const getProductDetailUrl = (id) => `/products/${id}`;
+export const getProductListUrl = "/marketplace/products";
+export const getProductDetailUrl = (id) => `/marketplace/products/${id}`;

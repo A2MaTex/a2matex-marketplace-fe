@@ -4,6 +4,7 @@ import RegisterPage from "@features/auth/pages/RegisterPage";
 import LauncherPage from "@/features/marketplace/pages/launcher/LauncherPage";
 import Marketplace from "@/features/marketplace/pages/home/Marketplace";
 import ProductDetailPage from "@/features/marketplace/pages/product-detail/ProductDetailPage";
+import PublicPublisherPage from "@/features/marketplace/pages/publisher/PublicPublisherPage";
 import StudioPage from "@/features/marketplace/pages/studio/StudioLandingPage";
 import ProfilePage from "@features/profile/pages/ProfilePage";
 import ForgotPasswordPage from "@/features/auth/pages/ForgotPasswordPage";
@@ -39,6 +40,10 @@ export const router = createBrowserRouter([
       {
         path: "/products/:productId",
         element: <ProductDetailPage />,
+      },
+      {
+        path: "/publishers/:username",
+        element: <PublicPublisherPage />,
       },
       {
         path: "/launcher",
