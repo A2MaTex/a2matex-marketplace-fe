@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { IoSearchOutline } from "react-icons/io5";
-import { IoCashOutline } from "react-icons/io5";
-import { IoPersonCircleOutline } from "react-icons/io5";
+import {
+  IoCashOutline,
+  IoPersonCircleOutline,
+  IoSearchOutline,
+} from "react-icons/io5";
 import styles from "./Header.module.css";
 import Button from "../common/Button";
 import logo from "@/assets/text-logo.svg";
@@ -53,10 +55,9 @@ const Header = ({ user, avatar }) => {
   return (
     <header className={styles.header}>
       <div className={styles.inner}>
-        {/* Left: logo + nav */}
         <div className={styles.left}>
           <Link to="/" className={styles.logo} aria-label="A2MaTeX home">
-            <img src={logo} height={32} alt="logo" />
+            <img src={logo} alt="A2MaTeX" />
           </Link>
 
           <nav className={styles.nav} aria-label="Main navigation">
@@ -77,10 +78,15 @@ const Header = ({ user, avatar }) => {
           </nav>
         </div>
 
-        {/* Right: search + credits + avatar */}
         <div className={styles.right}>
-          <form className={styles.searchWrap} role="search" onSubmit={submitSearch}>
-            <IoSearchOutline className={styles.searchIcon} size={16} />
+          <form
+            className={styles.searchWrap}
+            role="search"
+            onSubmit={submitSearch}
+          >
+            <span className={styles.searchIcon} aria-hidden="true">
+              <IoSearchOutline />
+            </span>
             <input
               type="search"
               className={styles.searchInput}
@@ -90,35 +96,40 @@ const Header = ({ user, avatar }) => {
               maxLength={100}
               aria-label="Search marketplace products"
             />
-            <kbd className={styles.kbd}>↵</kbd>
+            <kbd className={styles.kbd} aria-label="Press Enter to search">
+              ↵
+            </kbd>
           </form>
 
-          <div className={styles.credits}>
-            <IoCashOutline size={15} />
+          <div className={styles.credits} title="Available credits">
+            <span className={styles.creditsIcon} aria-hidden="true">
+              <IoCashOutline />
+            </span>
             <span className={styles.creditsValue}>
-              {user?.balance.toLocaleString("vi-VN") || 0}
+              {Number(user?.balance ?? 0).toLocaleString("vi-VN")}
             </span>
             <span className={styles.creditsCurrency}>CR</span>
           </div>
-          {!!user && (
-            <div className={styles.userBox}>
-              <span className={styles.usernameText}>
-                {user?.fullName || ""}
-              </span>
-            </div>
-          )}
 
           {!user ? (
             <Button href="/login" size="sm">
               Sign In
             </Button>
           ) : (
-            <Link to="/profile" className={styles.avatar} aria-label="Profile">
-              {avatar ? (
-                <Avatar blob={avatar} />
-              ) : (
-                <IoPersonCircleOutline size={22} />
-              )}
+            <Link
+              to="/profile"
+              className={styles.profile}
+              aria-label="Open profile"
+            >
+              <span className={styles.userBox}>
+                <small>Account</small>
+                <strong className={styles.usernameText}>
+                  {user.fullName || "A2MaTeX user"}
+                </strong>
+              </span>
+              <span className={styles.avatar}>
+                {avatar ? <Avatar blob={avatar} /> : <IoPersonCircleOutline />}
+              </span>
             </Link>
           )}
         </div>
