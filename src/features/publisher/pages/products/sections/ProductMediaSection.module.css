@@ -56,8 +56,11 @@
 .singleField:first-child .singlePreview { width: 172px; height: auto; aspect-ratio: 1; }
 .fieldHeading strong { color: #aab4c4; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; }
 .fieldHeading span { color: #707b8e; font-size: 10px; }
+.requiredMark { margin-left: 3px; color: #ff7f8d; font: inherit; font-weight: 800; }
 .fieldHeading button { min-height: 32px; border-color: #334256; border-radius: 4px; color: #78dff1; background: #111824; font-size: 11px; }
 .uploadBox, .singlePreview { height: 172px; border-color: #38485f; border-radius: 3px; color: #7d8ca1; background: #0c121c; }
+.emptySingleField { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.emptySingleField > small { color: #748196; font-size: 10px; line-height: 1.4; }
 .uploadBox:focus-visible, .singlePreview:focus-visible, .galleryAdd:focus-visible, .emptyGallery:focus-visible { outline: 2px solid #31c8e5; outline-offset: 2px; }
 .galleryField { margin-top: 20px; }
 .gallery { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 11px; }

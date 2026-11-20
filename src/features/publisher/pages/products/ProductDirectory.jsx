@@ -10,7 +10,7 @@ import {
 import StaticImage from "../components/StaticImage";
 import styles from "./ProductDirectory.module.css";
 
-const statusOptions = ["DRAFT", "ACTIVE", "SUSPENDED", "ARCHIVED"];
+const statusOptions = ["ALL", "DRAFT", "ACTIVE", "SUSPENDED", "ARCHIVED"];
 
 const ProductIcon = ({ product }) => {
   const icon = product.media?.find((item) => item.type === "ICON");
@@ -104,9 +104,9 @@ const ProductDirectory = ({
         ) : null}
         {!error && !loading && products.length === 0 ? (
           <div className={styles.state}>
-            <strong>No {status.toLowerCase()} products</strong>
-            <p>There are no products with {status} status.</p>
-            {status !== "ACTIVE" ? <button type="button" onClick={() => onStatusChange("ACTIVE")}>View active products</button> : null}
+            <strong>{status === "ALL" ? "No products yet" : `No ${status.toLowerCase()} products`}</strong>
+            <p>{status === "ALL" ? "Create a product from an eligible active project." : `There are no products with ${status} status.`}</p>
+            {status !== "ALL" ? <button type="button" onClick={() => onStatusChange("ALL")}>View all products</button> : null}
           </div>
         ) : null}
         {!error && products.length > 0 && filteredProducts.length === 0 ? (

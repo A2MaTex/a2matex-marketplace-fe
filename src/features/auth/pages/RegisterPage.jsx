@@ -297,13 +297,13 @@ const RegisterPage = () => {
               />
               <span>
                 I agree with{" "}
-                <a href="#" className={styles.link}>
+                <Link to="/terms" target="_blank" className={styles.link}>
                   Terms of Service
-                </a>{" "}
+                </Link>{" "}
                 and{" "}
-                <a href="#" className={styles.link}>
+                <Link to="/privacy" target="_blank" className={styles.link}>
                   Privacy Policy
-                </a>{" "}
+                </Link>{" "}
                 of A2MaTeX.
               </span>
             </label>

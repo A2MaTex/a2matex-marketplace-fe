@@ -120,7 +120,7 @@ const CreateProductDialog = ({
           <div className={styles.projectSectionHeader}>
             <div>
               <FiFolder aria-hidden="true" />
-              <span>Projects</span>
+              <span>Projects <b className={styles.requiredMark} aria-label="required">*</b></span>
             </div>
             <div className={styles.projectSectionMeta}>
               <span>

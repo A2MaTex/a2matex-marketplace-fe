@@ -28,11 +28,15 @@ const ProductsOffersPage = () => {
   const [archiveOpen, setArchiveOpen] = useState(false);
   const [archiveBusy, setArchiveBusy] = useState(false);
   const [archiveError, setArchiveError] = useState(null);
-  const requestedStatus = searchParams.get("status") ?? "ACTIVE";
-  const status = VALID_STATUSES.has(requestedStatus) ? requestedStatus : "ACTIVE";
+  const requestedStatus = searchParams.get("status");
+  const status = VALID_STATUSES.has(requestedStatus) ? requestedStatus : "ALL";
   const page = positivePage(searchParams.get("page"));
 
-  const productsState = usePublisherProducts({ page, limit: PAGE_SIZE, status });
+  const productsState = usePublisherProducts({
+    page,
+    limit: PAGE_SIZE,
+    status: status === "ALL" ? undefined : status,
+  });
   const productState = usePublisherProduct(productId);
 
   useEffect(() => {
@@ -51,7 +55,7 @@ const ProductsOffersPage = () => {
   const queryWith = ({ nextPage = page, nextStatus = status } = {}) => {
     const next = new URLSearchParams();
     if (nextPage > 1) next.set("page", String(nextPage));
-    if (nextStatus) next.set("status", nextStatus);
+    if (nextStatus && nextStatus !== "ALL") next.set("status", nextStatus);
     const value = next.toString();
     return value ? `?${value}` : "";
   };
@@ -78,7 +82,7 @@ const ProductsOffersPage = () => {
     if (!mayLeave()) return;
     setDirty(false);
     const next = new URLSearchParams();
-    if (status) next.set("returnStatus", status);
+    if (status !== "ALL") next.set("returnStatus", status);
     if (page > 1) next.set("returnPage", String(page));
     const value = next.toString();
     navigate(`/publisher/products/create${value ? `?${value}` : ""}`);
@@ -111,7 +115,7 @@ const ProductsOffersPage = () => {
     !productsState.loading &&
     !productsState.error &&
     productsState.data.items.length === 0;
-  const statusLabel = status ? status.toLowerCase() : null;
+  const statusLabel = status === "ALL" ? null : status.toLowerCase();
 
   return (
     <div className={styles.page}>
@@ -165,11 +169,11 @@ const ProductsOffersPage = () => {
         {!productId ? (
           <div className={styles.workspaceState} aria-live="polite">
             <span className={styles.emptyArtwork}><FiBox /></span>
-            <span className={styles.emptyEyebrow}>{status ? `${status} catalog` : "Product workspace"}</span>
-            <strong>{listIsEmpty ? `No ${statusLabel ?? ""} products yet` : "Choose a product to edit"}</strong>
+            <span className={styles.emptyEyebrow}>{statusLabel ? `${status} catalog` : "All products"}</span>
+            <strong>{listIsEmpty ? (statusLabel ? `No ${statusLabel} products yet` : "No products yet") : "Choose a product to edit"}</strong>
             <p>
               {listIsEmpty
-                ? status
+                ? statusLabel
                   ? `Nothing is currently ${statusLabel}. Switch status or create a new draft product.`
                   : "Create your first product from an eligible active project."
                 : "Select a product card above to load its latest details and media."}

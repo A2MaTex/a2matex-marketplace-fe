@@ -183,6 +183,32 @@
   .searchInput { width: 140px; }
 }
 
+@media (max-width: 600px) {
+  .inner {
+    height: 54px;
+    padding: 0 12px;
+  }
+
+  .left {
+    gap: 12px;
+  }
+
+  .logo img {
+    max-width: 118px;
+    height: 28px;
+  }
+
+  .searchWrap,
+  .credits,
+  .userBox {
+    display: none;
+  }
+
+  .right {
+    gap: 8px;
+  }
+}
+
 .signInBtn {
   background-color: #00e5cc;
   padding: 5px 10px;

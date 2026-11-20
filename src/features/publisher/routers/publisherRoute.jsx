@@ -4,6 +4,9 @@ import ProjectsDraftsPage from "../pages/projects/ProjectsDraftsPage";
 import CreateProductPage from "../pages/products/CreateProductPage";
 import ProductsOffersPage from "../pages/products/ProductsOffersPage";
 import PublisherSectionPlaceholder from "../pages/placeholders/PublisherSectionPlaceholder";
+import ProductReleasesPage from "../pages/releases/ProductReleasesPage";
+import CreateSubmissionPage from "../pages/submissions/CreateSubmissionPage";
+import SubmissionsPage from "../pages/submissions/SubmissionsPage";
 import WorkflowWorkspaceRoute from "../pages/workflow/WorkflowWorkspaceRoute";
 
 export default function publisherRoutes() {
@@ -51,23 +54,27 @@ export default function publisherRoutes() {
         },
         {
           path: "submissions",
-          element: (
-            <PublisherSectionPlaceholder
-              eyebrow="Trust & safety"
-              title="Submissions & Scans"
-              description="Submission review and scan results are not part of the current delivery phase."
-            />
-          ),
+          element: <SubmissionsPage />,
+        },
+        {
+          path: "submissions/new",
+          element: <CreateSubmissionPage />,
+        },
+        {
+          path: "submissions/:submissionId",
+          element: <SubmissionsPage />,
         },
         {
           path: "releases",
-          element: (
-            <PublisherSectionPlaceholder
-              eyebrow="Deployment"
-              title="Release Versions"
-              description="Release history and promotion controls will be added in a later phase."
-            />
-          ),
+          element: <ProductReleasesPage />,
+        },
+        {
+          path: "releases/:productId",
+          element: <ProductReleasesPage />,
+        },
+        {
+          path: "releases/:productId/:releaseId",
+          element: <ProductReleasesPage />,
         },
         {
           path: "payment",

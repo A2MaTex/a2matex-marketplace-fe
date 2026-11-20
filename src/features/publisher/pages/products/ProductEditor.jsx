@@ -14,7 +14,12 @@ import StaticImage from "../components/StaticImage";
 import ProductMediaSection from "./sections/ProductMediaSection";
 import { useProductEditor } from "./hooks/useProductEditor";
 import { parseCreatedProductId, parseProductEnvelope } from "./model/productContract";
-import { buildProductCreateInput, buildProductPatch } from "./model/productForm";
+import { uploadDefaultProductIcon } from "./model/defaultProductIcon";
+import {
+  buildProductCreateInput,
+  buildProductPatch,
+  getProductFormErrors,
+} from "./model/productForm";
 import { canArchiveProduct, canEditProduct } from "./model/productPermissions";
 import { toPublisherProductError } from "./model/publisherProductError";
 import styles from "./ProductEditor.module.css";
@@ -54,6 +59,7 @@ const ProductEditor = ({
   const editor = useProductEditor({ product, project });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState({});
   const [savedNotice, setSavedNotice] = useState(null);
   const [editing, setEditing] = useState(Boolean(creating));
   const statusIsEditable = creating || canEditProduct(product?.status);
@@ -67,16 +73,65 @@ const ProductEditor = ({
 
   useEffect(() => onDirtyChange?.(editor.dirty), [editor.dirty, onDirtyChange]);
 
+  const clearFieldError = (field) => {
+    setFieldErrors((current) => {
+      if (!current[field]) return current;
+      const next = { ...current };
+      delete next[field];
+      return next;
+    });
+    if (error?.field === field || error?.code === "VALIDATION_ERROR") setError(null);
+  };
+
+  const focusFirstInvalidField = (errors) => {
+    const firstField = [
+      "name",
+      "slug",
+      "shortDescription",
+      "description",
+      "usageInstructions",
+    ].find((field) => errors[field]);
+    if (!firstField) return;
+    requestAnimationFrame(() => {
+      document.querySelector(`[data-product-field="${firstField}"]`)?.focus();
+    });
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!editable || submitting) return;
+
+    if (creating) {
+      const validationErrors = getProductFormErrors(editor.form, {
+        requireContent: true,
+      });
+      if (Object.keys(validationErrors).length > 0) {
+        setFieldErrors(validationErrors);
+        setError({
+          code: "VALIDATION_ERROR",
+          message: "Complete all required product details before creating the product.",
+          field: Object.keys(validationErrors)[0],
+        });
+        focusFirstInvalidField(validationErrors);
+        return;
+      }
+    }
+
     setSubmitting(true);
     setError(null);
+    setFieldErrors({});
     setSavedNotice(null);
 
     try {
       if (creating) {
-        const input = buildProductCreateInput(editor.form, project?.id);
+        let formToSubmit = editor.form;
+        if (!formToSubmit.media.some((item) => item.type === "ICON")) {
+          const defaultIcon = await uploadDefaultProductIcon();
+          const media = [...formToSubmit.media, defaultIcon];
+          formToSubmit = { ...formToSubmit, media };
+          editor.setMedia(media);
+        }
+        const input = buildProductCreateInput(formToSubmit, project?.id);
         const response = await publisherProductApi.createProduct(input);
         const id = parseCreatedProductId(response.data);
         onDirtyChange?.(false);
@@ -94,14 +149,25 @@ const ProductEditor = ({
       setEditing(false);
       setSavedNotice("Changes saved from the latest server state.");
     } catch (submitError) {
-      setError(toPublisherProductError(submitError, creating ? "Unable to create product." : "Unable to save product."));
+      const mappedError = toPublisherProductError(
+        submitError,
+        creating ? "Unable to create product." : "Unable to save product.",
+      );
+      setError(mappedError);
+      if (mappedError.field) {
+        setFieldErrors((current) => ({
+          ...current,
+          [mappedError.field]: mappedError.message,
+        }));
+        focusFirstInvalidField({ [mappedError.field]: mappedError.message });
+      }
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <form className={`${styles.editor} ${standalone ? styles.editorStandalone : ""}`} onSubmit={handleSubmit}>
+    <form className={`${styles.editor} ${standalone ? styles.editorStandalone : ""}`} onSubmit={handleSubmit} noValidate>
       <div className={styles.scrollArea}>
         <div className={styles.content}>
           <header className={styles.editorHeader}>
@@ -183,73 +249,118 @@ const ProductEditor = ({
             </header>
 
             <div className={styles.fields}>
-              <label>
-                <span>Product name <small>{editor.form.name.length}/255</small></span>
+              <label className={fieldErrors.name ? styles.fieldInvalid : undefined}>
+                <span>Product name {creating ? <b className={styles.requiredMark} aria-label="required">*</b> : null}<small>{editor.form.name.length}/255</small></span>
                 <input
+                  data-product-field="name"
                   type="text"
                   value={editor.form.name}
                   maxLength={255}
-                  onChange={(event) => editor.setName(event.target.value)}
+                  onChange={(event) => {
+                    clearFieldError("name");
+                    editor.setName(event.target.value);
+                  }}
                   disabled={!editable || submitting}
                   placeholder="Product display name"
+                  aria-required={creating}
+                  aria-invalid={Boolean(fieldErrors.name)}
+                  aria-describedby={fieldErrors.name ? "product-name-error" : undefined}
                 />
+                {fieldErrors.name ? <small id="product-name-error" className={styles.fieldError} role="alert">{fieldErrors.name}</small> : null}
               </label>
-              <label>
-                <span>Product slug <small>lowercase letters, numbers and hyphens</small></span>
+              <label className={fieldErrors.slug ? styles.fieldInvalid : undefined}>
+                <span>Product slug {creating ? <b className={styles.requiredMark} aria-label="required">*</b> : null}<small>lowercase letters, numbers and hyphens</small></span>
                 <input
+                  data-product-field="slug"
                   type="text"
                   value={editor.form.slug}
                   maxLength={255}
-                  onChange={(event) => editor.setSlug(event.target.value)}
+                  onChange={(event) => {
+                    clearFieldError("slug");
+                    editor.setSlug(event.target.value);
+                  }}
                   disabled={!editable || submitting}
                   placeholder="product-slug"
                   autoCapitalize="none"
                   spellCheck="false"
+                  aria-required={creating}
+                  aria-invalid={Boolean(fieldErrors.slug)}
+                  aria-describedby={fieldErrors.slug ? "product-slug-error" : undefined}
                 />
+                {fieldErrors.slug ? <small id="product-slug-error" className={styles.fieldError} role="alert">{fieldErrors.slug}</small> : null}
               </label>
-              <label>
-                <span>Short description <small>{editor.form.shortDescription.length}/500</small></span>
+              <label className={fieldErrors.shortDescription ? styles.fieldInvalid : undefined}>
+                <span>Short description {creating ? <b className={styles.requiredMark} aria-label="required">*</b> : null}<small>{editor.form.shortDescription.length}/500</small></span>
                 <input
+                  data-product-field="shortDescription"
                   type="text"
                   value={editor.form.shortDescription}
                   maxLength={500}
-                  onChange={(event) => editor.setField("shortDescription", event.target.value)}
+                  onChange={(event) => {
+                    clearFieldError("shortDescription");
+                    editor.setField("shortDescription", event.target.value);
+                  }}
                   disabled={!editable || submitting}
                   placeholder="A short summary shown in product lists"
+                  aria-required={creating}
+                  aria-invalid={Boolean(fieldErrors.shortDescription)}
+                  aria-describedby={fieldErrors.shortDescription ? "product-short-description-error" : undefined}
                 />
+                {fieldErrors.shortDescription ? <small id="product-short-description-error" className={styles.fieldError} role="alert">{fieldErrors.shortDescription}</small> : null}
               </label>
-              <div className={styles.richField}>
+              <div className={`${styles.richField} ${fieldErrors.description ? styles.fieldInvalid : ""}`}>
                 <div className={styles.richFieldLabel}>
-                  <span>Description</span>
+                  <span>Description {creating ? <b className={styles.requiredMark} aria-label="required">*</b> : null}</span>
                   <small>Markdown Mode</small>
                 </div>
                 <RichTextEditor
                   value={editor.form.description}
                   rows={9}
-                  onChange={(value) => editor.setField("description", value)}
+                  onChange={(value) => {
+                    clearFieldError("description");
+                    editor.setField("description", value);
+                  }}
                   disabled={!editable || submitting}
                   placeholder="Describe the product and its capabilities"
                   ariaLabel="Product description"
+                  fieldName="description"
+                  ariaRequired={creating}
+                  ariaInvalid={Boolean(fieldErrors.description)}
+                  ariaDescribedBy={fieldErrors.description ? "product-description-error" : undefined}
                 />
+                {fieldErrors.description ? <small id="product-description-error" className={styles.fieldError} role="alert">{fieldErrors.description}</small> : null}
               </div>
-              <div className={styles.richField}>
+              <div className={`${styles.richField} ${fieldErrors.usageInstructions ? styles.fieldInvalid : ""}`}>
                 <div className={styles.richFieldLabel}>
-                  <span>Usage instructions</span>
+                  <span>Usage instructions {creating ? <b className={styles.requiredMark} aria-label="required">*</b> : null}</span>
                   <small>Markdown Mode</small>
                 </div>
                 <RichTextEditor
                   value={editor.form.usageInstructions}
                   rows={7}
-                  onChange={(value) => editor.setField("usageInstructions", value)}
+                  onChange={(value) => {
+                    clearFieldError("usageInstructions");
+                    editor.setField("usageInstructions", value);
+                  }}
                   disabled={!editable || submitting}
                   placeholder="Explain how customers use this product"
                   ariaLabel="Product usage instructions"
+                  fieldName="usageInstructions"
+                  ariaRequired={creating}
+                  ariaInvalid={Boolean(fieldErrors.usageInstructions)}
+                  ariaDescribedBy={fieldErrors.usageInstructions ? "product-usage-instructions-error" : undefined}
                 />
+                {fieldErrors.usageInstructions ? <small id="product-usage-instructions-error" className={styles.fieldError} role="alert">{fieldErrors.usageInstructions}</small> : null}
               </div>
             </div>
           </section>
 
-          <ProductMediaSection media={editor.form.media} onChange={editor.setMedia} disabled={!editable || submitting} />
+          <ProductMediaSection
+            media={editor.form.media}
+            onChange={editor.setMedia}
+            disabled={!editable || submitting}
+            iconRequired={creating}
+          />
 
           {!creating && product?.status === "SUSPENDED" && product.suspendedAt ? (
             <p className={styles.statusMeta}>Suspended at {new Date(product.suspendedAt).toLocaleString()}</p>

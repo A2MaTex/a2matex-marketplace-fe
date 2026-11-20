@@ -28,10 +28,14 @@ const SingleImageField = ({
   onOpen,
   onRemove,
   controlId,
+  required,
 }) => (
   <div className={styles.singleField}>
     <div className={styles.fieldHeading}>
-      <div><strong>{label}</strong><span>{hint}</span></div>
+      <div>
+        <strong>{label}{required ? <b className={styles.requiredMark} aria-label="required">*</b> : null}</strong>
+        <span>{hint}</span>
+      </div>
       {!disabled && item ? (
         <button type="button" onClick={() => onRemove(item)} aria-label={`Remove ${label}`}>
           <FiTrash2 />
@@ -50,20 +54,23 @@ const SingleImageField = ({
         <MediaPreview item={item} className={styles.previewImage} />
       </button>
     ) : (
-      <button
-        id={controlId}
-        type="button"
-        className={styles.uploadBox}
-        onClick={() => onOpen(type)}
-        disabled={disabled || uploading}
-      >
-        <FiUploadCloud /> <span>Upload {label.toLowerCase()}</span>
-      </button>
+      <div className={styles.emptySingleField}>
+        <button
+          id={controlId}
+          type="button"
+          className={styles.uploadBox}
+          onClick={() => onOpen(type)}
+          disabled={disabled || uploading}
+        >
+          <FiUploadCloud /> <span>Upload {label.toLowerCase()}</span>
+        </button>
+        {required ? <small>A default icon will be applied if you do not upload one.</small> : null}
+      </div>
     )}
   </div>
 );
 
-const ProductMediaSection = ({ media, onChange, disabled }) => {
+const ProductMediaSection = ({ media, onChange, disabled, iconRequired = false }) => {
   const inputRef = useRef(null);
   const inputTypeRef = useRef("GALLERY");
   const ownedUrlsRef = useRef(new Set());
@@ -164,13 +171,13 @@ const ProductMediaSection = ({ media, onChange, disabled }) => {
       </header>
 
       <div className={styles.singleGrid}>
-        <SingleImageField type="ICON" item={icon} label="Icon" hint="Square product identity" disabled={disabled} uploading={uploading} onOpen={openPicker} onRemove={removeItem} controlId="product-icon-control" />
-        <SingleImageField type="COVER" item={cover} label="Cover" hint="Primary catalog artwork" disabled={disabled} uploading={uploading} onOpen={openPicker} onRemove={removeItem} />
+        <SingleImageField type="ICON" item={icon} label="Icon" hint="Square product identity" disabled={disabled} uploading={uploading} onOpen={openPicker} onRemove={removeItem} controlId="product-icon-control" required={iconRequired} />
+        <SingleImageField type="COVER" item={cover} label="Cover" hint="Primary catalog artwork (optional)" disabled={disabled} uploading={uploading} onOpen={openPicker} onRemove={removeItem} />
       </div>
 
       <div className={styles.galleryField}>
         <div className={styles.fieldHeading}>
-          <div><strong>Gallery</strong><span>{gallery.length} images</span></div>
+          <div><strong>Gallery</strong><span>{gallery.length} images · optional</span></div>
           {!disabled ? (
             <button type="button" onClick={() => openPicker("GALLERY")} disabled={uploading}>
               <FiUploadCloud /> Add images

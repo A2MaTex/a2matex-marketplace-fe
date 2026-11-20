@@ -1,5 +1,13 @@
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
+export const PRODUCT_REQUIRED_FIELDS = [
+  "name",
+  "slug",
+  "shortDescription",
+  "description",
+  "usageInstructions",
+];
+
 export class ProductValidationError extends Error {
   constructor(message, field = null) {
     super(message);
@@ -20,6 +28,14 @@ export const generateProductSlug = (value) =>
 const normalizeText = (value) => {
   const text = String(value ?? "").trim();
   return text.length > 0 ? text : null;
+};
+
+const REQUIRED_MESSAGES = {
+  name: "Product name is required.",
+  slug: "Product slug is required.",
+  shortDescription: "Short description is required.",
+  description: "Description is required.",
+  usageInstructions: "Usage instructions are required.",
 };
 
 export const normalizeProductMedia = (media = []) => {
@@ -52,28 +68,12 @@ export const createProductForm = ({ product = null, project = null } = {}) => ({
   media: (product?.media ?? []).map((item) => ({ ...item })),
 });
 
-const validateForm = (form) => {
+const normalizeForm = (form) => {
   const name = normalizeText(form.name);
   const slug = normalizeText(form.slug);
   const shortDescription = normalizeText(form.shortDescription);
   const description = normalizeText(form.description);
   const usageInstructions = normalizeText(form.usageInstructions);
-
-  if (name && name.length > 255) {
-    throw new ProductValidationError("Product name must be 255 characters or fewer.", "name");
-  }
-  if (slug && (slug.length > 255 || !SLUG_PATTERN.test(slug))) {
-    throw new ProductValidationError(
-      "Slug may contain only lowercase letters, numbers and single hyphens.",
-      "slug",
-    );
-  }
-  if (shortDescription && shortDescription.length > 500) {
-    throw new ProductValidationError(
-      "Short description must be 500 characters or fewer.",
-      "shortDescription",
-    );
-  }
 
   return {
     name,
@@ -85,11 +85,47 @@ const validateForm = (form) => {
   };
 };
 
+export const getProductFormErrors = (form, { requireContent = false } = {}) => {
+  const normalized = normalizeForm(form);
+  const errors = {};
+
+  if (requireContent) {
+    PRODUCT_REQUIRED_FIELDS.forEach((field) => {
+      if (!normalized[field]) errors[field] = REQUIRED_MESSAGES[field];
+    });
+  }
+
+  if (normalized.name && normalized.name.length > 255) {
+    errors.name = "Product name must be 255 characters or fewer.";
+  }
+  if (
+    normalized.slug &&
+    (normalized.slug.length > 255 || !SLUG_PATTERN.test(normalized.slug))
+  ) {
+    errors.slug =
+      "Slug may contain only lowercase letters, numbers and single hyphens.";
+  }
+  if (normalized.shortDescription && normalized.shortDescription.length > 500) {
+    errors.shortDescription = "Short description must be 500 characters or fewer.";
+  }
+
+  return errors;
+};
+
+const validateForm = (form, options) => {
+  const errors = getProductFormErrors(form, options);
+  const firstField = PRODUCT_REQUIRED_FIELDS.find((field) => errors[field]);
+  const fallbackField = Object.keys(errors)[0];
+  const field = firstField ?? fallbackField;
+  if (field) throw new ProductValidationError(errors[field], field);
+  return normalizeForm(form);
+};
+
 export const buildProductCreateInput = (form, projectId) => {
   if (typeof projectId !== "string" || projectId.length === 0) {
     throw new ProductValidationError("Select an eligible project before creating a product.");
   }
-  return { projectId, ...validateForm(form) };
+  return { projectId, ...validateForm(form, { requireContent: true }) };
 };
 
 const sameValue = (left, right) => JSON.stringify(left) === JSON.stringify(right);

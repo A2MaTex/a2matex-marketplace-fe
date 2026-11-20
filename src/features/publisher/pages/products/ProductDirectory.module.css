@@ -84,6 +84,7 @@
 }
 .filters button:hover { color: #a7b5c7; background: rgba(255,255,255,0.03); }
 .filters .filterActive { background: rgba(255, 255, 255, 0.035); }
+.filters .filterALL.filterActive { border-color: rgba(120, 216, 235, 0.38); color: #8de2f0; background: rgba(74, 198, 220, 0.08); }
 .filters .filterDRAFT.filterActive { border-color: rgba(224, 202, 121, 0.38); color: #efc474; background: rgba(224, 202, 121, 0.08); }
 .filters .filterACTIVE.filterActive { border-color: rgba(65, 220, 174, 0.38); color: #56e3b8; background: rgba(65, 220, 174, 0.08); }
 .filters .filterSUSPENDED.filterActive { border-color: rgba(255, 111, 126, 0.4); color: #ff929d; background: rgba(255, 105, 118, 0.08); }

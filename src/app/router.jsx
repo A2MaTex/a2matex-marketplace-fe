@@ -11,6 +11,8 @@ import adminRoutes from "@/features/admin/routers/adminRoute";
 import AppLayout from "@/common/components/layout/AppLayout";
 import AdminLayout from "@/features/admin/components/layout/AdminLayout";
 import publisherRoutes from "@/features/publisher/routers/publisherRoute";
+import LegalDocumentPage from "@/features/term/pages/LegalDocumentPage";
+import TERM_TYPE from "@/constants/term";
 
 export const router = createBrowserRouter([
   {
@@ -49,6 +51,28 @@ export const router = createBrowserRouter([
       {
         path: "/studio",
         element: <StudioPage />,
+      },
+      {
+        path: "/terms",
+        element: (
+          <LegalDocumentPage
+            key="customer-terms"
+            type={TERM_TYPE.CUSTOMER_TERMS}
+            fallbackTitle="Terms of Service"
+            variant="terms"
+          />
+        ),
+      },
+      {
+        path: "/privacy",
+        element: (
+          <LegalDocumentPage
+            key="privacy-policy"
+            type={TERM_TYPE.PRIVACY_POLICY}
+            fallbackTitle="Privacy Policy"
+            variant="privacy"
+          />
+        ),
       },
     ],
   },

@@ -1,5 +1,6 @@
 const PRODUCT_STATUSES = new Set(["DRAFT", "ACTIVE", "SUSPENDED", "ARCHIVED"]);
 const MEDIA_TYPES = new Set(["ICON", "COVER", "GALLERY"]);
+const OFFER_TYPES = new Set(["ONE_TIME", "SUBSCRIPTION"]);
 
 export class ProductContractError extends Error {
   constructor(message) {
@@ -70,6 +71,29 @@ export const parseProductMedia = (value, label = "media") => {
   };
 };
 
+export const parseProductOffer = (value, label = "offer") => {
+  const offer = requireObject(value, label);
+  const type = requireString(offer.type, `${label}.type`);
+  if (!OFFER_TYPES.has(type)) {
+    throw new ProductContractError(`${label}.type is not supported.`);
+  }
+  if (typeof offer.priceAmount !== "string" || !/^\d+$/.test(offer.priceAmount)) {
+    throw new ProductContractError(`${label}.priceAmount must be a decimal string.`);
+  }
+  if (
+    offer.durationDays !== null &&
+    (!Number.isInteger(offer.durationDays) || offer.durationDays <= 0)
+  ) {
+    throw new ProductContractError(`${label}.durationDays must be a positive integer or null.`);
+  }
+  return {
+    id: requireString(offer.id, `${label}.id`),
+    type,
+    priceAmount: offer.priceAmount,
+    durationDays: offer.durationDays,
+  };
+};
+
 export const parseProduct = (value, label = "product") => {
   const product = requireObject(value, label);
   const status = requireString(product.status, `${label}.status`);
@@ -78,6 +102,9 @@ export const parseProduct = (value, label = "product") => {
   }
   if (product.media !== undefined && product.media !== null && !Array.isArray(product.media)) {
     throw new ProductContractError(`${label}.media must be an array.`);
+  }
+  if (product.offers !== undefined && product.offers !== null && !Array.isArray(product.offers)) {
+    throw new ProductContractError(`${label}.offers must be an array.`);
   }
 
   return {
@@ -103,6 +130,9 @@ export const parseProduct = (value, label = "product") => {
     ),
     media: (product.media ?? []).map((item, index) =>
       parseProductMedia(item, `${label}.media[${index}]`),
+    ),
+    offers: (product.offers ?? []).map((item, index) =>
+      parseProductOffer(item, `${label}.offers[${index}]`),
     ),
     createdAt: optionalString(product.createdAt, `${label}.createdAt`),
     updatedAt: optionalString(product.updatedAt, `${label}.updatedAt`),

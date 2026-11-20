@@ -1,5 +1,5 @@
 export const getCurrentTermsUrl = (termType) =>
-  `/terms/current?type=${termType}`;
+  `/terms/current?${new URLSearchParams({ type: termType }).toString()}`;
 
 export const createTermUrl = "/terms";
 export const getTermsUrl = "/terms";

@@ -29,6 +29,10 @@ const RichTextEditor = ({
   rows = 8,
   disabled = false,
   ariaLabel,
+  fieldName,
+  ariaRequired = false,
+  ariaInvalid = false,
+  ariaDescribedBy,
 }) => {
   const textareaRef = useRef(null);
   const [previewOk] = useState(true); // placeholder badge
@@ -105,6 +109,7 @@ const RichTextEditor = ({
       {/* Textarea */}
       <textarea
         ref={textareaRef}
+        data-product-field={fieldName}
         className={styles.textarea}
         value={value}
         onChange={(e) => onChange?.(e.target.value)}
@@ -113,6 +118,9 @@ const RichTextEditor = ({
         spellCheck={false}
         disabled={disabled}
         aria-label={ariaLabel}
+        aria-required={ariaRequired}
+        aria-invalid={ariaInvalid}
+        aria-describedby={ariaDescribedBy}
       />
     </div>
   );

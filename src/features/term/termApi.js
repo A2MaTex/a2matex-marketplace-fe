@@ -7,8 +7,8 @@ import {
   getTermUrl,
 } from "./termUrl";
 
-const getCurrentTerms = (termType) =>
-  axiosInstance.get(getCurrentTermsUrl(termType));
+const getCurrentTerms = (termType, config) =>
+  axiosInstance.get(getCurrentTermsUrl(termType), config);
 
 const createNewTerm = (body) => axiosInstance.post(createTermUrl, body);
 
@@ -24,5 +24,5 @@ export const termApi = {
   createNewTerm,
   getAllTerms,
   changeTermStatus,
-  getTerm
+  getTerm,
 };

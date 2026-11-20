@@ -290,6 +290,27 @@
 .fields label:nth-child(5) textarea { min-height: 178px; color: #e0e5ef; background: #090e18; font-family: var(--mono); font-size: 12px; }
 .fields input:focus,
 .fields textarea:focus { border-color: #28c7e6; background: #111824; box-shadow: 0 0 0 3px rgba(40, 199, 230, 0.09); }
+.requiredMark {
+  margin-left: 3px;
+  color: #ff7f8d;
+  font: inherit;
+  font-weight: 800;
+}
+.fields .fieldError,
+.richField .fieldError {
+  color: #ff929d;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-align: left;
+  text-transform: none;
+}
+.fieldInvalid input,
+.fieldInvalid textarea {
+  border-color: #d95d6d;
+  box-shadow: 0 0 0 3px rgba(217, 93, 109, 0.09);
+}
 .editorFooter { min-height: 66px; padding: 11px max(26px, calc((100% - 1188px) / 2)); border-color: #252d3d; background: rgba(20, 25, 36, 0.97); font-size: 12px; }
 .footerSaveButton { min-width: 220px; }
 .editorStandalone .editorFooter {

@@ -1,0 +1,100 @@
+.page { min-width: 0; min-height: 0; flex: 1; display: flex; flex-direction: column; overflow: hidden; color: #dce6f2; background: #080d15; }
+.pageHeader { display: flex; align-items: center; justify-content: space-between; gap: 22px; padding: 18px 22px 14px; border-bottom: 1px solid #1b2635; background: #0b111b; }
+.eyebrow { margin: 0; color: #58b5c7; font-size: 9px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+.pageHeader h1 { margin: 2px 0 0; color: #e8eef6; font-size: 24px; }
+.pageHeader > div > span { display: block; margin-top: 3px; color: #77869a; font-size: 12px; }
+.productPicker { display: flex; align-items: center; gap: 9px; color: #73839a; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+.productPicker select { width: min(330px, 34vw); min-height: 38px; border: 1px solid #2a3a4d; border-radius: 6px; outline: none; color: #c3cfdb; background: #111923; font: inherit; font-size: 11px; }
+.topError { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 8px 18px; border-bottom: 1px solid rgba(244,105,118,.28); color: #e99aa2; background: rgba(150,44,54,.12); font-size: 11px; }
+.topError button { display: inline-flex; align-items: center; gap: 5px; border: 0; color: #ffb4bb; background: transparent; cursor: pointer; }
+.workspace { min-width: 0; min-height: 0; flex: 1; display: grid; grid-template-columns: 320px minmax(380px, 1fr) 290px; overflow: hidden; }
+.directory { min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; border-right: 1px solid #1c2838; background: #090f18; }
+.loadingBar { width: 35%; height: 2px; background: linear-gradient(90deg, transparent, #4bd7ef, transparent); animation: loading 1.1s ease-in-out infinite; }
+@keyframes loading { from { transform: translateX(-100%); } to { transform: translateX(400%); } }
+.releaseList { min-height: 0; flex: 1; margin: 0; padding: 10px; overflow-y: auto; list-style: none; }
+.releaseList li + li { margin-top: 7px; }
+.releaseCard { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 7px 10px; padding: 12px; border: 1px solid #202d3e; border-radius: 8px; color: inherit; background: #0e1621; cursor: pointer; text-align: left; }
+.releaseCard:hover { border-color: #34475d; background: #111b28; }
+.releaseCardSelected { border-color: #31bdd6; box-shadow: inset 3px 0 0 #35c9e2; }
+.cardTitleRow { min-width: 0; display: flex; align-items: center; gap: 8px; }
+.cardTitleRow strong { overflow: hidden; color: #e0e8f1; font-family: var(--mono); font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
+.releaseCard > .statusBadge { justify-self: end; }
+.releaseCard small { color: #64758c; font-size: 9px; }
+.releaseCard p { grid-column: 1 / -1; max-height: 34px; margin: 0; overflow: hidden; color: #8997aa; font-size: 10px; line-height: 1.55; }
+.currentMark { display: inline-flex; align-items: center; min-height: 20px; padding: 0 6px; border: 1px solid rgba(75,217,166,.3); border-radius: 4px; color: #6de4b8; background: rgba(75,217,166,.07); font-family: var(--mono); font-size: 8px; font-weight: 900; }
+.statusBadge { display: inline-flex; align-items: center; min-height: 21px; padding: 0 7px; border: 1px solid #344256; border-radius: 4px; color: #95a5b8; background: rgba(120,140,160,.06); font-family: var(--mono); font-size: 8px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+.statusBUILDING { color: #72d9eb; border-color: rgba(67,202,227,.32); background: rgba(67,202,227,.07); }
+.statusPUBLISHED { color: #68e2b4; border-color: rgba(70,218,164,.32); background: rgba(70,218,164,.07); }
+.statusBUILD_FAILED { color: #ff929d; border-color: rgba(255,105,118,.32); background: rgba(255,105,118,.07); }
+.statusDISABLED { color: #9ba7b8; border-color: rgba(155,167,184,.28); background: rgba(155,167,184,.06); }
+.directoryState, .detailState, .emptyPage { min-height: 260px; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 28px; color: #6b798f; text-align: center; }
+.directoryState > svg, .detailState > svg, .emptyPage > svg { width: 31px; height: 31px; color: #40506a; }
+.directoryState strong, .detailState strong, .emptyPage strong { color: #c0ccda; font-size: 14px; }
+.directoryState p, .detailState p, .emptyPage p { max-width: 450px; margin: 0; font-size: 11px; line-height: 1.55; }
+.directoryState button, .detailState button { min-height: 32px; display: inline-flex; align-items: center; gap: 6px; padding: 0 10px; border: 1px solid #2a4556; border-radius: 6px; color: #7bd9eb; background: #101a25; cursor: pointer; }
+.pagination { min-height: 42px; display: flex; align-items: center; justify-content: center; gap: 10px; border-top: 1px solid #192536; color: #718096; font-size: 10px; }
+.pagination button { width: 27px; height: 27px; display: grid; place-items: center; border: 1px solid #29394d; border-radius: 5px; color: #8fa0b4; background: #101722; cursor: pointer; }
+.pagination button:disabled { opacity: .35; cursor: not-allowed; }
+.detail { min-width: 0; min-height: 0; overflow-y: auto; padding: 20px 22px 34px; }
+.detailHeader { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
+.detailHeader h2 { margin: 2px 0 0; color: #e8edf5; font-size: 24px; }
+.detailHeader > div > span { display: block; margin-top: 4px; color: #6e7e93; font-size: 10px; }
+.detailHeaderMeta { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; }
+.detailGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 15px; }
+.panel { margin-top: 12px; padding: 15px; border: 1px solid #202d3e; border-radius: 8px; background: #101721; }
+.detailGrid .panel { margin-top: 0; }
+.panel > header { display: flex; align-items: flex-start; gap: 9px; margin-bottom: 12px; }
+.panel > header > svg { flex: 0 0 auto; margin-top: 2px; color: #69d8eb; }
+.panel h3, .readinessPanel h3 { margin: 0; color: #dce5ef; font-size: 13px; }
+.panel header p { margin: 2px 0 0; color: #65758a; font-size: 9px; }
+.panel dl { display: grid; gap: 7px; margin: 0; }
+.panel dl > div { display: flex; justify-content: space-between; gap: 10px; padding-bottom: 7px; border-bottom: 1px solid #1d2938; }
+.panel dt { color: #718096; font-size: 10px; }
+.panel dd { max-width: 70%; margin: 0; overflow: hidden; color: #bdc8d5; font-family: var(--mono); font-size: 9px; text-align: right; text-overflow: ellipsis; white-space: nowrap; }
+.panel a { color: #78d9e9; }
+.hash { user-select: all; }
+.longText { margin: 0; color: #b5c0cd; font-size: 11px; line-height: 1.65; white-space: pre-wrap; }
+.downloadLink, .secondaryLink { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; color: #79d9e9; font-size: 10px; font-weight: 700; text-decoration: none; }
+.capabilities { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 10px; padding: 0; list-style: none; }
+.capabilities li { padding: 4px 7px; border: 1px solid #2b4053; border-radius: 4px; color: #91cbd5; background: #0b121b; font-family: var(--mono); font-size: 8px; }
+.jsonBlock { border: 1px solid #263548; border-radius: 6px; background: #0a111a; }
+.jsonBlock summary { padding: 9px 10px; color: #8ea0b5; cursor: pointer; font-size: 10px; }
+.jsonBlock pre { max-height: 280px; margin: 0; overflow: auto; padding: 10px; border-top: 1px solid #263548; color: #9ccbd2; font-family: var(--mono); font-size: 9px; }
+.detailActions { display: flex; justify-content: flex-end; margin-top: 15px; }
+.primaryButton, .activateButton { min-height: 36px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 0 12px; border: 0; border-radius: 6px; color: #04151a; background: #45cfe7; cursor: pointer; font: inherit; font-size: 10px; font-weight: 800; }
+.primaryButton:disabled, .activateButton:disabled { color: #647486; background: #1d2937; cursor: not-allowed; }
+.successNotice, .actionError, .warning { margin-top: 13px; padding: 10px 12px; border: 1px solid rgba(65,211,157,.28); border-radius: 6px; color: #75dfb8; background: rgba(65,211,157,.07); font-size: 10px; }
+.successNotice { display: flex; align-items: center; gap: 7px; }
+.actionError, .warning { border-color: rgba(244,105,118,.27); color: #efa0a8; background: rgba(170,54,65,.08); }
+.readinessPanel { min-width: 0; min-height: 0; overflow-y: auto; padding: 18px 16px; border-left: 1px solid #1c2838; background: #0a1019; }
+.readinessPanel > header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; padding-bottom: 13px; border-bottom: 1px solid #1d2938; }
+.liveBadge, .draftBadge { padding: 4px 6px; border: 1px solid rgba(65,211,157,.28); border-radius: 4px; color: #6fe0b7; background: rgba(65,211,157,.07); font-family: var(--mono); font-size: 8px; font-weight: 900; }
+.draftBadge { border-color: #344256; color: #97a7b9; background: #111925; }
+.checkList { display: grid; gap: 10px; margin: 16px 0 4px; padding: 0; list-style: none; }
+.checkList li { display: flex; align-items: flex-start; gap: 8px; font-size: 10px; line-height: 1.4; }
+.checkList svg { width: 15px; height: 15px; flex: 0 0 auto; }
+.checkReady { color: #7eddb9; }
+.checkMissing { color: #728198; }
+.activateButton { width: 100%; margin-top: 14px; }
+.muted { color: #728198; font-size: 10px; line-height: 1.5; }
+.spinner { width: 26px; height: 26px; border: 2px solid rgba(72,206,230,.2); border-top-color: #48cee6; border-radius: 50%; animation: spin 700ms linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 1120px) {
+  .workspace { grid-template-columns: 300px minmax(0, 1fr); }
+  .readinessPanel { grid-column: 1 / -1; min-height: auto; overflow: visible; border-top: 1px solid #1c2838; border-left: 0; }
+}
+@media (max-width: 760px) {
+  .page { overflow-y: auto; }
+  .pageHeader { align-items: stretch; flex-direction: column; padding: 14px; }
+  .pageHeader > div > span { display: none; }
+  .productPicker { align-items: stretch; flex-direction: column; }
+  .productPicker select { width: 100%; }
+  .workspace { display: flex; flex-direction: column; overflow: visible; }
+  .directory { min-height: 300px; max-height: 45svh; border-right: 0; border-bottom: 1px solid #1c2838; }
+  .detail { overflow: visible; padding: 16px 14px 26px; }
+  .detailGrid { grid-template-columns: 1fr; }
+  .detailHeader { flex-direction: column; }
+  .readinessPanel { overflow: visible; }
+}
+@media (prefers-reduced-motion: reduce) { .loadingBar, .spinner { animation: none; } }
