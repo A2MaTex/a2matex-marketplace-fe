@@ -8,8 +8,10 @@ const MESSAGES = {
   "Error.ProductReleaseUnavailable": "The current release is no longer eligible for activation.",
   "Error.ProductSubscriptionOfferRequired": "Add at least one valid subscription offer before activation.",
   "Error.ProductCannotBeActivated": "This product cannot be activated from its current state.",
+  "Error.ProductCannotBeReactivated": "This product cannot be reactivated from its current state.",
+  "Error.ProductLifecycleUnavailable": "Publisher lifecycle actions are unavailable for this product.",
   "Error.ProductSuspended": "This product is suspended and cannot be changed by a Publisher.",
-  "Error.ProductArchived": "This product is archived and read-only.",
+  "Error.ProductArchived": "This product is archived. Review readiness before reactivating it.",
 };
 
 export const isCanceledReleaseRequest = (error) => error?.code === "ERR_CANCELED";

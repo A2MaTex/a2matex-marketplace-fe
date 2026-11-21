@@ -16,6 +16,7 @@ const ERROR_MESSAGES = {
   "Error.ProductSuspended": "This product is suspended and can no longer be edited.",
   "Error.ProductArchived": "This product is archived and can no longer be edited.",
   "Error.ProductCannotBeArchived": "The current product status cannot be archived.",
+  "Error.ProductLifecycleUnavailable": "Publisher lifecycle actions are unavailable for this product.",
 };
 
 export const toPublisherProductError = (error, fallbackMessage) => {

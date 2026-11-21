@@ -93,6 +93,7 @@
 .statusDRAFT { color: #e9bf7d; border-color: rgba(233, 191, 125, 0.34); background: rgba(233, 191, 125, 0.06); }
 .statusACTIVE { color: #55e2b2; border-color: rgba(85, 226, 178, 0.3); background: rgba(85, 226, 178, 0.06); }
 .statusSUSPENDED { color: #ff9da6; border-color: rgba(255, 105, 118, 0.3); background: rgba(255, 105, 118, 0.06); }
+.statusARCHIVED { color: #a7b1c0; border-color: rgba(167, 177, 192, 0.28); background: rgba(167, 177, 192, 0.06); }
 
 .headerActions { flex: 0 0 auto; display: flex; align-items: center; gap: 9px; }
 .headerActions button,
@@ -116,8 +117,38 @@
 .saveButton:hover:not(:disabled),
 .footerSaveButton:hover:not(:disabled) { background: #60d9eb; }
 .archiveButton { border: 1px solid rgba(255, 105, 118, 0.32); color: #ff9da6; background: rgba(255, 105, 118, 0.06); }
+.activateButton { border: 0; color: #041217; background: #55e2b2; box-shadow: 0 7px 24px rgba(85, 226, 178, 0.18); }
+.activateButton:hover:not(:disabled) { background: #76ebc2; }
 .editButton { border: 1px solid #3a4a60; color: #b7c4d5; background: #202735; }
-.activateButton { border: 0; color: #03151a; background: #16c9ee; box-shadow: 0 0 22px rgba(22, 201, 238, 0.18); }
+.readinessLink {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 14px;
+  border: 1px solid rgba(22, 201, 238, 0.35);
+  border-radius: 8px;
+  color: #63d8ee;
+  background: rgba(22, 201, 238, 0.08);
+  font-size: 13px;
+  font-weight: 750;
+  text-decoration: none;
+}
+.readinessLink:hover { border-color: #3bd5f3; color: #9aebf8; }
+
+.activationError,
+.activationNotice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 16px 14px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+.activationError { border: 1px solid rgba(255, 105, 118, 0.28); color: #ff9da6; background: rgba(255, 105, 118, 0.06); }
+.activationNotice { border: 1px solid rgba(85, 226, 178, 0.25); color: #75e7c1; background: rgba(85, 226, 178, 0.06); }
 
 .readOnlyNotice {
   display: flex;
@@ -219,6 +250,7 @@
   .titleLine h1 { font-size: 18px; white-space: normal; }
   .headerActions { flex-direction: column-reverse; align-items: stretch; }
   .headerActions button { min-width: 116px; }
+  .readinessLink { min-width: 116px; }
   .section { padding: 16px 14px 18px; }
   .fields { grid-template-columns: 1fr; }
   .fields label:nth-child(n + 1) { grid-column: 1; }
@@ -231,6 +263,7 @@
   .editorHeader { flex-direction: column; }
   .headerActions { width: 100%; flex-direction: row; }
   .headerActions button { flex: 1; min-width: 0; }
+  .readinessLink { flex: 1; min-width: 0; }
   .footerActions button { flex: 1; }
 }
 
@@ -322,7 +355,7 @@
   background: transparent;
   backdrop-filter: none;
 }
-.richField { min-width: 0; display: flex; flex-direction: column; gap: 6px; grid-column: 1; }
+.richField { min-width: 0; display: flex; flex-direction: column; gap: 6px; grid-column: 1; font-size: 14px; }
 .richFieldLabel { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: #8995a7; font-size: 11px; font-weight: 750; letter-spacing: 0.04em; text-transform: uppercase; }
 .richFieldLabel small { color: #9fa9b8; font-family: var(--mono); font-size: 10px; font-weight: 400; letter-spacing: 0; text-transform: none; }
 

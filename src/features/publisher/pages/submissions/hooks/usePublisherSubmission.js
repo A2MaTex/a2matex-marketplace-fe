@@ -5,9 +5,12 @@ import {
   isCanceledSubmissionRequest,
   toPublisherSubmissionError,
 } from "../model/submissionError";
+import {
+  pollDelayForAttempt,
+  shouldPollSubmission,
+} from "../../model/publisherPolling";
 
 const CACHE_TTL_MS = 15_000;
-const POLL_DELAYS = [4_000, 8_000, 15_000, 30_000];
 const detailCache = new Map();
 
 const readCache = (submissionId) => {
@@ -87,7 +90,7 @@ export function usePublisherSubmission(submissionId, { poll = true } = {}) {
   const data = state.submissionId === submissionId ? state.data : readCache(submissionId);
 
   useEffect(() => {
-    if (!poll || !submissionId || data?.status !== "PENDING_SCAN") {
+    if (!shouldPollSubmission({ poll, submissionId, status: data?.status })) {
       pollAttemptRef.current = 0;
       return undefined;
     }
@@ -95,7 +98,7 @@ export function usePublisherSubmission(submissionId, { poll = true } = {}) {
     let timer = null;
     const schedule = () => {
       if (document.visibilityState !== "visible") return;
-      const delay = POLL_DELAYS[Math.min(pollAttemptRef.current, POLL_DELAYS.length - 1)];
+      const delay = pollDelayForAttempt(pollAttemptRef.current);
       timer = window.setTimeout(() => {
         pollAttemptRef.current += 1;
         refetch();

@@ -75,6 +75,14 @@
 .checkList svg { width: 15px; height: 15px; flex: 0 0 auto; }
 .checkReady { color: #7eddb9; }
 .checkMissing { color: #728198; }
+.lifecycleStatus { display: flex; align-items: flex-start; gap: 8px; margin: 10px 0 4px; padding: 0; border: 0; color: #728198; background: transparent; font-size: 10px; line-height: 1.4; }
+.lifecycleStatus svg { width: 15px; height: 15px; flex: 0 0 auto; }
+.lifecycleready, .lifecyclelive { color: #7eddb9; }
+.lifecycleblocked { color: #efa0a8; }
+.readinessEvidence { display: grid; gap: 7px; margin: 14px 0 0; }
+.readinessEvidence > div { display: flex; justify-content: space-between; gap: 10px; padding-bottom: 7px; border-bottom: 1px solid #1d2938; }
+.readinessEvidence dt { color: #718096; font-size: 9px; }
+.readinessEvidence dd { margin: 0; color: #c3cedb; font-family: var(--mono); font-size: 9px; text-align: right; }
 .activateButton { width: 100%; margin-top: 14px; }
 .muted { color: #728198; font-size: 10px; line-height: 1.5; }
 .spinner { width: 26px; height: 26px; border: 2px solid rgba(72,206,230,.2); border-top-color: #48cee6; border-radius: 50%; animation: spin 700ms linear infinite; }

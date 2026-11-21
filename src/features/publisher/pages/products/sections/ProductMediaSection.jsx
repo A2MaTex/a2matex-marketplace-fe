@@ -70,7 +70,13 @@ const SingleImageField = ({
   </div>
 );
 
-const ProductMediaSection = ({ media, onChange, disabled, iconRequired = false }) => {
+const ProductMediaSection = ({
+  media,
+  onChange,
+  disabled,
+  iconRequired = false,
+  sectionNumber = 2,
+}) => {
   const inputRef = useRef(null);
   const inputTypeRef = useRef("GALLERY");
   const ownedUrlsRef = useRef(new Set());
@@ -164,7 +170,7 @@ const ProductMediaSection = ({ media, onChange, disabled, iconRequired = false }
       <header>
         <span className={styles.sectionIcon}><FiImage /></span>
         <div>
-          <h2 id="product-media-title">2. Product media</h2>
+          <h2 id="product-media-title">{sectionNumber}. Product media</h2>
           <p>Upload the icon, cover and gallery images shown in the marketplace.</p>
         </div>
         <span className={styles.sectionMeta}>{gallery.length} gallery {gallery.length === 1 ? "image" : "images"}</span>

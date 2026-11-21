@@ -1,0 +1,60 @@
+.editor { display: flex; min-width: 0; flex-direction: column; gap: 15px; }
+.summaryRow { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.summaryRow > div:first-child { display: flex; min-width: 0; flex-direction: column; gap: 3px; }
+.summaryRow strong { color: #dce6f2; font-size: 13px; }
+.summaryRow span { color: #7f8ca0; font-size: 11px; }
+.addActions { display: flex; flex-wrap: wrap; gap: 8px; }
+.addActions button,
+.saveButton,
+.removeButton { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: 6px; font: inherit; cursor: pointer; }
+.addActions button { min-height: 36px; padding: 0 12px; border: 1px solid #34445b; color: #b9c7d7; background: #171e2a; font-size: 12px; font-weight: 700; }
+.addActions button:hover:not(:disabled) { border-color: #36c8e5; color: #79e1f2; }
+.addActions button:disabled,
+.saveButton:disabled,
+.removeButton:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.offerGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.offerCard { min-width: 0; padding: 15px; border: 1px solid #273348; border-radius: 9px; background: #111722; }
+.offerCard header { display: flex; align-items: center; gap: 10px; }
+.offerCard header > span { display: grid; width: 34px; height: 34px; flex: 0 0 auto; place-items: center; border-radius: 7px; }
+.offerCard header > span svg { width: 18px; height: 18px; }
+.subscriptionIcon { color: #67e8c0; background: rgba(73, 211, 167, 0.1); }
+.lifetimeIcon { color: #c7b7ff; background: rgba(167, 139, 250, 0.12); }
+.offerCard header > div { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 2px; }
+.offerCard header strong { color: #e1e8f2; font-size: 13px; }
+.offerCard header small { color: #718095; font-size: 10px; }
+.removeButton { width: 32px; height: 32px; border: 1px solid transparent; color: #7f8da1; background: transparent; }
+.removeButton:hover:not(:disabled) { border-color: rgba(255, 105, 118, 0.3); color: #ff8e9a; background: rgba(255, 105, 118, 0.06); }
+
+.offerFields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 0.9fr); gap: 9px; margin-top: 14px; }
+.offerFields label { display: flex; min-width: 0; flex-direction: column; gap: 5px; }
+.offerFields label > span { color: #7e8ba0; font-size: 9px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
+.offerFields input,
+.offerFields select { width: 100%; min-width: 0; height: 38px; padding: 0 10px; border: 1px solid #2b384d; border-radius: 5px; outline: 0; color: #dbe5ef; background: #090e17; font: inherit; font-size: 12px; }
+.offerFields input:focus,
+.offerFields select:focus { border-color: #31c7e4; box-shadow: 0 0 0 3px rgba(49, 199, 228, 0.08); }
+.offerFields input:disabled,
+.offerFields select:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.emptyState { padding: 28px 18px; border: 1px dashed #2c3a4f; border-radius: 8px; color: #7f8ca1; background: #0e141e; font-size: 12px; text-align: center; }
+.fullReplacementNote { display: flex; align-items: flex-start; gap: 7px; color: #9ca9ba; font-size: 11px; line-height: 1.5; }
+.fullReplacementNote svg { flex: 0 0 auto; margin-top: 2px; color: #e8b76f; }
+.activeWarning { margin: -5px 0 0; color: #d5a86a; font-size: 11px; }
+.error,
+.notice { margin: 0; padding: 10px 12px; border-radius: 6px; font-size: 12px; }
+.error { border: 1px solid rgba(255, 105, 118, 0.28); color: #ff9ca6; background: rgba(255, 105, 118, 0.06); }
+.notice { border: 1px solid rgba(85, 226, 178, 0.25); color: #75e7c1; background: rgba(85, 226, 178, 0.06); }
+.saveRow { display: flex; justify-content: flex-end; }
+.saveButton { min-height: 39px; padding: 0 16px; border: 0; color: #03151a; background: #16c9ee; font-size: 12px; font-weight: 800; }
+.saveButton:hover:not(:disabled) { background: #3bd5f3; }
+
+@media (max-width: 900px) {
+  .offerGrid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .summaryRow { align-items: stretch; flex-direction: column; }
+  .addActions button { flex: 1; }
+  .offerFields { grid-template-columns: 1fr; }
+  .saveButton { width: 100%; }
+}

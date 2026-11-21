@@ -9,7 +9,7 @@
 .productIcon { display: grid; width: 92px; height: 92px; flex: 0 0 92px; place-items: center; overflow: hidden; border-radius: 25px; background: radial-gradient(circle at 20% 20%, rgba(102, 231, 218, 0.19), transparent 56%), #101a25; box-shadow: inset 0 0 0 1px rgba(102, 231, 218, 0.2), 0 22px 54px rgba(0, 0, 0, 0.24); color: #72ded4; font-size: 34px; transform: rotate(-2deg); }
 .productIcon img { width: 100%; height: 100%; object-fit: cover; }
 .heroCopy { min-width: 0; }
-.heroCopy h1 { max-width: 900px; margin: 9px 0 11px; color: #f6fbff; font-size: clamp(38px, 6vw, 68px); line-height: 1.02; letter-spacing: -0.06em; }
+.heroCopy h1 { max-width: 900px; margin: 9px 0 11px; color: #f6fbff; font-size: 50px; line-height: 1.02; letter-spacing: -0.06em; }
 .heroCopy > p { max-width: 800px; margin: 0; color: #909bb0; font-size: 14px; line-height: 1.75; }
 .badges, .metaRow { display: flex; align-items: center; flex-wrap: wrap; }
 .badges { gap: 7px; }
@@ -27,7 +27,7 @@
 .requirements, .contentCard, .offerCard { margin-top: 48px; padding: 38px 0 0; border-top: 1px solid rgba(110, 168, 188, 0.17); }
 .sectionHeading { margin-bottom: 18px; }
 .sectionHeading span { color: #66e7da; font-size: 10px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; }
-.sectionHeading h2, .contentCard > h2 { margin: 5px 0 0; color: #f2f8fc; font-size: clamp(25px, 3vw, 34px); letter-spacing: -0.035em; }
+.sectionHeading h2, .contentCard > h2 { margin: 5px 0 0; color: #f2f8fc; font-size: 30px; letter-spacing: -0.035em; }
 .requirementGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .requirementGrid > div { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 9px; padding: 15px 2px; border-bottom: 1px solid rgba(139, 181, 195, 0.13); color: #72ddd3; }
 .requirementGrid span { color: #7c879d; font-size: 12px; }

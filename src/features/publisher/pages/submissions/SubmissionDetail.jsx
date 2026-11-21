@@ -9,6 +9,7 @@ import {
   FiRefreshCw,
 } from "react-icons/fi";
 import { Link } from "react-router-dom";
+import SafeProductContent from "../../../marketplace/components/SafeProductContent";
 import SubmissionStatusBadge from "./components/SubmissionStatusBadge";
 import styles from "./SubmissionsPage.module.css";
 
@@ -168,18 +169,30 @@ const SubmissionDetail = ({ data, loading, error, onRetry }) => {
         <header><FiPackage /><div><h3>Frozen product snapshot</h3><p>Marketplace content captured when this submission was created.</p></div></header>
         <div className={styles.textBlock}><strong>Short description</strong><p>{snapshot.shortDescription}</p></div>
         <div className={styles.textColumns}>
-          <div className={styles.textBlock}><strong>Description</strong><p>{snapshot.description}</p></div>
-          <div className={styles.textBlock}><strong>Usage instructions</strong><p>{snapshot.usageInstructions || "Not provided"}</p></div>
+          <div className={styles.textBlock}>
+            <strong>Description</strong>
+            <SafeProductContent
+              value={snapshot.description}
+              className={styles.snapshotRichContent}
+            />
+          </div>
+          <div className={styles.textBlock}>
+            <strong>Usage instructions</strong>
+            {snapshot.usageInstructions ? (
+              <SafeProductContent
+                value={snapshot.usageInstructions}
+                className={styles.snapshotRichContent}
+              />
+            ) : (
+              <p>Not provided</p>
+            )}
+          </div>
         </div>
         <p className={styles.mediaSummary}>{snapshot.media.length} frozen media asset{snapshot.media.length === 1 ? "" : "s"}</p>
       </section>
 
       <section className={styles.panel}>
         <header><FiCode /><div><h3>Workflow revision</h3><p>Read-only technical evidence for draft v{data.workflowRevision.sourceDraftVersion}.</p></div></header>
-        <dl className={styles.hashList}>
-          <div><dt>Draft hash</dt><dd>{data.workflowRevision.sourceDraftContentHash}</dd></div>
-          <div><dt>Revision hash</dt><dd>{data.workflowRevision.contentHash}</dd></div>
-        </dl>
         <div className={styles.jsonGrid}>
           <JsonBlock title="Input schema" value={data.workflowRevision.inputSchema} />
           <JsonBlock title="Capability manifest" value={data.workflowRevision.capabilityManifest} />

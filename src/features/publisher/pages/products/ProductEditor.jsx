@@ -2,15 +2,20 @@ import { useEffect, useState } from "react";
 import {
   FiAlertTriangle,
   FiArchive,
+  FiCreditCard,
   FiEdit3,
+  FiExternalLink,
   FiInfo,
   FiPackage,
   FiPlay,
+  FiRefreshCw,
   FiSave,
 } from "react-icons/fi";
+import { Link } from "react-router-dom";
 import { publisherProductApi } from "../api/product/api";
 import RichTextEditor from "../components/RichTextEditor";
 import StaticImage from "../components/StaticImage";
+import ProductOfferEditor from "./ProductOfferEditor";
 import ProductMediaSection from "./sections/ProductMediaSection";
 import { useProductEditor } from "./hooks/useProductEditor";
 import { parseCreatedProductId, parseProductEnvelope } from "./model/productContract";
@@ -20,7 +25,11 @@ import {
   buildProductPatch,
   getProductFormErrors,
 } from "./model/productForm";
-import { canArchiveProduct, canEditProduct } from "./model/productPermissions";
+import {
+  canArchiveProduct,
+  canEditProduct,
+  canReviewActivationReadiness,
+} from "./model/productPermissions";
 import { toPublisherProductError } from "./model/publisherProductError";
 import styles from "./ProductEditor.module.css";
 
@@ -52,6 +61,11 @@ const ProductEditor = ({
   onCreated,
   onSaved,
   onArchive,
+  onActivate,
+  activationBusy = false,
+  activationReason = null,
+  activationError = null,
+  activationNotice = null,
   onDirtyChange,
   onChangeProject,
   standalone = false,
@@ -62,6 +76,7 @@ const ProductEditor = ({
   const [fieldErrors, setFieldErrors] = useState({});
   const [savedNotice, setSavedNotice] = useState(null);
   const [editing, setEditing] = useState(Boolean(creating));
+  const [offersDirty, setOffersDirty] = useState(false);
   const statusIsEditable = creating || canEditProduct(product?.status);
   const editable = creating || (editing && statusIsEditable);
 
@@ -71,7 +86,10 @@ const ProductEditor = ({
     control?.focus({ preventScroll: true });
   };
 
-  useEffect(() => onDirtyChange?.(editor.dirty), [editor.dirty, onDirtyChange]);
+  useEffect(
+    () => onDirtyChange?.(editor.dirty || offersDirty),
+    [editor.dirty, offersDirty, onDirtyChange],
+  );
 
   const clearFieldError = (field) => {
     setFieldErrors((current) => {
@@ -197,6 +215,28 @@ const ProductEditor = ({
                   <FiArchive /> Archive
                 </button>
               ) : null}
+              {!creating && product?.status === "DRAFT" ? (
+                <button
+                  type="button"
+                  className={styles.activateButton}
+                  onClick={onActivate}
+                  disabled={
+                    submitting ||
+                    activationBusy ||
+                    Boolean(activationReason) ||
+                    editor.dirty ||
+                    offersDirty
+                  }
+                  title={
+                    editor.dirty || offersDirty
+                      ? "Save or discard product changes before activation."
+                      : activationReason ?? "Activate this product on Marketplace"
+                  }
+                >
+                  {activationBusy ? <FiRefreshCw /> : <FiPlay />}
+                  {activationBusy ? "Refreshing…" : "Activate"}
+                </button>
+              ) : null}
               {!creating && statusIsEditable && !editing ? (
                 <button
                   type="button"
@@ -215,18 +255,27 @@ const ProductEditor = ({
                   <FiSave /> {submitting ? "Saving..." : "Save changes"}
                 </button>
               ) : null}
-              {!creating && product?.status === "DRAFT" ? (
-                <button
-                  type="button"
-                  className={styles.activateButton}
-                  disabled
-                  title="Activation is waiting for the Publisher submission API."
+              {!creating && canReviewActivationReadiness(product?.status) ? (
+                <Link
+                  className={styles.readinessLink}
+                  to={`/publisher/releases/${product.id}`}
                 >
-                  <FiPlay /> Activate
-                </button>
+                  Review activation readiness <FiExternalLink />
+                </Link>
               ) : null}
             </div>
           </header>
+
+          {activationError ? (
+            <div className={styles.activationError} role="alert">
+              <FiAlertTriangle /> {activationError.message}
+            </div>
+          ) : null}
+          {activationNotice ? (
+            <div className={styles.activationNotice} role="status">
+              {activationNotice}
+            </div>
+          ) : null}
 
           {!statusIsEditable ? (
             <div className={styles.readOnlyNotice} role="status">
@@ -301,7 +350,7 @@ const ProductEditor = ({
                     editor.setField("shortDescription", event.target.value);
                   }}
                   disabled={!editable || submitting}
-                  placeholder="A short summary shown in product lists"
+                  placeholder=""
                   aria-required={creating}
                   aria-invalid={Boolean(fieldErrors.shortDescription)}
                   aria-describedby={fieldErrors.shortDescription ? "product-short-description-error" : undefined}
@@ -311,7 +360,6 @@ const ProductEditor = ({
               <div className={`${styles.richField} ${fieldErrors.description ? styles.fieldInvalid : ""}`}>
                 <div className={styles.richFieldLabel}>
                   <span>Description {creating ? <b className={styles.requiredMark} aria-label="required">*</b> : null}</span>
-                  <small>Markdown Mode</small>
                 </div>
                 <RichTextEditor
                   value={editor.form.description}
@@ -321,9 +369,9 @@ const ProductEditor = ({
                     editor.setField("description", value);
                   }}
                   disabled={!editable || submitting}
-                  placeholder="Describe the product and its capabilities"
                   ariaLabel="Product description"
                   fieldName="description"
+                  placeholder=""
                   ariaRequired={creating}
                   ariaInvalid={Boolean(fieldErrors.description)}
                   ariaDescribedBy={fieldErrors.description ? "product-description-error" : undefined}
@@ -333,7 +381,6 @@ const ProductEditor = ({
               <div className={`${styles.richField} ${fieldErrors.usageInstructions ? styles.fieldInvalid : ""}`}>
                 <div className={styles.richFieldLabel}>
                   <span>Usage instructions {creating ? <b className={styles.requiredMark} aria-label="required">*</b> : null}</span>
-                  <small>Markdown Mode</small>
                 </div>
                 <RichTextEditor
                   value={editor.form.usageInstructions}
@@ -343,7 +390,7 @@ const ProductEditor = ({
                     editor.setField("usageInstructions", value);
                   }}
                   disabled={!editable || submitting}
-                  placeholder="Explain how customers use this product"
+                  placeholder=""
                   ariaLabel="Product usage instructions"
                   fieldName="usageInstructions"
                   ariaRequired={creating}
@@ -355,11 +402,31 @@ const ProductEditor = ({
             </div>
           </section>
 
+          {!creating ? (
+            <section className={styles.section} aria-labelledby="product-offers-title">
+              <header className={styles.sectionHeader}>
+                <span className={styles.sectionIcon}><FiCreditCard /></span>
+                <div>
+                  <h2 id="product-offers-title">2. License offers</h2>
+                  <p>Configure the live subscription and lifetime access options shown on Marketplace.</p>
+                </div>
+                <span className={styles.sectionMeta}>{product.offers.length} configured</span>
+              </header>
+              <ProductOfferEditor
+                product={product}
+                disabled={!editable || submitting}
+                onSaved={onSaved}
+                onDirtyChange={setOffersDirty}
+              />
+            </section>
+          ) : null}
+
           <ProductMediaSection
             media={editor.form.media}
             onChange={editor.setMedia}
             disabled={!editable || submitting}
             iconRequired={creating}
+            sectionNumber={creating ? 2 : 3}
           />
 
           {!creating && product?.status === "SUSPENDED" && product.suspendedAt ? (

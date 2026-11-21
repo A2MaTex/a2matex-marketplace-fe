@@ -1,7 +1,17 @@
 import { useEffect, useState } from "react";
 import { FiBox, FiPlus, FiRefreshCw } from "react-icons/fi";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { marketplaceProductApi } from "../../../marketplace/apis/product/api";
 import { publisherProductApi } from "../api/product/api";
+import { publisherReleaseApi } from "../api/release/api";
+import { useProductRelease } from "../releases/hooks/useProductRelease";
+import { parseReleaseDetailEnvelope } from "../releases/model/releaseContract";
+import { toPublisherReleaseError } from "../releases/model/releaseError";
+import {
+  activationReadinessReason,
+  buildActivationReadiness,
+  isEligibleSubscriptionOffer,
+} from "../releases/model/releasePermissions";
 import ProductDirectory from "./ProductDirectory";
 import ProductEditor from "./ProductEditor";
 import ProductLifecycleDialog from "./ProductLifecycleDialog";
@@ -28,6 +38,10 @@ const ProductsOffersPage = () => {
   const [archiveOpen, setArchiveOpen] = useState(false);
   const [archiveBusy, setArchiveBusy] = useState(false);
   const [archiveError, setArchiveError] = useState(null);
+  const [activationBusy, setActivationBusy] = useState(false);
+  const [activationError, setActivationError] = useState(null);
+  const [activationNotice, setActivationNotice] = useState(null);
+  const [activationProductId, setActivationProductId] = useState(null);
   const requestedStatus = searchParams.get("status");
   const status = VALID_STATUSES.has(requestedStatus) ? requestedStatus : "ALL";
   const page = positivePage(searchParams.get("page"));
@@ -38,6 +52,18 @@ const ProductsOffersPage = () => {
     status: status === "ALL" ? undefined : status,
   });
   const productState = usePublisherProduct(productId);
+  const currentReleaseState = useProductRelease(
+    productId,
+    productState.data?.currentReleaseId ?? null,
+  );
+  const activationReason = currentReleaseState.error
+    ? currentReleaseState.error.message
+    : currentReleaseState.loading
+      ? "Current release details are still loading."
+      : activationReadinessReason({
+          product: productState.data,
+          currentRelease: currentReleaseState.data,
+        });
 
   useEffect(() => {
     const handleBeforeUnload = (event) => {
@@ -99,15 +125,97 @@ const ProductsOffersPage = () => {
     setArchiveError(null);
     try {
       await publisherProductApi.changeProductLifecycle(productState.data.id, { action: "ARCHIVE" });
-      const response = await publisherProductApi.getProduct(productState.data.id);
-      const refreshed = parseProductEnvelope(response.data);
-      productState.replace(refreshed);
+      const [productResult] = await Promise.allSettled([
+        publisherProductApi.getProduct(productState.data.id),
+        publisherReleaseApi.getReleases({ productId: productState.data.id, page: 1, limit: 10 }),
+        marketplaceProductApi.get(productState.data.id),
+      ]);
+      if (productResult.status === "fulfilled") {
+        productState.replace(parseProductEnvelope(productResult.value.data));
+      } else {
+        productState.refetch();
+      }
       productsState.refetch();
       setArchiveOpen(false);
     } catch (error) {
       setArchiveError(toPublisherProductError(error, "Unable to archive this product."));
     } finally {
       setArchiveBusy(false);
+    }
+  };
+
+  const handleActivate = async () => {
+    if (!productState.data || productState.data.status !== "DRAFT" || activationBusy) return;
+    setActivationProductId(productState.data.id);
+    setActivationBusy(true);
+    setActivationError(null);
+    setActivationNotice(null);
+
+    try {
+      const productResponse = await publisherProductApi.getProduct(productState.data.id);
+      const latestProduct = parseProductEnvelope(productResponse.data);
+      productState.replace(latestProduct);
+
+      let latestRelease = null;
+      if (latestProduct.currentReleaseId) {
+        const releaseResponse = await publisherReleaseApi.getRelease({
+          productId: latestProduct.id,
+          releaseId: latestProduct.currentReleaseId,
+        });
+        latestRelease = parseReleaseDetailEnvelope(releaseResponse.data);
+      }
+
+      const reason = activationReadinessReason({
+        product: latestProduct,
+        currentRelease: latestRelease,
+      });
+      const readiness = buildActivationReadiness({
+        product: latestProduct,
+        currentRelease: latestRelease,
+      });
+      if (reason || !readiness.activatable) {
+        setActivationError({
+          code: "READINESS_STALE",
+          message: reason ?? "The latest server state is not ready for activation.",
+        });
+        currentReleaseState.refetch();
+        return;
+      }
+
+      const offerCount = latestProduct.offers.filter(isEligibleSubscriptionOffer).length;
+      const confirmed = window.confirm(
+        `Activate ${latestProduct.name || latestProduct.slug || "this product"} on Marketplace using current release v${latestRelease.version} and ${offerCount} eligible subscription offer${offerCount === 1 ? "" : "s"}?`,
+      );
+      if (!confirmed) return;
+
+      await publisherProductApi.changeProductLifecycle(latestProduct.id, {
+        action: "ACTIVATE",
+      });
+      const [productResult] = await Promise.allSettled([
+        publisherProductApi.getProduct(latestProduct.id),
+        publisherReleaseApi.getReleases({
+          productId: latestProduct.id,
+          page: 1,
+          limit: 10,
+        }),
+        marketplaceProductApi.get(latestProduct.id),
+      ]);
+      if (productResult.status === "fulfilled") {
+        productState.replace(parseProductEnvelope(productResult.value.data));
+      } else {
+        productState.refetch();
+      }
+      productsState.refetch();
+      currentReleaseState.refetch();
+      setActivationNotice("The server activated this product on Marketplace.");
+    } catch (error) {
+      setActivationError(
+        toPublisherReleaseError(error, "Unable to activate this product."),
+      );
+      productState.refetch();
+      currentReleaseState.refetch();
+    } finally {
+      setActivationBusy(false);
     }
   };
 
@@ -162,6 +270,11 @@ const ProductsOffersPage = () => {
               setArchiveError(null);
               setArchiveOpen(true);
             }}
+            onActivate={handleActivate}
+            activationBusy={activationBusy}
+            activationReason={activationReason}
+            activationError={activationProductId === productId ? activationError : null}
+            activationNotice={activationProductId === productId ? activationNotice : null}
             onDirtyChange={setDirty}
           />
         ) : null}

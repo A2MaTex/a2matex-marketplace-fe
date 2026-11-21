@@ -5,8 +5,11 @@ import {
   isCanceledReleaseRequest,
   toPublisherReleaseError,
 } from "../model/releaseError";
+import {
+  pollDelayForAttempt,
+  shouldPollProductReleases,
+} from "../../model/publisherPolling";
 
-const POLL_DELAYS = [4_000, 8_000, 15_000, 30_000];
 const CACHE_TTL_MS = 10_000;
 const releaseListCache = new Map();
 
@@ -106,15 +109,14 @@ export function useProductReleases({ productId, page, limit, poll = true }) {
   const data = state.cacheKey === cacheKey ? state.data : readCache(cacheKey) ?? emptyPage(page, limit);
 
   useEffect(() => {
-    const hasBuildingRelease = data.items.some((release) => release.status === "BUILDING");
-    if (!poll || !productId || !hasBuildingRelease) {
+    if (!shouldPollProductReleases({ poll, productId, releases: data.items })) {
       pollAttemptRef.current = 0;
       return undefined;
     }
     let timer = null;
     const schedule = () => {
       if (document.visibilityState !== "visible") return;
-      const delay = POLL_DELAYS[Math.min(pollAttemptRef.current, POLL_DELAYS.length - 1)];
+      const delay = pollDelayForAttempt(pollAttemptRef.current);
       timer = window.setTimeout(() => {
         pollAttemptRef.current += 1;
         refetch();

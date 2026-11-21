@@ -1,120 +1,95 @@
 .wrapper {
-  display: flex;
-  flex-direction: column;
-  border: 1px solid #1e2537;
-  border-radius: 3px;
+  min-width: 0;
   overflow: hidden;
-  background: #080b14;
-  transition: border-color 0.2s;
+  border: 1px solid #263247;
+  border-radius: 4px;
+  background: #090e18;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
 }
 
 .wrapper:focus-within {
-  border-color: #00e5cc;
-  box-shadow: 0 0 0 3px rgba(0, 229, 204, 0.1);
+  border-color: #28c7e6;
+  box-shadow: 0 0 0 3px rgba(40, 199, 230, 0.09);
 }
 
-/* ── Toolbar ── */
-.toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 40px;
-  padding: 5px 10px;
-  border-bottom: 1px solid #1e2537;
-  background: #272c38;
-  gap: 8px;
-  flex-wrap: wrap;
+.wrapper :global(.note-editor) {
+  border: 0 !important;
+  background: #090e18 !important;
 }
 
-.toolbarButtons {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  flex-wrap: wrap;
+.wrapper :global(.note-toolbar) {
+  padding: 7px 9px !important;
+  border-bottom: 1px solid #263247 !important;
+  background: #191f2c !important;
 }
 
-.toolbarBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 34px;
-  height: 28px;
-  padding: 0 8px;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 3px;
-  color: #b9c3d1;
+.wrapper :global(.note-btn) {
+  border-color: transparent !important;
+  color: #aeb9c9 !important;
+  background: transparent !important;
+}
+
+.wrapper :global(.note-btn:hover),
+.wrapper :global(.note-btn:focus),
+.wrapper :global(.note-btn.active) {
+  border-color: #33445c !important;
+  color: #e8f4fa !important;
+  background: #263247 !important;
+}
+
+.wrapper :global(.note-dropdown-menu),
+.wrapper :global(.note-modal-content),
+.wrapper :global(.note-popover-content) {
+  border-color: #33445c !important;
+  color: #dce6f2 !important;
+  background: #151c28 !important;
+}
+
+.wrapper :global(.note-editable),
+.wrapper :global(.note-codable) {
+  min-height: var(--rich-editor-min-height) !important;
+  padding: 14px 16px !important;
+  color: #dce6f2 !important;
+  background: #090e18 !important;
+  font-family: Inter, system-ui, sans-serif;
   font-size: 14px;
-  font-weight: 600;
-  font-family: ui-monospace, "Cascadia Code", monospace;
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  line-height: 1.65;
 }
 
-.toolbarBtn:hover {
-  background: #1a1f35;
-  border-color: #2e3448;
-  color: #e2e8f0;
+.wrapper :global(.note-codable) {
+  font-family: var(--mono), ui-monospace, monospace;
+  font-size: 12px;
 }
 
-.toolbarBtn:active {
-  background: #252a3d;
+.wrapper :global(.note-placeholder) {
+  padding: 14px 16px !important;
+  color: #59667a !important;
 }
 
-.toolbarBtn:disabled { opacity: 0.48; cursor: not-allowed; }
-.toolbarBtn svg { width: 15px; height: 15px; }
-
-/* ── Right badges ── */
-.toolbarRight {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
+.wrapper :global(.note-statusbar) {
+  border-top: 1px solid #263247 !important;
+  background: #151b27 !important;
 }
 
-.previewBadge {
-  font-size: 11px;
-  font-weight: 400;
-  color: #98a3b3;
-  background: transparent;
-  border: 0;
-  padding: 2px 0;
-  font-family: ui-monospace, "Cascadia Code", monospace;
+.readOnly {
+  min-height: var(--rich-editor-min-height);
+  padding: 14px 16px;
+  border-color: transparent;
+  color: #cbd5e3;
+  background: #151b26;
 }
 
-/* ── Textarea ── */
-.textarea {
-  flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
-  resize: vertical;
-  color: #e2e8f0;
-  font-family: ui-monospace, "Cascadia Code", "Fira Code", monospace;
-  font-size: 13px;
-  line-height: 1.6;
-  padding: 12px 14px;
-  caret-color: #00e5cc;
-  min-height: 210px;
-}
+.readOnly:focus { border-color: #40516a; box-shadow: none; }
+.readOnlyContent { overflow-wrap: anywhere; line-height: 1.7; }
+.readOnlyContent > :first-child { margin-top: 0; }
+.readOnlyContent > :last-child { margin-bottom: 0; }
+.readOnlyContent a { color: #63d8ee; }
+.readOnlyContent img { max-width: 100%; height: auto; }
+.readOnlyContent pre { overflow-x: auto; }
+.empty { margin: 0; color: #66758a; font-size: 13px; }
 
-.textarea::placeholder {
-  color: #2e3448;
+@media (max-width: 640px) {
+  .wrapper :global(.note-toolbar) { padding: 6px !important; }
+  .wrapper :global(.note-editable),
+  .wrapper :global(.note-codable) { min-height: 170px !important; }
 }
-
-.textarea::-webkit-scrollbar {
-  width: 5px;
-}
-
-.textarea::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.textarea::-webkit-scrollbar-thumb {
-  background: #1e2537;
-  border-radius: 3px;
-}
-
-.disabled { opacity: 0.72; }
-.disabled:focus-within { border-color: #1e2537; box-shadow: none; }
-.textarea:disabled { cursor: not-allowed; }

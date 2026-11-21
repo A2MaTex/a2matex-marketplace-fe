@@ -4,6 +4,7 @@ import {
   createProductUrl,
   getProductUrl,
   getProductsUrl,
+  replaceProductOffersUrl,
   updateProductUrl,
 } from "./url";
 
@@ -28,6 +29,9 @@ const updateProduct = (id, body) =>
 const changeProductLifecycle = (id, body) =>
   axiosInstance.put(changeProductLifecycleUrl(id), body);
 
+const replaceOffers = (id, body) =>
+  axiosInstance.put(replaceProductOffersUrl(id), body);
+
 const getAllProducts = () => getProducts();
 
 export const publisherProductApi = {
@@ -37,4 +41,5 @@ export const publisherProductApi = {
   createProduct,
   updateProduct,
   changeProductLifecycle,
+  replaceOffers,
 };

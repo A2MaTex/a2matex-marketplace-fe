@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { FiPackage, FiRefreshCw } from "react-icons/fi";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { marketplaceProductApi } from "../../../marketplace/apis/product/api";
 import { publisherProductApi } from "../api/product/api";
 import { publisherReleaseApi } from "../api/release/api";
 import { usePublisherProduct } from "../products/hooks/usePublisherProduct";
@@ -11,7 +12,12 @@ import ReleaseDirectory from "./ReleaseDirectory";
 import ReleaseReadiness from "./ReleaseReadiness";
 import { useProductRelease } from "./hooks/useProductRelease";
 import { useProductReleases } from "./hooks/useProductReleases";
+import { parseReleaseDetailEnvelope } from "./model/releaseContract";
 import { toPublisherReleaseError } from "./model/releaseError";
+import {
+  buildActivationReadiness,
+  isEligibleSubscriptionOffer,
+} from "./model/releasePermissions";
 import styles from "./ProductReleasesPage.module.css";
 
 const PAGE_SIZE = 10;
@@ -36,13 +42,23 @@ const ProductReleasesPage = () => {
       ? productState.data.currentReleaseId
       : null;
   const currentReleaseState = useProductRelease(productId, separateCurrentId);
-  const currentRelease =
+  const fetchedCurrentRelease =
     productState.data?.currentReleaseId === releaseId
       ? releaseState.data
       : currentReleaseState.data;
   const [action, setAction] = useState(null);
   const [actionError, setActionError] = useState(null);
   const [notice, setNotice] = useState(null);
+  const [latestEvidence, setLatestEvidence] = useState(null);
+  const latestCurrentRelease =
+    latestEvidence?.productId === productId &&
+    latestEvidence.currentReleaseId === productState.data?.currentReleaseId
+      ? latestEvidence.currentRelease
+      : null;
+  const currentRelease =
+    latestCurrentRelease?.id === productState.data?.currentReleaseId
+      ? latestCurrentRelease
+      : fetchedCurrentRelease;
 
   const queryWith = ({ nextPage = page } = {}) => {
     const next = new URLSearchParams();
@@ -76,17 +92,42 @@ const ProductReleasesPage = () => {
   const handlePageChange = (nextPage) =>
     navigate(`/publisher/releases/${productId}${queryWith({ nextPage })}`);
 
-  const refetchEverything = async () => {
+  const loadLatestLifecycleEvidence = async () => {
+    if (!productId) return { product: null, currentRelease: null };
+    const productResponse = await publisherProductApi.getProduct(productId);
+    const latestProduct = parseProductEnvelope(productResponse.data);
+    productState.replace(latestProduct);
+
+    let latestRelease = null;
+    if (latestProduct.currentReleaseId) {
+      const releaseResponse = await publisherReleaseApi.getRelease({
+        productId,
+        releaseId: latestProduct.currentReleaseId,
+      });
+      latestRelease = parseReleaseDetailEnvelope(releaseResponse.data);
+    }
+    setLatestEvidence({
+      productId,
+      currentReleaseId: latestProduct.currentReleaseId,
+      currentRelease: latestRelease,
+    });
     releasesState.refetch();
     releaseState.refetch();
     currentReleaseState.refetch();
+    return { product: latestProduct, currentRelease: latestRelease };
+  };
+
+  const refetchEverything = async () => {
     if (!productId) return;
     try {
-      const response = await publisherProductApi.getProduct(productId);
-      productState.replace(parseProductEnvelope(response.data));
+      await loadLatestLifecycleEvidence();
     } catch {
       productState.refetch();
+      releasesState.refetch();
+      releaseState.refetch();
+      currentReleaseState.refetch();
     }
+    await Promise.allSettled([marketplaceProductApi.get(productId)]);
   };
 
   const handleSelectCurrent = async () => {
@@ -110,22 +151,65 @@ const ProductReleasesPage = () => {
     }
   };
 
-  const handleActivate = async () => {
+  const handleLifecycleAction = async (lifecycleAction) => {
     if (!productState.data || action) return;
-    const confirmed = window.confirm(
-      `Activate ${productState.data.name || productState.data.slug || "this product"} on Marketplace using its current release and subscription offers?`,
-    );
-    if (!confirmed) return;
-    setAction("activate");
+    const actionName = lifecycleAction === "REACTIVATE" ? "reactivate" : "activate";
+    setAction(`refresh-${actionName}`);
     setActionError(null);
     setNotice(null);
+
+    let evidence;
     try {
-      await publisherProductApi.changeProductLifecycle(productId, { action: "ACTIVATE" });
+      evidence = await loadLatestLifecycleEvidence();
+    } catch (error) {
+      setActionError(
+        toPublisherReleaseError(error, "Unable to refresh activation readiness."),
+      );
+      setAction(null);
+      return;
+    }
+
+    const readiness = buildActivationReadiness(evidence);
+    const ready = lifecycleAction === "REACTIVATE"
+      ? readiness.reactivatable
+      : readiness.activatable;
+    if (!ready) {
+      setActionError({
+        code: "READINESS_STALE",
+        message: `The latest server state is not ready to ${actionName}. Review the current release and subscription offer gates.`,
+        retryable: false,
+        conflict: true,
+      });
+      setAction(null);
+      return;
+    }
+
+    await new Promise((resolve) => window.requestAnimationFrame(resolve));
+    const eligibleOffers = evidence.product.offers.filter(
+      isEligibleSubscriptionOffer,
+    ).length;
+    const confirmed = window.confirm(
+      `${lifecycleAction === "REACTIVATE" ? "Reactivate" : "Activate"} ${evidence.product.name || evidence.product.slug || "this product"} on Marketplace using current release v${evidence.currentRelease.version} and ${eligibleOffers} eligible subscription offer${eligibleOffers === 1 ? "" : "s"}?`,
+    );
+    if (!confirmed) {
+      setAction(null);
+      return;
+    }
+
+    setAction(actionName);
+    try {
+      await publisherProductApi.changeProductLifecycle(productId, { action: lifecycleAction });
       await refetchEverything();
-      setNotice("The server activated this product on Marketplace.");
+      setNotice(
+        lifecycleAction === "REACTIVATE"
+          ? "The server reactivated this product on Marketplace."
+          : "The server activated this product on Marketplace.",
+      );
     } catch (error) {
       await refetchEverything();
-      setActionError(toPublisherReleaseError(error, "Unable to activate this product."));
+      setActionError(
+        toPublisherReleaseError(error, `Unable to ${actionName} this product.`),
+      );
     } finally {
       setAction(null);
     }
@@ -201,8 +285,10 @@ const ProductReleasesPage = () => {
                 ? currentReleaseState.loading
                 : Boolean(productState.data?.currentReleaseId) && releaseState.loading)
             }
-            busy={action === "activate"}
-            onActivate={handleActivate}
+            busy={Boolean(action && action !== "select")}
+            action={action}
+            onActivate={() => handleLifecycleAction("ACTIVATE")}
+            onReactivate={() => handleLifecycleAction("REACTIVATE")}
           />
         </main>
       )}

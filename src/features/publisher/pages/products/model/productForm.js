@@ -30,6 +30,21 @@ const normalizeText = (value) => {
   return text.length > 0 ? text : null;
 };
 
+const RICH_CONTENT_PATTERN = /<(?:img|table|hr|video)\b/i;
+
+// Summernote represents an empty editor with markup such as <p><br></p>.
+// Treat that as empty while retaining real HTML (including non-text embeds).
+const normalizeRichText = (value) => {
+  const html = String(value ?? "").trim();
+  if (!html) return null;
+  const visibleText = html
+    .replace(/<br\s*\/?>/gi, "")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;|&#160;/gi, " ")
+    .trim();
+  return visibleText || RICH_CONTENT_PATTERN.test(html) ? html : null;
+};
+
 const REQUIRED_MESSAGES = {
   name: "Product name is required.",
   slug: "Product slug is required.",
@@ -72,8 +87,8 @@ const normalizeForm = (form) => {
   const name = normalizeText(form.name);
   const slug = normalizeText(form.slug);
   const shortDescription = normalizeText(form.shortDescription);
-  const description = normalizeText(form.description);
-  const usageInstructions = normalizeText(form.usageInstructions);
+  const description = normalizeRichText(form.description);
+  const usageInstructions = normalizeRichText(form.usageInstructions);
 
   return {
     name,
