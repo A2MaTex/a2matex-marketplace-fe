@@ -39,7 +39,7 @@ const validate = ({
   const errors = {};
   if (!fullName.trim()) errors.fullName = "Please enter your full name.";
   else if (fullName.trim().length > 100)
-    // SRS field rule: 1–100 characters; any letters, including Vietnamese.
+    // DEF-032
     errors.fullName = "Full name must be at most 100 characters long.";
 
   if (!username.trim()) errors.username = "Please enter your username.";
@@ -53,7 +53,7 @@ const validate = ({
 
   if (!password) errors.password = "Please enter your password.";
   else if (password.length < 6 || password.length > 100)
-    // BR-02: 6–100 characters, same rule as the Backend.
+    // DEF-031
     errors.password = "Password must be 6–100 characters long.";
 
   if (!confirmPassword)

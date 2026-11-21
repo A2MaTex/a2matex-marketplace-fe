@@ -234,7 +234,7 @@ const ProfilePage = () => {
     if (!pwForm.currentPassword)
       errs.currentPassword = "Vui lòng nhập mật khẩu hiện tại.";
     if (!pwForm.newPassword || pwForm.newPassword.length < 6 || pwForm.newPassword.length > 100)
-      errs.newPassword = "Mật khẩu mới phải dài 6–100 ký tự."; // BR-02
+      errs.newPassword = "Mật khẩu mới phải dài 6–100 ký tự."; // DEF-031
     if (pwForm.newPassword !== pwForm.confirmNewPassword)
       errs.confirmNewPassword = "Mật khẩu xác nhận không khớp.";
     return errs;

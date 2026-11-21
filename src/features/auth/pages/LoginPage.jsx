@@ -13,7 +13,7 @@ import { getErrorMessage, ERROR_MESSAGES } from "@lib/errorMessageHandler";
 import axios from "@lib/axios.js";
 import ROLE from "@/constants/roles";
 
-// Landing page after sign-in: Admins go to the Admin hub (same target as the header link).
+// DEF-008
 const ADMIN_HOME = "/admin/permission-role";
 
 const MonitorIcon = (props) => <FiMonitor size={28} {...props} />;
@@ -76,7 +76,7 @@ const LoginPage = () => {
           me.data?.data?.roles?.some((role) => role.name === ROLE.ADMIN),
         );
       } catch {
-        // The landing page is a convenience; a failed profile read must not block sign-in.
+        // DEF-008
       }
       navigate(isAdmin ? ADMIN_HOME : "/");
     } catch (err) {

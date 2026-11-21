@@ -1,5 +1,4 @@
-// User-facing texts for the Backend error keys (SRS Report 3, section VI.2 System Messages).
-// Unknown keys fall back to a generic message instead of showing the raw key.
+// DEF-006
 export const ERROR_MESSAGES = {
   "Error.EmailAlreadyExists": "This email is already registered.", // MSG05
   "Error.UsernameAlreadyExists": "This username is already taken.", // MSG06
@@ -27,7 +26,7 @@ export const translateError = (message) => {
   if (message === undefined || message === null) return GENERIC_ERROR;
   const text = message.toString();
   if (ERROR_MESSAGES[text]) return ERROR_MESSAGES[text];
-  // Keys we do not know yet: never show the raw "Error.Xxx" key to the user.
+  // DEF-006
   return text.startsWith("Error.") ? GENERIC_ERROR : text;
 };
 
