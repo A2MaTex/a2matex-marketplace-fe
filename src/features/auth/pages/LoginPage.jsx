@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 import styles from "../styles/AuthPage.module.css";
 import Button from "@components/common/Button";
@@ -9,7 +9,12 @@ import { FiMonitor, FiUser, FiLock } from "react-icons/fi";
 import { FaGithub } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { authApi } from "../api/authApi";
-import { getErrorMessage } from "@lib/errorMessageHandler";
+import { getErrorMessage, ERROR_MESSAGES } from "@lib/errorMessageHandler";
+import axios from "@lib/axios.js";
+import ROLE from "@/constants/roles";
+
+// DEF-008
+const ADMIN_HOME = "/admin/permission-role";
 
 const MonitorIcon = (props) => <FiMonitor size={28} {...props} />;
 const UserIcon = (props) => <FiUser size={16} {...props} />;
@@ -27,6 +32,7 @@ const validate = ({ account, password }) => {
 /* ── Component ── */
 const LoginPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [form, setForm] = useState({
     account: "",
@@ -35,7 +41,11 @@ const LoginPage = () => {
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [serverError, setServerError] = useState("");
+  const [serverError, setServerError] = useState(
+    searchParams.get("reason") === "session-expired"
+      ? ERROR_MESSAGES["Error.SessionExpired"]
+      : "",
+  );
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -59,7 +69,16 @@ const LoginPage = () => {
     setLoading(true);
     try {
       await authApi.login(form.account, form.password);
-      navigate("/");
+      let isAdmin = false;
+      try {
+        const me = await axios.get("/profiles/me");
+        isAdmin = Boolean(
+          me.data?.data?.roles?.some((role) => role.name === ROLE.ADMIN),
+        );
+      } catch {
+        // DEF-008
+      }
+      navigate(isAdmin ? ADMIN_HOME : "/");
     } catch (err) {
       console.error(err);
       const error = getErrorMessage({

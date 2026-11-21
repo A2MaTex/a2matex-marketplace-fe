@@ -342,8 +342,8 @@ const StepNewPassword = ({ email, otp, onBack }) => {
 
   const validate = () => {
     const errs = {};
-    if (!form.newPassword || form.newPassword.length < 6)
-      errs.newPassword = "Mật khẩu mới tối thiểu 6 ký tự.";
+    if (!form.newPassword || form.newPassword.length < 6 || form.newPassword.length > 100)
+      errs.newPassword = "Mật khẩu mới phải dài 6–100 ký tự."; // DEF-031
     if (form.newPassword !== form.confirmNewPassword)
       errs.confirmNewPassword = "Xác nhận mật khẩu không khớp.";
     return errs;
