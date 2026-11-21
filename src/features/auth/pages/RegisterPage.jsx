@@ -38,9 +38,9 @@ const validate = ({
 }) => {
   const errors = {};
   if (!fullName.trim()) errors.fullName = "Please enter your full name.";
-  else if (!/^[A-Za-z ]{3,50}$/.test(fullName))
-    errors.fullName =
-      "Full name must be 3-50 characters long and contain only letters and spaces.";
+  else if (fullName.trim().length > 100)
+    // SRS field rule: 1–100 characters; any letters, including Vietnamese.
+    errors.fullName = "Full name must be at most 100 characters long.";
 
   if (!username.trim()) errors.username = "Please enter your username.";
   else if (!/^[a-zA-Z0-9_]{3,20}$/.test(username))
@@ -52,13 +52,14 @@ const validate = ({
     errors.email = "Invalid email address.";
 
   if (!password) errors.password = "Please enter your password.";
-  else if (password.length < 8)
-    errors.password = "Password must be at least 8 characters long.";
+  else if (password.length < 6 || password.length > 100)
+    // BR-02: 6–100 characters, same rule as the Backend.
+    errors.password = "Password must be 6–100 characters long.";
 
   if (!confirmPassword)
     errors.confirmPassword = "Please confirm your password.";
   else if (password !== confirmPassword)
-    errors.confirmPassword = "Passwords do not match.";
+    errors.confirmPassword = "Password and confirm password must match."; // MSG04
 
   if (!code.trim()) errors.code = "Please enter OTP.";
   else if (!/^\d{6}$/.test(code.trim())) errors.code = "OTP must be 6 digits.";

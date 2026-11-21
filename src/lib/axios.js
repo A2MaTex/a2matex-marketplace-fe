@@ -73,7 +73,13 @@ axiosInstance.interceptors.response.use(
         config.headers.Authorization = `Bearer ${auth.getToken()}`;
         return axiosInstance(config);
       } catch {
-        // Refresh failed — reject with the original error
+        // Refresh failed: the session is over. Drop the tokens and send the user to
+        // Sign In, which shows MSG12 (UC-03 5b).
+        auth.removeToken();
+        auth.removeRefreshToken();
+        if (window.location.pathname !== "/login") {
+          window.location.assign("/login?reason=session-expired");
+        }
         return Promise.reject(error);
       }
     }
