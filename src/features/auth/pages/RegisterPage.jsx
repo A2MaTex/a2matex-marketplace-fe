@@ -38,9 +38,9 @@ const validate = ({
 }) => {
   const errors = {};
   if (!fullName.trim()) errors.fullName = "Please enter your full name.";
-  else if (!/^[A-Za-z ]{3,50}$/.test(fullName))
-    errors.fullName =
-      "Full name must be 3-50 characters long and contain only letters and spaces.";
+  else if (fullName.trim().length > 100)
+    // DEF-032
+    errors.fullName = "Full name must be at most 100 characters long.";
 
   if (!username.trim()) errors.username = "Please enter your username.";
   else if (!/^[a-zA-Z0-9_]{3,20}$/.test(username))
