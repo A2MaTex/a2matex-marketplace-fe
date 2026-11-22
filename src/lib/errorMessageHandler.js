@@ -7,6 +7,7 @@ export const ERROR_MESSAGES = {
     "The verification code has expired. Please request a new one.", // MSG08
   "Error.FailedToSendOTP":
     "Could not send the verification code. Please try again later.", // MSG09
+  "Error.InvalidCredentials": "Incorrect account or password. Please check again.", // MSG10
   "Error.InvalidPassword": "Incorrect account or password. Please check again.", // MSG10
   "Error.EmailOrUsernameNotFound":
     "Incorrect account or password. Please check again.", // MSG10
