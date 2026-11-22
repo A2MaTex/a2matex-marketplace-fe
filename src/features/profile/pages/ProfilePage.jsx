@@ -41,6 +41,7 @@ import { useAuthStore } from "@/features/auth/store/authStore";
 import ROLE from "@/constants/roles";
 import GENDER from "@/constants/gender";
 import { authApi } from "@/features/auth/api/authApi";
+import { getErrorMessage } from "@lib/errorMessageHandler";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineThunderbolt } from "react-icons/ai";
 
@@ -255,8 +256,18 @@ const ProfilePage = () => {
       setPwForm(EMPTY_PW);
       showToast("Đổi mật khẩu thành công!");
     } catch (err) {
-      const msg = err?.response?.data?.message || "Đổi mật khẩu thất bại.";
-      showToast(msg, "error");
+      // DEF-013
+      const error = getErrorMessage({ message: err?.response?.data?.message });
+      if (error?.isFormError) {
+        const fieldErrors = { ...error.data };
+        if (err.response.data.message.some((m) => m.message === "Error.InvalidPassword")) {
+          delete fieldErrors.password;
+          fieldErrors.currentPassword = "Current password is incorrect."; // MSG14
+        }
+        setPwErrors(fieldErrors);
+      } else {
+        showToast(error?.data || "Could not change the password. Please try again.", "error");
+      }
     } finally {
       setPwSaving(false);
     }
