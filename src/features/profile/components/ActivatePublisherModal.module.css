@@ -127,9 +127,9 @@
 }
 
 .termVersion {
-  background: rgba(0, 229, 204, 0.1);
-  border: 1px solid rgba(0, 229, 204, 0.25);
-  color: #00e5cc;
+  background: rgba(8, 142, 180, 0.1);
+  border: 1px solid rgba(8, 142, 180, 0.25);
+  color: #59e4f2;
   border-radius: 4px;
   padding: 1px 7px;
   font-size: 11px;
@@ -177,8 +177,8 @@
 }
 
 .checkboxLabel:has(.checkbox:checked) {
-  border-color: rgba(0, 229, 204, 0.4);
-  background: rgba(0, 229, 204, 0.04);
+  border-color: rgba(8, 142, 180, 0.4);
+  background: rgba(8, 142, 180, 0.04);
 }
 
 .checkbox {
@@ -186,7 +186,7 @@
   width: 16px;
   height: 16px;
   margin-top: 1px;
-  accent-color: #00e5cc;
+  accent-color: #59e4f2;
   cursor: pointer;
 }
 
@@ -256,10 +256,10 @@
   align-items: center;
   gap: 6px;
   padding: 8px 18px;
-  background: rgba(0, 229, 204, 0.12);
-  border: 1px solid rgba(0, 229, 204, 0.35);
+  background: rgba(8, 142, 180, 0.12);
+  border: 1px solid rgba(8, 142, 180, 0.35);
   border-radius: 7px;
-  color: #00e5cc;
+  color: #59e4f2;
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
@@ -267,7 +267,7 @@
 }
 
 .btnPrimary:hover:not(:disabled) {
-  background: rgba(0, 229, 204, 0.2);
+  background: rgba(8, 142, 180, 0.2);
 }
 
 .btnPrimary:disabled {

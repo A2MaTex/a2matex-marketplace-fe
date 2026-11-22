@@ -4,7 +4,7 @@ import { createSocialAuthorizationUrl } from "../api/socialLoginOAuth";
 const START_ERROR =
   "Social sign-in is unavailable on this address. Please sign in with your username and password.";
 
-export const useSocialLogin = () => {
+export const useSocialLogin = (returnTo = "/") => {
   const [pendingProvider, setPendingProvider] = useState(null);
   const [error, setError] = useState("");
   const pendingRef = useRef(false);
@@ -17,7 +17,7 @@ export const useSocialLogin = () => {
     setError("");
 
     try {
-      const authorizationUrl = createSocialAuthorizationUrl(provider);
+      const authorizationUrl = createSocialAuthorizationUrl(provider, { returnTo });
       window.location.assign(authorizationUrl);
     } catch {
       pendingRef.current = false;

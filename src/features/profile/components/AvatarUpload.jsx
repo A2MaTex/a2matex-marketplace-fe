@@ -61,11 +61,11 @@ const AvatarUpload = ({ onDone, onClose }) => {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      setError("Vui lòng chọn file ảnh hợp lệ.");
+      setError("Please choose a valid image file.");
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      setError("Ảnh không được lớn hơn 5MB.");
+      setError("The image must be 5MB or smaller.");
       return;
     }
     setError("");
@@ -97,13 +97,13 @@ const AvatarUpload = ({ onDone, onClose }) => {
       const res = await staticApi.uploadImage({ file });
       const staticId = res?.data?.data?.id ?? res?.data?.id;
 
-      if (!staticId) throw new Error("Không nhận được static ID từ server.");
+      if (!staticId) throw new Error("The server did not return an image ID.");
 
       // build preview URL from canvas
       const previewUrl = canvasRef.current.toDataURL("image/jpeg");
       onDone(staticId, previewUrl);
     } catch (err) {
-      const msg = err?.response?.data?.message || err.message || "Upload thất bại.";
+      const msg = err?.response?.data?.message || err.message || "Upload failed.";
       setError(msg);
     } finally {
       setUploading(false);
@@ -152,8 +152,8 @@ const AvatarUpload = ({ onDone, onClose }) => {
               }}
             >
               <FiUploadCloud size={36} className={styles.dropIcon} />
-              <p className={styles.dropPrimary}>Click hoặc kéo thả ảnh vào đây</p>
-              <p className={styles.dropSub}>PNG, JPG, WEBP — tối đa 5 MB</p>
+              <p className={styles.dropPrimary}>Click or drag an image here</p>
+              <p className={styles.dropSub}>PNG, JPG, or WEBP — up to 5 MB</p>
             </div>
           ) : (
             /* Crop area */
@@ -175,7 +175,7 @@ const AvatarUpload = ({ onDone, onClose }) => {
                   onLoad={onImageLoad}
                 />
               </ReactCrop>
-              <p className={styles.cropHint}>Kéo để điều chỉnh vùng cắt</p>
+              <p className={styles.cropHint}>Drag to adjust the crop area</p>
             </div>
           )}
 
@@ -198,17 +198,17 @@ const AvatarUpload = ({ onDone, onClose }) => {
         <div className={styles.footer}>
           {imgSrc && (
             <button className={styles.btnGhost} onClick={handlePickAgain} disabled={uploading}>
-              <FiRefreshCw size={13} /> Chọn ảnh khác
+              <FiRefreshCw size={13} /> Choose another image
             </button>
           )}
           {!imgSrc && (
             <button className={styles.btnGhost} onClick={() => inputRef.current?.click()}>
-              <BsCameraFill size={13} /> Chọn ảnh
+              <BsCameraFill size={13} /> Choose an image
             </button>
           )}
           <div className={styles.footerRight}>
             <button className={styles.btnGhost} onClick={onClose} disabled={uploading}>
-              Hủy
+              Cancel
             </button>
             <button
               className={styles.btnPrimary}
@@ -217,11 +217,11 @@ const AvatarUpload = ({ onDone, onClose }) => {
             >
               {uploading ? (
                 <>
-                  <FiRefreshCw size={13} className={styles.spinIcon} /> Đang tải lên…
+                  <FiRefreshCw size={13} className={styles.spinIcon} /> Uploading…
                 </>
               ) : (
                 <>
-                  <BsCheckLg size={13} /> Xác nhận
+                  <BsCheckLg size={13} /> Confirm
                 </>
               )}
             </button>

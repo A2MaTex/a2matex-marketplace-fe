@@ -83,7 +83,7 @@ const ProductForm = ({ project, product, onSuccess }) => {
       <div className={styles.emptyState}>
         <IoRocketOutline size={48} className={styles.emptyIcon} />
         <p className={styles.emptyText}>
-          Chọn một project từ danh sách bên trái để bắt đầu.
+          Select a project from the list on the left to get started.
         </p>
       </div>
     );

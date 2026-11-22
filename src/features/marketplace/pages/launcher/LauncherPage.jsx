@@ -180,6 +180,7 @@ const LauncherPage = () => {
             </p>
 
             <Button
+              className={styles.downloadBtn}
               size="lg"
               leftIcon={<FiDownload size={18} />}
               onClick={handleDownload}
@@ -202,7 +203,7 @@ const LauncherPage = () => {
                   <span className={styles.dotGreen} />
                 </div>
                 <div className={styles.mockupTitle}>
-                  <TbPlugConnected size={12} color="#00e5cc" />
+                  <TbPlugConnected size={12} color="#59e4f2" />
                   &nbsp;A2MaTeX Launcher – v2.4.0 [CONNECTED]
                 </div>
                 <div className={styles.mockupLocked}>
@@ -231,7 +232,7 @@ const LauncherPage = () => {
                 <span className={styles.mockupSectionLabel}>ACTIVE TOOLS</span>
                 {ACTIVE_TOOLS.map((t) => (
                   <div key={t.name} className={styles.toolRow}>
-                    <FiCpu size={13} color="#00e5cc" />
+                    <FiCpu size={13} color="#59e4f2" />
                     <span className={styles.toolName}>{t.name}</span>
                     <button
                       className={
@@ -381,7 +382,7 @@ const LauncherPage = () => {
                       Explore 450+ tool in out market <GoArrowRight size={13} />
                     </a>
                   </p>
-                  <Button href="/">Go to Market →</Button>
+                  <Button href="/" className={styles.sysCtaBtn}>Go to Market →</Button>
                 </div>
               </div>
             </div>
@@ -392,6 +393,7 @@ const LauncherPage = () => {
       {/* ── Final CTA ──────────────────────────────────────────── */}
       <section id="download" className={styles.ctaSection}>
         <Button
+          className={styles.ctaBtn}
           href="/launcher#download"
           leftIcon={<RiLoader4Line size={16} />}
           size="lg"

@@ -37,7 +37,7 @@ export function usePublisherData() {
       setProductMap(map);
     } catch (err) {
       console.error("[usePublisherData] fetch error:", err);
-      setError(err?.response?.data?.message ?? "Không thể tải dữ liệu.");
+      setError(err?.response?.data?.message ?? "Unable to load data.");
     } finally {
       setLoading(false);
     }

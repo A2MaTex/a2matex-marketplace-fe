@@ -5,6 +5,7 @@ import AuditLog from "../pages/audit/page/AuditLog";
 import ReviewQueue from "../pages/review-queue/page/ReviewQueue";
 import TermsPage from "../pages/terms/page/TermsPage";
 import LauncherReleasePage from "../pages/launcher-release/page/LauncherReleasePage";
+import EntitlementManagementPage from "../pages/entitlements/EntitlementManagementPage";
 import {
   MdOutlineAttachMoney,
   MdOutlineBlock,
@@ -13,10 +14,17 @@ import {
   MdOutlineShield,
   MdOutlineGavel,
   MdOutlineRocketLaunch,
+  MdOutlineVpnKey,
 } from "react-icons/md";
 
 export default function adminRoutes() {
   const adminRoutes = [
+    {
+      label: "Entitlements",
+      icon: <MdOutlineVpnKey />,
+      path: "/admin/entitlements",
+      element: <EntitlementManagementPage />,
+    },
     {
       label: "Review Queue",
       icon: <MdOutlineRateReview />,

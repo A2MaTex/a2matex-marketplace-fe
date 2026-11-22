@@ -15,6 +15,12 @@ import publisherRoutes from "@/features/publisher/routers/publisherRoute";
 import LegalDocumentPage from "@/features/term/pages/LegalDocumentPage";
 import TERM_TYPE from "@/constants/term";
 import SocialLoginCallbackPage from "@/features/auth/pages/SocialLoginCallbackPage";
+import RequireAuth from "@/features/auth/components/RequireAuth";
+import MyProductsPage from "@/features/commerce/pages/MyProductsPage";
+import OrdersPage from "@/features/commerce/pages/OrdersPage";
+import OrderDetailPage from "@/features/commerce/pages/OrderDetailPage";
+import RequireRole from "@/features/auth/components/RequireRole";
+import ROLE from "@/constants/roles";
 
 export const router = createBrowserRouter([
   {
@@ -63,6 +69,23 @@ export const router = createBrowserRouter([
         element: <ProfilePage />,
       },
       {
+        element: <RequireAuth />,
+        children: [
+          {
+            path: "/my-products",
+            element: <MyProductsPage />,
+          },
+          {
+            path: "/orders",
+            element: <OrdersPage />,
+          },
+          {
+            path: "/orders/:orderId",
+            element: <OrderDetailPage />,
+          },
+        ],
+      },
+      {
         path: "/studio",
         element: <StudioPage />,
       },
@@ -92,8 +115,18 @@ export const router = createBrowserRouter([
   },
   // ── Admin routes ──────────────────────────────────────────
   {
-    element: <AdminLayout />,
-    children: adminRoutes(),
+    element: <RequireAuth />,
+    children: [
+      {
+        element: <RequireRole role={ROLE.ADMIN} />,
+        children: [
+          {
+            element: <AdminLayout />,
+            children: adminRoutes(),
+          },
+        ],
+      },
+    ],
   },
   // Publisher routes
   {

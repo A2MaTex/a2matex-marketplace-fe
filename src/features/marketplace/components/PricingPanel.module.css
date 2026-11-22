@@ -11,4 +11,31 @@
 .checkoutNote { align-items: flex-start; margin-top: 2px; padding: 13px; border: 1px solid rgba(139, 151, 184, 0.13); background: rgba(139, 151, 184, 0.04); color: #7f8ba1; }
 .checkoutNote svg { flex: 0 0 auto; margin-top: 3px; }
 .checkoutNote p { margin: 0; }
+.balance { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 0 2px; border-top: 1px solid rgba(139, 151, 184, 0.14); }
+.balance span { color: #707c93; font-size: 11px; }
+.balance strong { color: #8ceae1; font-size: 12px; }
+.pendingNote, .blockedNote { display: flex; align-items: flex-start; gap: 9px; padding: 12px; border-radius: 12px; font-size: 11px; line-height: 1.55; }
+.pendingNote { border: 1px solid rgba(249, 183, 80, 0.18); background: rgba(249, 183, 80, 0.055); color: #c99e57; }
+.blockedNote { border: 1px solid rgba(248, 113, 113, 0.18); background: rgba(248, 113, 113, 0.055); color: #d68b8b; }
+.pendingNote svg, .blockedNote svg { flex: 0 0 auto; margin-top: 2px; }
+.pendingNote p, .blockedNote p { margin: 0; }
+.purchaseButton {
+  margin-top: 2px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #068eb4 0%, #59e4f2 50%, #068eb4 100%);
+  background-size: 100% 100%;
+  box-shadow:
+    0 13px 32px rgba(50, 221, 207, 0.34),
+    0 0 25px rgba(78, 221, 240, 0.13),
+    inset 0 1px 0 rgba(255, 255, 255, 0.42);
+}
+.purchaseButton:hover:not(:disabled) {
+  background-position: initial;
+  box-shadow:
+    0 18px 42px rgba(50, 221, 207, 0.46),
+    0 0 36px rgba(78, 221, 240, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+}
+.purchaseFootnote { margin: -3px 0 0; color: #59677a; font-size: 10px; line-height: 1.5; text-align: center; }
 @media (max-width: 960px) { .panel { position: static; } }

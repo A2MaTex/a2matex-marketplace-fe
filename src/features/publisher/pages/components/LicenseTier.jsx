@@ -3,9 +3,9 @@ import styles from "./LicenseTier.module.css";
 
 // Labels/badges shown per preset license slot
 const PRESET_META = {
-  "1month":   { badge: "PHỔ BIẾN",      badgeClass: "badgePopular"  },
-  "1year":    { badge: "TIẾT KIỆM 50%", badgeClass: "badgeSave"     },
-  "lifetime": { badge: "VĨNH VIỄN",     badgeClass: "badgeLifetime" },
+  "1month":   { badge: "POPULAR",       badgeClass: "badgePopular"  },
+  "1year":    { badge: "SAVE 50%",      badgeClass: "badgeSave"     },
+  "lifetime": { badge: "LIFETIME",      badgeClass: "badgeLifetime" },
 };
 
 // Currency display helper
@@ -178,7 +178,7 @@ const LicenseTier = ({
             <label className={styles.customFieldLabel}>PACKAGE NAME</label>
             <input
               type="text"
-              placeholder="Gói Chuyên Nghiệp 3 Tháng"
+              placeholder="Professional Plan — 3 Months"
               value={custom.name}
               onChange={(e) => setCustom((p) => ({ ...p, name: e.target.value }))}
               className={styles.customInput}

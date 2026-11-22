@@ -145,8 +145,8 @@ const StepEmail = ({ onNext }) => {
   const [loading, setLoading] = useState(false);
 
   const validate = () => {
-    if (!email.trim()) return "Vui lòng nhập địa chỉ email.";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "Email không hợp lệ.";
+    if (!email.trim()) return "Please enter your email address.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "Please enter a valid email address.";
     return "";
   };
 
@@ -239,7 +239,7 @@ const StepOtp = ({ email, onNext, onBack }) => {
     e.preventDefault();
     setServerError("");
     if (otp.length < OTP_LENGTH) {
-      setError("Vui lòng nhập đủ 6 chữ số OTP.");
+      setError("Please enter the 6-digit verification code.");
       return;
     }
 
@@ -323,7 +323,7 @@ const StepOtp = ({ email, onNext, onBack }) => {
             disabled={resending}
             type="button"
           >
-            {resending ? "Đang gửi…" : "Resend OTP →"}
+            {resending ? "Sending…" : "Resend OTP →"}
           </button>
         )}
       </p>
@@ -349,9 +349,9 @@ const StepNewPassword = ({ email, otp, onBack }) => {
   const validate = () => {
     const errs = {};
     if (!form.newPassword || form.newPassword.length < 6)
-      errs.newPassword = "Mật khẩu mới tối thiểu 6 ký tự.";
+      errs.newPassword = "Your new password must be at least 6 characters long.";
     if (form.newPassword !== form.confirmNewPassword)
-      errs.confirmNewPassword = "Xác nhận mật khẩu không khớp.";
+      errs.confirmNewPassword = "The password confirmation does not match.";
     return errs;
   };
 

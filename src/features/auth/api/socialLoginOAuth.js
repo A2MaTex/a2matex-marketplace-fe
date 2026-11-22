@@ -1,5 +1,6 @@
 import {
   getSocialLoginRedirectUri,
+  SOCIAL_LOGIN_RETURN_TO_STORAGE_KEYS,
   SOCIAL_LOGIN_STATE_STORAGE_KEYS,
 } from "./socialLoginTransaction.js";
 
@@ -32,6 +33,7 @@ export const createSocialAuthorizationUrl = (
     origin = window.location.origin,
     storage = window.sessionStorage,
     cryptoApi = window.crypto,
+    returnTo = "/",
   } = {},
 ) => {
   const config = PROVIDERS[provider];
@@ -47,6 +49,7 @@ export const createSocialAuthorizationUrl = (
   const redirectUri = getSocialLoginRedirectUri(provider, origin);
   const state = createState(cryptoApi);
   storage.setItem(storageKey, state);
+  storage.setItem(SOCIAL_LOGIN_RETURN_TO_STORAGE_KEYS[provider], returnTo);
 
   const authorizationUrl = new URL(config.authorizationEndpoint);
   authorizationUrl.search = new URLSearchParams({

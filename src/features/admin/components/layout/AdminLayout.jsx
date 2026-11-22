@@ -17,8 +17,8 @@ export default function AdminLayout() {
     userApi
       .getMyProfile()
       .then(() => setLoaded(true))
-      .catch((e) => navigate("/"));
-  }, []);
+      .catch(() => navigate("/"));
+  }, [loaded, navigate]);
 
   return (
     <div className={styles.shell}>

@@ -1,6 +1,13 @@
+import { isSafeInternalReturnTo } from "./safeReturnTo.js";
+
 export const SOCIAL_LOGIN_STATE_STORAGE_KEYS = Object.freeze({
   google: "a2matex.oauth.google.state",
   github: "a2matex.oauth.github.state",
+});
+
+export const SOCIAL_LOGIN_RETURN_TO_STORAGE_KEYS = Object.freeze({
+  google: "a2matex.oauth.google.return-to",
+  github: "a2matex.oauth.github.return-to",
 });
 
 export const getSocialLoginRedirectUri = (provider, origin) => {
@@ -33,5 +40,19 @@ export const consumeSocialLoginState = (provider, storage) => {
     return state;
   } catch {
     return null;
+  }
+};
+
+export const consumeSocialLoginReturnTo = (provider, storage) => {
+  const storageKey = SOCIAL_LOGIN_RETURN_TO_STORAGE_KEYS[provider];
+  if (!storageKey) return "/";
+
+  try {
+    const transactionStorage = storage ?? window.sessionStorage;
+    const returnTo = transactionStorage.getItem(storageKey) || "/";
+    transactionStorage.removeItem(storageKey);
+    return isSafeInternalReturnTo(returnTo) ? returnTo : "/";
+  } catch {
+    return "/";
   }
 };

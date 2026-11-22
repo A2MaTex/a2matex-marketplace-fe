@@ -37,11 +37,11 @@ const GalleryUpload = ({ gallery = [], onGalleryChange }) => {
       const newErrors = [];
       const validFiles = fileList.filter((f) => {
         if (!f.type.startsWith("image/")) {
-          newErrors.push(`"${f.name}" không phải ảnh.`);
+          newErrors.push(`"${f.name}" is not an image file.`);
           return false;
         }
         if (f.size > MAX_SIZE_BYTES) {
-          newErrors.push(`"${f.name}" vượt quá 2MB.`);
+          newErrors.push(`"${f.name}" exceeds the 2MB size limit.`);
           return false;
         }
         return true;
@@ -78,14 +78,14 @@ const GalleryUpload = ({ gallery = [], onGalleryChange }) => {
             URL.revokeObjectURL(previews[idx]);
             setErrors((prev) => [
               ...prev,
-              `"${validFiles[idx].name}" upload thành công nhưng không có staticId.`,
+              `"${validFiles[idx].name}" uploaded successfully, but the server did not return an image ID.`,
             ]);
           }
         } else {
           URL.revokeObjectURL(previews[idx]);
           setErrors((prev) => [
             ...prev,
-            `"${validFiles[idx].name}" upload thất bại.`,
+            `Failed to upload "${validFiles[idx].name}".`,
           ]);
         }
       });
@@ -136,7 +136,7 @@ const GalleryUpload = ({ gallery = [], onGalleryChange }) => {
           {gallery.length}/{MAX_IMAGES}
         </span>
         {uploading && (
-          <span className={styles.uploadingText}>Đang tải ảnh...</span>
+          <span className={styles.uploadingText}>Uploading images...</span>
         )}
       </div>
 

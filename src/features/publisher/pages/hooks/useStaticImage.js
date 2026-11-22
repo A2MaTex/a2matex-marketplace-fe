@@ -42,7 +42,7 @@ export function useStaticImage(staticId, variant = "medium") {
       .catch((err) => {
         if (cancelled) return;
         console.error("[useStaticImage] fetch error:", err);
-        setError("Không thể tải ảnh.");
+        setError("Unable to load the image.");
       })
       .finally(() => {
         if (!cancelled) setLoading(false);

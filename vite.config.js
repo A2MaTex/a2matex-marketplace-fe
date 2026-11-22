@@ -12,6 +12,9 @@ export default defineConfig({
     port: 3000,
     strictPort: true,
   },
+  optimizeDeps: {
+    include: ["@xyflow/react", "zod"],
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),

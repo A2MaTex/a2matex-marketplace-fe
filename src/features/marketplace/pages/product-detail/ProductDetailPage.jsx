@@ -10,6 +10,10 @@ import {
   FiRefreshCw,
   FiUser,
 } from "react-icons/fi";
+import PurchaseConfirmationDialog from "@/features/commerce/components/PurchaseConfirmationDialog";
+import { usePurchase } from "@/features/commerce/hooks/usePurchase";
+import { useAuthStore } from "@/features/auth/store/authStore";
+import TopUpModal from "@/features/profile/components/top-up/TopUpModal";
 import LicenseTier from "../../components/LicenseTier";
 import PricingPanel from "../../components/PricingPanel";
 import ProductMediaGallery from "../../components/ProductMediaGallery";
@@ -80,6 +84,13 @@ export default function ProductDetailPage() {
     validProductId ? productId : null,
   );
   const [selectedOfferId, setSelectedOfferId] = useState(null);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const user = useAuthStore((state) => state.user);
+  const purchase = usePurchase({
+    productId,
+    offers: product?.offers ?? [],
+    refetchProduct: refetch,
+  });
 
   useEffect(() => {
     const previousTitle = document.title;
@@ -201,6 +212,7 @@ export default function ProductDetailPage() {
                   offers={product.offers}
                   selectedOfferId={selectedOffer.id}
                   onSelect={setSelectedOfferId}
+                  disabledOfferIds={purchase.blockedOfferIds}
                 />
               </section>
             ) : (
@@ -212,10 +224,33 @@ export default function ProductDetailPage() {
           </div>
 
           {selectedOffer ? (
-            <div className={styles.sidebar}><PricingPanel offer={selectedOffer} /></div>
+            <div className={styles.sidebar}>
+              <PricingPanel
+                offer={selectedOffer}
+                productId={product.id}
+                purchase={purchase}
+                isAuthenticated={isAuthenticated}
+                balance={user?.balance ?? "0"}
+              />
+            </div>
           ) : null}
         </div>
       </div>
+
+      <PurchaseConfirmationDialog
+        product={product}
+        purchase={purchase}
+        balance={user?.balance ?? "0"}
+        returnTo={`/products/${product.id}`}
+      />
+
+      {purchase.topUpOpen ? (
+        <TopUpModal
+          balance={purchase.latestBalance ?? user?.balance ?? "0"}
+          onClose={purchase.closeTopUp}
+          onBalanceChanged={purchase.markTopUpCompleted}
+        />
+      ) : null}
     </main>
   );
 }

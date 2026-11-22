@@ -183,8 +183,11 @@
 
 .primaryAction {
   color: #031116;
-  background: linear-gradient(110deg, var(--studio-cyan), var(--studio-green));
-  box-shadow: 0 13px 34px rgba(54, 202, 210, 0.2);
+  background: linear-gradient(90deg, #068eb4 0%, #59e4f2 50%, #068eb4 100%);
+  box-shadow:
+    0 13px 32px rgba(50, 221, 207, 0.34),
+    0 0 25px rgba(78, 221, 240, 0.13),
+    inset 0 1px 0 rgba(255, 255, 255, 0.42);
 }
 
 .secondaryAction {
@@ -199,7 +202,12 @@
   transform: translateY(-2px);
 }
 
-.primaryAction:hover { box-shadow: 0 17px 42px rgba(54, 202, 210, 0.32); }
+.primaryAction:hover {
+  box-shadow:
+    0 18px 42px rgba(50, 221, 207, 0.46),
+    0 0 36px rgba(78, 221, 240, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
 .secondaryAction:hover { color: #e6f2fa; background: rgba(25, 43, 59, 0.86); }
 
 .platformNote {

@@ -30,7 +30,7 @@ const ActivatePublisherModal = ({ onSuccess, onClose }) => {
       } catch (err) {
         const msg =
           err?.response?.data?.message ||
-          "Không thể tải điều khoản. Vui lòng thử lại.";
+          "Unable to load the terms. Please try again.";
         setTermError(msg);
       } finally {
         setLoadingTerm(false);
@@ -48,7 +48,7 @@ const ActivatePublisherModal = ({ onSuccess, onClose }) => {
       onSuccess();
     } catch (err) {
       const msg =
-        err?.response?.data?.message || "Kích hoạt thất bại. Vui lòng thử lại.";
+        err?.response?.data?.message || "Activation failed. Please try again.";
       setActivateError(msg);
     } finally {
       setActivating(false);

@@ -32,3 +32,7 @@
   background: #30363d;
   border-radius: 3px;
 }
+
+@media (max-width: 820px) {
+  .main { margin-left: 68px; }
+}

@@ -30,11 +30,11 @@ const IconUpload = ({ icon, onIconChange }) => {
 
       // Validate type and size
       if (!file.type.startsWith("image/")) {
-        setError("Chỉ chấp nhận file ảnh.");
+        setError("Only image files are supported.");
         return;
       }
       if (file.size > 2 * 1024 * 1024) {
-        setError("Kích thước tối đa là 2MB.");
+        setError("The maximum file size is 2MB.");
         return;
       }
 
@@ -47,12 +47,12 @@ const IconUpload = ({ icon, onIconChange }) => {
       try {
         const res = await staticApi.uploadImage({ file });
         const staticId = res.data?.data?.id || null;
-        if (!staticId) throw new Error("Không nhận được staticId từ server.");
+        if (!staticId) throw new Error("The server did not return an image ID.");
         onIconChange({ staticId, previewUrl });
       } catch (err) {
         URL.revokeObjectURL(previewUrl);
         console.error("[IconUpload] upload error:", err);
-        setError(err?.response?.data?.message ?? "Upload thất bại.");
+        setError(err?.response?.data?.message ?? "Upload failed.");
       } finally {
         setUploading(false);
         if (fileInputRef.current) fileInputRef.current.value = "";
@@ -111,7 +111,7 @@ const IconUpload = ({ icon, onIconChange }) => {
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading}
             >
-              {uploading ? "Đang tải..." : "🖼 Change Icon"}
+              {uploading ? "Uploading..." : "🖼 Change Icon"}
             </button>
             <button
               type="button"

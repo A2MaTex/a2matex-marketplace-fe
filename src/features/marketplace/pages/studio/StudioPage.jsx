@@ -72,7 +72,7 @@ const STEPS = [
     num: 2,
     icon: <BsTerminal size={18} />,
     title: "Execute Test with Live-Step Debugger",
-    desc: "Từng bước thực thi đến đây. Then dừng lại đến điểm đó, inspect response HTTP để có thể breakpoint map thời gian hoạt đồng.",
+    desc: "Execute workflows step by step, pause at any point, inspect HTTP responses, and use breakpoints to diagnose timing issues.",
   },
   {
     num: 3,
@@ -85,9 +85,9 @@ const STEPS = [
 const SYS_REQS = [
   { label: "OS", value: "Windows 10/11 (x64, x86), macOS 12+, Ubuntu 20.04+" },
   { label: "CPU", value: "4 Core 3.0+ GHz (Intel i5/Ryzen 5 / Apple M1)" },
-  { label: "RAM", value: "Khuyến nghị: 8 GB (16 GB nếu có)" },
+  { label: "RAM", value: "8 GB recommended (16 GB preferred)" },
   { label: "GPU", value: "660 MB min (DX 11+ / 2.0 GB Compiler)" },
-  { label: "Disk space", value: "SSD khuyến nghị, 118 MB" },
+  { label: "Disk space", value: "118 MB; SSD recommended" },
 ];
 
 /* ─── IDE Mockup nodes ───────────────────────────────────────────── */
@@ -120,8 +120,8 @@ const StudioPage = () => {
           <p className={styles.heroDesc}>
             A2MaTeX Studio empowers developers to visually design, build, test,
             and publish Android automation workflows with an intuitive,
-            node-based development environment. 1-click thanh thử (exe) Không
-            mất thêm.
+            node-based development environment. Build and test executable tools
+            with a single click, at no extra cost.
           </p>
 
           {/* Download button */}
@@ -428,8 +428,8 @@ const StudioPage = () => {
                   ))}
                 </div>
                 <p className={styles.sysNote}>
-                  <BsShieldCheck size={11} /> Máy tính bạn đã đủ điều kiện để
-                  cài đặt và sử dụng A2MaTeX Visual Studio tools.
+                  <BsShieldCheck size={11} /> Your computer meets the
+                  requirements to install and use A2MaTeX Visual Studio tools.
                 </p>
               </div>
             </div>
@@ -458,7 +458,7 @@ const StudioPage = () => {
             </Button>
           </div>
           <p className={styles.finalCtaNote}>
-            Miễn phí cài đặt • Chạy trên Windows, Linux, macOS • A2MaTeX Free
+            Free to install • Runs on Windows, Linux, and macOS • A2MaTeX Free
             Certificates
           </p>
         </div>

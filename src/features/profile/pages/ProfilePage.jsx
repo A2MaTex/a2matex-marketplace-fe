@@ -47,23 +47,18 @@ import {
 } from "@/features/auth/api/socialLoginErrors";
 import { getErrorMessage } from "@lib/errorMessageHandler";
 import { useNavigate } from "react-router-dom";
-import { AiOutlineThunderbolt } from "react-icons/ai";
+import { formatBalance } from "@/features/commerce/model/money";
 
-/* ── helpers ─────────────────────────────────────────────────── */
-
-/* Tài khoản tạo qua Google/GitHub không có mật khẩu để đổi; ngoài ra backend trả
-   message dạng mảng { message, path } nên toast thẳng err.response.data.message sẽ
-   ra "[object Object]". */
 const resolvePwErrorMessage = (err) => {
   if (isAccountUsesSocialLoginError(err)) {
-    const providers = getSocialLoginProviderLabels(err).join(" hoặc ");
+    const providers = getSocialLoginProviderLabels(err).join(" or ");
     return providers
-      ? `Tài khoản này đăng nhập bằng ${providers} nên không có mật khẩu để đổi.`
-      : "Tài khoản này đăng nhập bằng mạng xã hội nên không có mật khẩu để đổi.";
+      ? `This account uses ${providers} sign-in and has no password to change.`
+      : "This account uses social sign-in and has no password to change.";
   }
 
   const parsed = getErrorMessage({ message: err?.response?.data?.message });
-  if (!parsed) return "Đổi mật khẩu thất bại.";
+  if (!parsed) return "Password change failed.";
 
   return parsed.isFormError
     ? Object.values(parsed.data).join(", ")
@@ -122,7 +117,7 @@ const ProfilePage = () => {
   const [profile, setProfile] = useState(initProfile);
   const [avatar, setAvatar] = useState(useAuthStore((s) => s.avatarBlob));
   const [form, setForm] = useState(initProfile);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState(null); // { msg, type }
   const [showAvatarModal, setShowAvatarModal] = useState(false);
@@ -178,7 +173,7 @@ const ProfilePage = () => {
       setProfile({ ...form });
       setAvatarPreview(null); // preview now committed — clear so server URL takes over
 
-      if (!!payload.avatarStaticId) {
+      if (payload.avatarStaticId) {
         const ava = await staticApi.getImageById({
           imageId: payload.avatarStaticId,
         });
@@ -186,9 +181,9 @@ const ProfilePage = () => {
         cacheImage(profile.id, ava.data);
       }
 
-      showToast("Cập nhật thông tin thành công!");
+      showToast("Profile updated successfully!");
     } catch (err) {
-      const msg = err?.response?.data?.message || "Cập nhật thất bại.";
+      const msg = err?.response?.data?.message || "Update failed.";
       showToast(msg, "error");
     } finally {
       setSaving(false);
@@ -200,7 +195,7 @@ const ProfilePage = () => {
     setForm((f) => ({ ...f, avatarStaticId: staticId }));
     setAvatarPreview(previewUrl);
     setShowAvatarModal(false);
-    showToast("Ảnh đã sẵn sàng — nhấn Save để lưu.");
+    showToast("Your image is ready. Click Save to apply it.");
   };
 
   /* delete avatar */
@@ -221,31 +216,6 @@ const ProfilePage = () => {
       })
     : "—";
 
-  const loadProfile = async () => {
-    try {
-      let myProfile = profile;
-      console.log(myProfile);
-
-      if (!myProfile) {
-        console.log("xx");
-
-        setLoading(true);
-        myProfile = await userApi.getMyProfile();
-      }
-
-      const merged = { ...initProfile, ...myProfile };
-      setProfile(merged);
-      setForm(merged);
-      setAvatar(myProfile.imgBlob);
-    } catch (error) {
-      console.log(error);
-
-      showToast("Không thể tải thông tin tài khoản.", "error");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   /* change password */
   const handlePwChange = (e) => {
     const { name, value } = e.target;
@@ -256,11 +226,11 @@ const ProfilePage = () => {
   const validatePw = () => {
     const errs = {};
     if (!pwForm.currentPassword)
-      errs.currentPassword = "Vui lòng nhập mật khẩu hiện tại.";
+      errs.currentPassword = "Please enter your current password.";
     if (!pwForm.newPassword || pwForm.newPassword.length < 6)
-      errs.newPassword = "Mật khẩu mới tối thiểu 6 ký tự.";
+      errs.newPassword = "Your new password must be at least 6 characters long.";
     if (pwForm.newPassword !== pwForm.confirmNewPassword)
-      errs.confirmNewPassword = "Mật khẩu xác nhận không khớp.";
+      errs.confirmNewPassword = "The password confirmation does not match.";
     return errs;
   };
 
@@ -275,7 +245,7 @@ const ProfilePage = () => {
     try {
       await profileApi.changePassword(pwForm);
       setPwForm(EMPTY_PW);
-      showToast("Đổi mật khẩu thành công!");
+      showToast("Password changed successfully!");
     } catch (err) {
       showToast(resolvePwErrorMessage(err), "error");
     } finally {
@@ -293,10 +263,23 @@ const ProfilePage = () => {
     }
   };
 
-  /* load */
   useEffect(() => {
+    const loadProfile = async () => {
+      setLoading(true);
+      try {
+        const { user: myProfile, imgBlob } = await userApi.getMyProfile();
+        const merged = { ...EMPTY_PROFILE, ...myProfile };
+        setProfile(merged);
+        setForm(merged);
+        setAvatar(imgBlob ?? null);
+      } catch {
+        showToast("Unable to load account information.", "error");
+      } finally {
+        setLoading(false);
+      }
+    };
     loadProfile();
-  }, []);
+  },[])
 
   if (loading) {
     return (
@@ -376,14 +359,14 @@ const ProfilePage = () => {
             <div className={styles.balanceCard}>
               <div className={styles.balanceLabel}>
                 ACCOUNT BALANCE
-                <MdOutlineAccountBalanceWallet color="#05ebd0" size={18} />
+                <MdOutlineAccountBalanceWallet color="#59e4f2" size={18} />
               </div>
               <div className={styles.balanceAmount}>
-                {(profile.balance ?? 0).toLocaleString("vi-VN")}
+                {formatBalance(profile.balance ?? 0)}
                 <span className={styles.balanceCurrency}>VND</span>
               </div>
               <p className={styles.balanceFuel}>
-                <AiOutlineThunderbolt size={16} /> Available Fuel:{" "}
+                Available Fuel:{" "}
                 {profile.balance ?? 0} CR
               </p>
               <button
@@ -605,6 +588,7 @@ const ProfilePage = () => {
                   <Button
                     type="submit"
                     variant="secondary"
+                    className={styles.passwordButton}
                     fullWidth
                     loading={pwSaving}
                     leftIcon={<FiLock size={14} />}
@@ -632,6 +616,7 @@ const ProfilePage = () => {
               </Button>
               <Button
                 variant="primary"
+                className={styles.saveButton}
                 onClick={handleSave}
                 loading={saving}
                 leftIcon={<FiSave size={14} />}
@@ -662,11 +647,11 @@ const ProfilePage = () => {
         <TopUpModal
           balance={profile.balance ?? 0}
           onClose={() => setShowTopUpModal(false)}
-          onTopUpSuccess={(newBalance) => {
+          onBalanceChanged={(newBalance) => {
             setProfile((prev) => ({ ...prev, balance: newBalance }));
             setShowTopUpModal(false);
             showToast(
-              `Đã nạp thành công ${newBalance.toLocaleString("vi-VN")} VND vào tài khoản`,
+              `${formatBalance(newBalance)} VND has been added to your account.`,
             );
           }}
         />

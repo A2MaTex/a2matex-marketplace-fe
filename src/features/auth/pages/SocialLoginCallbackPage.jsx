@@ -5,6 +5,7 @@ import { getSocialLoginErrorMessage } from "../api/socialLoginErrors";
 import { useAuthStore } from "../store/authStore";
 import {
   consumeSocialLoginState,
+  consumeSocialLoginReturnTo,
   getSocialLoginRedirectUri,
 } from "../api/socialLoginTransaction";
 import styles from "../styles/SocialLoginCallbackPage.module.css";
@@ -49,6 +50,7 @@ const SocialLoginCallbackPage = ({ provider }) => {
     navigate(location.pathname, { replace: true });
 
     const expectedState = consumeSocialLoginState(provider);
+    const returnTo = consumeSocialLoginReturnTo(provider);
 
     if (providerError) {
       scheduleResult(setStatus, setMessage, "error", CALLBACK_MESSAGES.cancelled);
@@ -79,7 +81,7 @@ const SocialLoginCallbackPage = ({ provider }) => {
         const authStore = useAuthStore.getState();
         authStore.setCredentials(accessToken, refreshToken);
         authStore.setUser(null);
-        navigate("/", { replace: true });
+        navigate(returnTo, { replace: true });
       })
       .catch((error) => {
         setStatus("error");

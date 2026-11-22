@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import {
+  IoCubeOutline,
   IoCashOutline,
   IoPersonCircleOutline,
+  IoReceiptOutline,
   IoSearchOutline,
 } from "react-icons/io5";
 import styles from "./Header.module.css";
@@ -10,6 +12,7 @@ import Button from "../common/Button";
 import logo from "@/assets/text-logo.svg";
 import { Avatar } from "../common/Avatar";
 import ROLE from "@/constants/roles";
+import { formatBalance } from "@/features/commerce/model/money";
 
 const NAV_ITEMS = [
   { label: "Marketplace", to: "/" },
@@ -101,18 +104,45 @@ const Header = ({ user, avatar }) => {
             </kbd>
           </form>
 
+          {user ? (
+            <nav className={styles.commerceNav} aria-label="Account commerce">
+              <NavLink
+                to="/my-products"
+                className={({ isActive }) =>
+                  `${styles.commerceLink} ${isActive ? styles.commerceLinkActive : ""}`
+                }
+                aria-label="My Products"
+                title="My Products"
+              >
+                <IoCubeOutline aria-hidden="true" />
+                <span>My Products</span>
+              </NavLink>
+              <NavLink
+                to="/orders"
+                className={({ isActive }) =>
+                  `${styles.commerceLink} ${isActive ? styles.commerceLinkActive : ""}`
+                }
+                aria-label="Orders"
+                title="Orders"
+              >
+                <IoReceiptOutline aria-hidden="true" />
+                <span>Orders</span>
+              </NavLink>
+            </nav>
+          ) : null}
+
           <div className={styles.credits} title="Available credits">
             <span className={styles.creditsIcon} aria-hidden="true">
               <IoCashOutline />
             </span>
             <span className={styles.creditsValue}>
-              {Number(user?.balance ?? 0).toLocaleString("vi-VN")}
+              {formatBalance(user?.balance ?? 0)}
             </span>
             <span className={styles.creditsCurrency}>CR</span>
           </div>
 
           {!user ? (
-            <Button href="/login" size="sm">
+            <Button href="/login" size="sm" className={styles.signInButton}>
               Sign In
             </Button>
           ) : (

@@ -267,7 +267,7 @@ export function useProductForm({ project, product, onSuccess }) {
       onSuccess?.(afterChange);
     } catch (err) {
       console.error("[useProductForm] submit error:", err);
-      setSubmitError(err?.response?.data?.message ?? "Lưu thất bại, thử lại.");
+      setSubmitError(err?.response?.data?.message ?? "Save failed. Please try again.");
     } finally {
       setSubmitting(false);
     }

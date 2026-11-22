@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import styles from "../styles/AuthPage.module.css";
 import Button from "@components/common/Button";
@@ -13,6 +13,7 @@ import { authApi } from "../api/authApi";
 import { getErrorMessage } from "@lib/errorMessageHandler";
 import { useSocialLogin } from "../hooks/useSocialLogin";
 import { isAccountUsesSocialLoginError } from "../api/socialLoginErrors";
+import { getSafeReturnTo } from "../api/safeReturnTo";
 
 const ACCOUNT_USES_SOCIAL_LOGIN_MESSAGE =
   "This account uses social sign-in. Choose Google or GitHub below.";
@@ -34,6 +35,8 @@ const validate = ({ account, password }) => {
 /* ── Component ── */
 const LoginPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const returnTo = getSafeReturnTo(location.search);
 
   const [form, setForm] = useState({
     account: "",
@@ -43,7 +46,7 @@ const LoginPage = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState("");
-  const socialLogin = useSocialLogin();
+  const socialLogin = useSocialLogin(returnTo);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -67,7 +70,7 @@ const LoginPage = () => {
     setLoading(true);
     try {
       await authApi.login(form.account, form.password);
-      navigate("/");
+      navigate(returnTo, { replace: true });
     } catch (err) {
       console.error(err);
       if (isAccountUsesSocialLoginError(err)) {
