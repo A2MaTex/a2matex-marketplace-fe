@@ -18,6 +18,10 @@ export const ERROR_MESSAGES = {
   "Error.AccountBlocked": "You do not have permission to perform this action.", // MSG34
   "Error.AccountUsesSocialLogin":
     "This account signs in with Google or GitHub. Use that option to sign in.", // MSG59
+  // DEF-014
+  "Error.PublisherTermNotActive": "Publisher registration is temporarily unavailable.", // MSG16
+  "Error.PublisherAlreadyActivated": "Your publisher account is already active.", // MSG17
+  "Error.PublisherBlocked": "Your publisher account is blocked.", // MSG18
 };
 
 const GENERIC_ERROR = "Something went wrong. Please try again.";
