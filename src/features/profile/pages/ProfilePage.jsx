@@ -41,10 +41,34 @@ import { useAuthStore } from "@/features/auth/store/authStore";
 import ROLE from "@/constants/roles";
 import GENDER from "@/constants/gender";
 import { authApi } from "@/features/auth/api/authApi";
+import {
+  getSocialLoginProviderLabels,
+  isAccountUsesSocialLoginError,
+} from "@/features/auth/api/socialLoginErrors";
+import { getErrorMessage } from "@lib/errorMessageHandler";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineThunderbolt } from "react-icons/ai";
 
 /* ── helpers ─────────────────────────────────────────────────── */
+
+/* Tài khoản tạo qua Google/GitHub không có mật khẩu để đổi; ngoài ra backend trả
+   message dạng mảng { message, path } nên toast thẳng err.response.data.message sẽ
+   ra "[object Object]". */
+const resolvePwErrorMessage = (err) => {
+  if (isAccountUsesSocialLoginError(err)) {
+    const providers = getSocialLoginProviderLabels(err).join(" hoặc ");
+    return providers
+      ? `Tài khoản này đăng nhập bằng ${providers} nên không có mật khẩu để đổi.`
+      : "Tài khoản này đăng nhập bằng mạng xã hội nên không có mật khẩu để đổi.";
+  }
+
+  const parsed = getErrorMessage({ message: err?.response?.data?.message });
+  if (!parsed) return "Đổi mật khẩu thất bại.";
+
+  return parsed.isFormError
+    ? Object.values(parsed.data).join(", ")
+    : parsed.data;
+};
 
 const SOCIAL_FIELDS = [
   {
@@ -253,8 +277,7 @@ const ProfilePage = () => {
       setPwForm(EMPTY_PW);
       showToast("Đổi mật khẩu thành công!");
     } catch (err) {
-      const msg = err?.response?.data?.message || "Đổi mật khẩu thất bại.";
-      showToast(msg, "error");
+      showToast(resolvePwErrorMessage(err), "error");
     } finally {
       setPwSaving(false);
     }

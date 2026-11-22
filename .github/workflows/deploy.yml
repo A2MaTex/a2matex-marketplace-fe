@@ -36,20 +36,37 @@ jobs:
         run: npm ci
 
       # Vite thay thế mọi biến VITE_* ngay lúc build, không đọc được lúc chạy.
-      # Thiếu biến này thì bundle rơi về http://localhost:8080/api/v1 mà BUILD VẪN
-      # THÀNH CÔNG, rồi lên production mới phát hiện. Nên chặn ngay tại đây.
+      # Thiếu biến thì BUILD VẪN THÀNH CÔNG rồi lên production mới lộ: thiếu
+      # VITE_API_BASE_URL là bundle rơi về http://localhost:8080/api/v1, thiếu client
+      # ID là nút Google/GitHub báo "social sign-in is unavailable". Chặn ngay tại đây.
+      #
+      # Hai client ID là giá trị công khai (nằm trong URL authorize người dùng thấy),
+      # nên khai ở Variables chứ không phải Secrets. Giá trị phải TRÙNG KHÍT
+      # GOOGLE_CLIENT_ID / GITHUB_CLIENT_ID của backend, nếu không backend đổi code
+      # thất bại và trả Error.InvalidAuthorizationCode.
       - name: Check build config
+        env:
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+          VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID }}
+          VITE_GITHUB_CLIENT_ID: ${{ vars.VITE_GITHUB_CLIENT_ID }}
         run: |
-          if [ -z "${{ vars.VITE_API_BASE_URL }}" ]; then
-            echo "::error::Thiếu repository variable VITE_API_BASE_URL (Settings > Secrets and variables > Actions > Variables)"
-            exit 1
-          fi
-          echo "VITE_API_BASE_URL = ${{ vars.VITE_API_BASE_URL }}"
+          missing=0
+          for name in VITE_API_BASE_URL VITE_GOOGLE_CLIENT_ID VITE_GITHUB_CLIENT_ID; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Thiếu repository variable $name (Settings > Secrets and variables > Actions > Variables)"
+              missing=1
+            else
+              echo "$name = ${!name}"
+            fi
+          done
+          exit $missing
 
       - name: Build
         run: npm run build
         env:
           VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+          VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID }}
+          VITE_GITHUB_CLIENT_ID: ${{ vars.VITE_GITHUB_CLIENT_ID }}
 
       - name: Configure SSH
         env:
@@ -94,4 +111,5 @@ jobs:
             echo "- Site: https://a2matex.com"
             echo "- Commit: \`${GITHUB_SHA::7}\`"
             echo "- API: ${{ vars.VITE_API_BASE_URL }}"
+            echo "- Social login: Google + GitHub client ID đã nhúng vào bundle"
           } >> "$GITHUB_STEP_SUMMARY"

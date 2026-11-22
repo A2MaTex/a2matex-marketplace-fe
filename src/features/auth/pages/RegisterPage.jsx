@@ -15,8 +15,14 @@ import {
 import { FaGithub } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { authApi } from "../api/authApi";
-import { getErrorMessage } from "@lib/errorMessageHandler";
+import { getErrorMessage, splitFieldErrors } from "@lib/errorMessageHandler";
 import { useSocialLogin } from "../hooks/useSocialLogin";
+import { isAccountUsesSocialLoginError } from "../api/socialLoginErrors";
+
+const ACCOUNT_USES_SOCIAL_LOGIN_MESSAGE =
+  "This email already signs in with Google or GitHub. Use that provider below instead of creating a password.";
+const NETWORK_ERROR =
+  "We could not reach the server. Check your connection and try again.";
 
 /* ── Icons ── */
 const UserIcon = (props) => <FiUser size={16} {...props} />;
@@ -104,6 +110,34 @@ const RegisterPage = () => {
     }, 1000);
   };
 
+  // Error.AccountUsesSocialLogin reaches both calls on this page — the register OTP
+  // and register itself — on a `path` of `account`, which this form does not have, so
+  // it used to be written to state nothing reads and the user saw nothing at all.
+  const showApiError = (err) => {
+    if (isAccountUsesSocialLoginError(err)) {
+      setServerError(ACCOUNT_USES_SOCIAL_LOGIN_MESSAGE);
+      return;
+    }
+
+    const error = getErrorMessage({ message: err?.response?.data?.message });
+    // getErrorMessage returns null when the request never reached the backend.
+    if (!error) {
+      setServerError(NETWORK_ERROR);
+      return;
+    }
+    if (!error.isFormError) {
+      setServerError(error.data);
+      return;
+    }
+
+    const { fieldErrors, unmatched } = splitFieldErrors(
+      error.data,
+      Object.keys(form),
+    );
+    if (Object.keys(fieldErrors).length > 0) setErrors(fieldErrors);
+    if (unmatched.length > 0) setServerError(unmatched.join(", "));
+  };
+
   const handleSendOtp = async () => {
     if (!form.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
       setErrors((prev) => ({
@@ -113,19 +147,13 @@ const RegisterPage = () => {
       return;
     }
     setOtpSending(true);
+    setServerError("");
     try {
       await authApi.sendOtp({ email: form.email });
       startCooldown(300);
     } catch (err) {
       console.error(err);
-      const error = getErrorMessage({
-        message: err?.response?.data?.message,
-      });
-      if (error.isFormError) {
-        setErrors(error.data);
-      } else {
-        setServerError(error.data);
-      }
+      showApiError(err);
     } finally {
       setOtpSending(false);
     }
@@ -156,14 +184,7 @@ const RegisterPage = () => {
       navigate("/login");
     } catch (err) {
       console.error(err);
-      const error = getErrorMessage({
-        message: err?.response?.data?.message,
-      });
-      if (error.isFormError) {
-        setErrors(error.data);
-      } else {
-        setServerError(error.data);
-      }
+      showApiError(err);
     } finally {
       setLoading(false);
     }

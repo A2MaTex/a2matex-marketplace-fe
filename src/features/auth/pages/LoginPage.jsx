@@ -12,6 +12,12 @@ import { FcGoogle } from "react-icons/fc";
 import { authApi } from "../api/authApi";
 import { getErrorMessage } from "@lib/errorMessageHandler";
 import { useSocialLogin } from "../hooks/useSocialLogin";
+import { isAccountUsesSocialLoginError } from "../api/socialLoginErrors";
+
+const ACCOUNT_USES_SOCIAL_LOGIN_MESSAGE =
+  "This account uses social sign-in. Choose Google or GitHub below.";
+const NETWORK_ERROR =
+  "We could not reach the server. Check your connection and try again.";
 
 const UserIcon = (props) => <FiUser size={16} {...props} />;
 const LockIcon = (props) => <FiLock size={16} {...props} />;
@@ -64,22 +70,19 @@ const LoginPage = () => {
       navigate("/");
     } catch (err) {
       console.error(err);
-      const responseMessage = err?.response?.data?.message;
-      const usesSocialLogin = Array.isArray(responseMessage)
-        ? responseMessage.some(
-            (item) => item?.message === "Error.AccountUsesSocialLogin",
-          )
-        : responseMessage === "Error.AccountUsesSocialLogin";
-      if (usesSocialLogin) {
-        setServerError(
-          "This account uses social sign-in. Choose Google or GitHub below.",
-        );
+      if (isAccountUsesSocialLoginError(err)) {
+        setServerError(ACCOUNT_USES_SOCIAL_LOGIN_MESSAGE);
         return;
       }
 
       const error = getErrorMessage({
-        message: responseMessage,
+        message: err?.response?.data?.message,
       });
+      // getErrorMessage returns null when the request never reached the backend.
+      if (!error) {
+        setServerError(NETWORK_ERROR);
+        return;
+      }
       if (error.isFormError) {
         setErrors(error.data);
       } else {
