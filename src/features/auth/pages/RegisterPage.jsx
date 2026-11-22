@@ -3,9 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import Button from "@components/common/Button";
 import Input from "@components/common/Input";
 import styles from "../styles/AuthPage.module.css";
+import AuthPageLayout from "../components/AuthPageLayout";
 
 import {
-  FiUserPlus,
   FiUser,
   FiMail,
   FiLock,
@@ -16,9 +16,9 @@ import { FaGithub } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { authApi } from "../api/authApi";
 import { getErrorMessage } from "@lib/errorMessageHandler";
+import { useSocialLogin } from "../hooks/useSocialLogin";
 
 /* ── Icons ── */
-const UserPlusIcon = (props) => <FiUserPlus size={28} {...props} />;
 const UserIcon = (props) => <FiUser size={16} {...props} />;
 const MailIcon = (props) => <FiMail size={16} {...props} />;
 const LockIcon = (props) => <FiLock size={16} {...props} />;
@@ -81,6 +81,7 @@ const RegisterPage = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState("");
+  const socialLogin = useSocialLogin();
 
   // OTP cooldown: countdown in seconds (0 = can send)
   const [otpCooldown, setOtpCooldown] = useState(0);
@@ -107,7 +108,7 @@ const RegisterPage = () => {
     if (!form.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
       setErrors((prev) => ({
         ...prev,
-        email: "Nhập email hợp lệ trước khi gửi OTP.",
+        email: "Enter a valid email address before requesting an OTP.",
       }));
       return;
     }
@@ -169,17 +170,20 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className={styles.page}>
-      <div className={styles.card}>
-        {/* Avatar icon */}
-        <div className={styles.avatarWrap}>
-          <UserPlusIcon />
+    <AuthPageLayout
+      eyebrow="A2MATEX · ANDROID AUTOMATION PLATFORM"
+      headline="Build the next"
+      highlight="great workflow."
+      description="Create one account to explore published workflows, design automations in Studio, and run them with Launcher."
+    >
+      <section className={styles.card} aria-labelledby="register-title">
+        <div className={styles.cardEyebrow}>
+          <span className={styles.cardEyebrowDot} />
+          CREATE YOUR ACCOUNT
         </div>
-
-        {/* Heading */}
-        <h1 className={styles.title}>Tạo Tài Khoản A2MaTeX</h1>
+        <h2 className={styles.title} id="register-title">Get started</h2>
         <p className={styles.subtitle}>
-          Đăng ký nhanh để kích hoạt Client Launcher &amp; bảo mật HWID
+          Set up your A2MaTeX account in a few steps.
         </p>
 
         {/* Server error */}
@@ -192,10 +196,8 @@ const RegisterPage = () => {
         <form onSubmit={handleSubmit} noValidate className={styles.form}>
           <Input
             label="Full Name"
-            hint="Enter your full name"
             name="fullName"
-            autoComplete="fullName"
-            placeholder="alex_automation"
+            autoComplete="name"
             leftIcon={<UserIcon />}
             value={form.fullName}
             onChange={handleChange}
@@ -204,10 +206,8 @@ const RegisterPage = () => {
 
           <Input
             label="Username"
-            hint="A-Z, 0-9, _"
             name="username"
             autoComplete="username"
-            placeholder="alex_automation"
             leftIcon={<UserIcon />}
             value={form.username}
             onChange={handleChange}
@@ -216,11 +216,9 @@ const RegisterPage = () => {
 
           <Input
             label="Email address"
-            hint="Enter your email address"
             name="email"
             type="email"
             autoComplete="email"
-            placeholder="alex@domain.vn"
             leftIcon={<MailIcon />}
             value={form.email}
             onChange={handleChange}
@@ -229,11 +227,9 @@ const RegisterPage = () => {
 
           <Input
             label="Password"
-            hint="Enter your password"
             name="password"
             type="password"
             autoComplete="new-password"
-            placeholder="••••••••••••"
             leftIcon={<LockIcon />}
             value={form.password}
             onChange={handleChange}
@@ -242,11 +238,9 @@ const RegisterPage = () => {
 
           <Input
             label="Confirm password"
-            hint="Enter your password again"
             name="confirmPassword"
             type="password"
             autoComplete="new-password"
-            placeholder="••••••••••••"
             leftIcon={<RefreshLockIcon />}
             value={form.confirmPassword}
             onChange={handleChange}
@@ -258,12 +252,10 @@ const RegisterPage = () => {
             <div className={styles.otpInputWrap}>
               <Input
                 label="OTP"
-                hint="Send to your mail"
                 name="code"
                 type="text"
                 inputMode="numeric"
                 autoComplete="one-time-code"
-                placeholder="_ _ _ _ _ _"
                 leftIcon={<ShieldCheckIcon />}
                 value={form.code}
                 onChange={handleChange}
@@ -319,8 +311,8 @@ const RegisterPage = () => {
             variant="primary"
             size="lg"
             fullWidth
+            className={styles.authSubmitButton}
             loading={loading}
-            rightIcon={!loading && <span>→</span>}
           >
             Create Account
           </Button>
@@ -335,21 +327,34 @@ const RegisterPage = () => {
         <div className={styles.socialRow}>
           <Button
             variant="secondary"
+            className={styles.socialButton}
             size="md"
             fullWidth
             leftIcon={<GitHubIcon />}
+            loading={socialLogin.pendingProvider === "github"}
+            disabled={Boolean(socialLogin.pendingProvider)}
+            onClick={() => socialLogin.startLogin("github")}
           >
             GitHub
           </Button>
           <Button
             variant="secondary"
+            className={styles.socialButton}
             size="md"
             fullWidth
             leftIcon={<GoogleIcon />}
+            loading={socialLogin.pendingProvider === "google"}
+            disabled={Boolean(socialLogin.pendingProvider)}
+            onClick={() => socialLogin.startLogin("google")}
           >
             Google
           </Button>
         </div>
+        {socialLogin.error && (
+          <div className={styles.serverError} role="alert">
+            {socialLogin.error}
+          </div>
+        )}
 
         {/* Switch to login */}
         <p className={styles.switchText}>
@@ -358,8 +363,8 @@ const RegisterPage = () => {
             Login →
           </Link>
         </p>
-      </div>
-    </div>
+      </section>
+    </AuthPageLayout>
   );
 };
 

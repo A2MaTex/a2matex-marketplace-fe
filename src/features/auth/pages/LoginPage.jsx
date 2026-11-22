@@ -4,14 +4,15 @@ import { Link, useNavigate } from "react-router-dom";
 import styles from "../styles/AuthPage.module.css";
 import Button from "@components/common/Button";
 import Input from "@components/common/Input";
+import AuthPageLayout from "../components/AuthPageLayout";
 
-import { FiMonitor, FiUser, FiLock } from "react-icons/fi";
+import { FiUser, FiLock } from "react-icons/fi";
 import { FaGithub } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { authApi } from "../api/authApi";
 import { getErrorMessage } from "@lib/errorMessageHandler";
+import { useSocialLogin } from "../hooks/useSocialLogin";
 
-const MonitorIcon = (props) => <FiMonitor size={28} {...props} />;
 const UserIcon = (props) => <FiUser size={16} {...props} />;
 const LockIcon = (props) => <FiLock size={16} {...props} />;
 const GitHubIcon = (props) => <FaGithub size={18} {...props} />;
@@ -19,8 +20,8 @@ const GoogleIcon = (props) => <FcGoogle size={18} {...props} />;
 /* ── Validation ── */
 const validate = ({ account, password }) => {
   const errors = {};
-  if (!account.trim()) errors.account = "Vui lòng nhập tên người dùng.";
-  if (!password) errors.password = "Vui lòng nhập mật khẩu.";
+  if (!account.trim()) errors.account = "Enter your username or email.";
+  if (!password) errors.password = "Enter your password.";
   return errors;
 };
 
@@ -36,6 +37,7 @@ const LoginPage = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState("");
+  const socialLogin = useSocialLogin();
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -62,8 +64,21 @@ const LoginPage = () => {
       navigate("/");
     } catch (err) {
       console.error(err);
+      const responseMessage = err?.response?.data?.message;
+      const usesSocialLogin = Array.isArray(responseMessage)
+        ? responseMessage.some(
+            (item) => item?.message === "Error.AccountUsesSocialLogin",
+          )
+        : responseMessage === "Error.AccountUsesSocialLogin";
+      if (usesSocialLogin) {
+        setServerError(
+          "This account uses social sign-in. Choose Google or GitHub below.",
+        );
+        return;
+      }
+
       const error = getErrorMessage({
-        message: err?.response?.data?.message,
+        message: responseMessage,
       });
       if (error.isFormError) {
         setErrors(error.data);
@@ -76,17 +91,20 @@ const LoginPage = () => {
   };
 
   return (
-    <div className={styles.page}>
-      <div className={styles.card}>
-        {/* Avatar icon */}
-        <div className={styles.avatarWrap}>
-          <MonitorIcon />
+    <AuthPageLayout
+      eyebrow="A2MATEX · ANDROID AUTOMATION PLATFORM"
+      headline="Find the workflow."
+      highlight="Keep the momentum."
+      description="Sign in to explore published workflows, build in Studio, and run them with Launcher."
+    >
+      <section className={styles.card} aria-labelledby="login-title">
+        <div className={styles.cardEyebrow}>
+          <span className={styles.cardEyebrowDot} />
+          MEMBER ACCESS
         </div>
-
-        {/* Heading */}
-        <h1 className={styles.title}>Đăng Nhập</h1>
+        <h2 className={styles.title} id="login-title">Welcome back</h2>
         <p className={styles.subtitle}>
-          Truy cập vào ứng dụng A2MaTeX Client Launcher
+          Sign in to continue to your A2MaTeX workspace.
         </p>
 
         {/* Server error */}
@@ -98,10 +116,9 @@ const LoginPage = () => {
 
         <form onSubmit={handleSubmit} noValidate className={styles.form}>
           <Input
-            label="Tên người dùng (account)"
+            label="Username or email"
             name="account"
-            autoComplete="account"
-            placeholder="alex_dev99 hoặc account"
+            autoComplete="username"
             leftIcon={<UserIcon />}
             value={form.account}
             onChange={handleChange}
@@ -111,16 +128,15 @@ const LoginPage = () => {
           {/* Password label row with forgot link */}
           <div>
             <div className={styles.labelRow}>
-              <span className={styles.passwordLabel}>MẬT KHẨU</span>
+              <span className={styles.passwordLabel}>PASSWORD</span>
               <Link to="/auth/forgot-password" className={styles.forgotLink}>
-                Quên mật khẩu?
+                Forgot password?
               </Link>
             </div>
             <Input
               name="password"
               type="password"
               autoComplete="current-password"
-              placeholder="••••••••••••••"
               leftIcon={<LockIcon />}
               value={form.password}
               onChange={handleChange}
@@ -137,7 +153,7 @@ const LoginPage = () => {
               onChange={handleChange}
               className={styles.checkbox}
             />
-            <span>Ghi nhớ đăng nhập trên thiết bị này</span>
+            <span>Remember me on this device</span>
           </label>
 
           <Button
@@ -145,47 +161,60 @@ const LoginPage = () => {
             variant="primary"
             size="lg"
             fullWidth
+            className={styles.authSubmitButton}
             loading={loading}
-            rightIcon={!loading && <span>→</span>}
           >
-            Đăng Nhập
+            Sign In
           </Button>
         </form>
 
         {/* Divider */}
         <div className={styles.divider}>
-          <span>Hoặc đăng nhập nhanh</span>
+          <span>OR CONTINUE WITH</span>
         </div>
 
         {/* Social buttons */}
         <div className={styles.socialRow}>
           <Button
             variant="secondary"
+            className={styles.socialButton}
             size="md"
             fullWidth
             leftIcon={<GoogleIcon />}
+            loading={socialLogin.pendingProvider === "google"}
+            disabled={Boolean(socialLogin.pendingProvider)}
+            onClick={() => socialLogin.startLogin("google")}
           >
             Google
           </Button>
           <Button
             variant="secondary"
+            className={styles.socialButton}
             size="md"
             fullWidth
             leftIcon={<GitHubIcon />}
+            loading={socialLogin.pendingProvider === "github"}
+            disabled={Boolean(socialLogin.pendingProvider)}
+            onClick={() => socialLogin.startLogin("github")}
           >
             GitHub
           </Button>
         </div>
+        {socialLogin.error && (
+          <div className={styles.serverError} role="alert">
+            {socialLogin.error}
+          </div>
+        )}
 
         {/* Switch to register */}
         <p className={styles.switchText}>
-          Chưa có tài khoản A2MaTeX?{" "}
+          New to A2MaTeX?{" "}
           <Link to="/register" className={styles.switchLink}>
-            Đăng ký ngay →
+            Create an account →
           </Link>
         </p>
-      </div>
-    </div>
+      </section>
+    </AuthPageLayout>
   );
 };
 

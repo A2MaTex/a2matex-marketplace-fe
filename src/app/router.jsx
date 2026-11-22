@@ -14,6 +14,7 @@ import AdminLayout from "@/features/admin/components/layout/AdminLayout";
 import publisherRoutes from "@/features/publisher/routers/publisherRoute";
 import LegalDocumentPage from "@/features/term/pages/LegalDocumentPage";
 import TERM_TYPE from "@/constants/term";
+import SocialLoginCallbackPage from "@/features/auth/pages/SocialLoginCallbackPage";
 
 export const router = createBrowserRouter([
   {
@@ -27,6 +28,14 @@ export const router = createBrowserRouter([
   {
     path: "/auth/forgot-password",
     element: <ForgotPasswordPage />,
+  },
+  {
+    path: "/auth/google/callback",
+    element: <SocialLoginCallbackPage provider="google" />,
+  },
+  {
+    path: "/auth/github/callback",
+    element: <SocialLoginCallbackPage provider="github" />,
   },
   {
     // AppLayout mount một lần duy nhất, không bị destroy khi navigate

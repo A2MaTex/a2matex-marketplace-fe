@@ -4,3 +4,5 @@ export const logoutUrl = "/auth/logout";
 export const sendOTP = "/auth/otp";
 export const forgotPasswordUrl = "/auth/forgot-password";
 export const refreshTokenUrl = "/auth/refresh-token";
+export const googleSocialLoginUrl = "/auth/google";
+export const githubSocialLoginUrl = "/auth/github";

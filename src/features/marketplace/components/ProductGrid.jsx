@@ -67,12 +67,8 @@ const ProductGrid = ({
       ) : (
         <>
           <div className={styles.grid} aria-busy={loading}>
-            {data.items.map((product, index) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                featured={index === 0}
-              />
+            {data.items.map((product) => (
+              <ProductCard key={product.id} product={product} />
             ))}
           </div>
           <MarketplacePagination
