@@ -643,7 +643,11 @@ const ProfilePage = () => {
           onSuccess={() => {
             setShowPublisherModal(false);
             showToast("Publisher role activated successfully!");
-            setProfile((prev) => prev.roles.push({ code: ROLE.PUBLISHER }));
+            // DEF-016
+            setProfile((prev) => ({
+              ...prev,
+              roles: [...(prev.roles || []), { name: ROLE.PUBLISHER }],
+            }));
           }}
           onClose={() => setShowPublisherModal(false)}
         />
