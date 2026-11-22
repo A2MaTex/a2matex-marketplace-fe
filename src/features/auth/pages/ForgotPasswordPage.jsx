@@ -6,11 +6,32 @@ import sharedStyles from "../styles/AuthPage.module.css";
 import Input from "@components/common/Input";
 import Button from "@components/common/Button";
 import { authApi } from "../api/authApi";
-import { getErrorMessage } from "@lib/errorMessageHandler";
+import { getErrorMessage, splitFieldErrors } from "@lib/errorMessageHandler";
+import { isAccountUsesSocialLoginError } from "../api/socialLoginErrors";
 
 import { FiMail, FiLock, FiShield, FiArrowLeft } from "react-icons/fi";
 import { BsShieldLock } from "react-icons/bs";
 import { RiLockPasswordLine } from "react-icons/ri";
+
+const ACCOUNT_USES_SOCIAL_LOGIN_MESSAGE =
+  "This account signs in with Google or GitHub, so it has no password to reset. Use that provider on the sign-in page.";
+const NETWORK_ERROR =
+  "We could not reach the server. Check your connection and try again.";
+
+/**
+ * Both doors on this page stop for a provider-only account: sendOtp and
+ * forgotPassword each answer Error.AccountUsesSocialLogin, on a `path` of `account`
+ * that no step here renders — it would otherwise reach the user as a raw error code.
+ */
+const resolveServerError = (ex) => {
+  if (isAccountUsesSocialLoginError(ex)) return ACCOUNT_USES_SOCIAL_LOGIN_MESSAGE;
+
+  const parsed = getErrorMessage({ message: ex?.response?.data?.message });
+  // getErrorMessage returns null when the request never reached the backend.
+  if (!parsed) return NETWORK_ERROR;
+
+  return parsed.isFormError ? Object.values(parsed.data).join(", ") : parsed.data;
+};
 
 /* ── OTP input box ── */
 const OTP_LENGTH = 6;
@@ -143,12 +164,7 @@ const StepEmail = ({ onNext }) => {
       await authApi.sendOtp({ email, type: "FORGOT_PASSWORD" });
       onNext(email);
     } catch (ex) {
-      const parsed = getErrorMessage({ message: ex?.response?.data?.message });
-      setServerError(
-        parsed.isFormError
-          ? Object.values(parsed.data).join(", ")
-          : parsed.data,
-      );
+      setServerError(resolveServerError(ex));
     } finally {
       setLoading(false);
     }
@@ -232,12 +248,7 @@ const StepOtp = ({ email, onNext, onBack }) => {
       // We just validate the OTP exists — actual verification happens on step 3
       onNext(otp);
     } catch (ex) {
-      const parsed = getErrorMessage({ message: ex?.response?.data?.message });
-      setServerError(
-        parsed.isFormError
-          ? Object.values(parsed.data).join(", ")
-          : parsed.data,
-      );
+      setServerError(resolveServerError(ex));
     } finally {
       setLoading(false);
     }
@@ -253,12 +264,7 @@ const StepOtp = ({ email, onNext, onBack }) => {
       setOtp("");
       setError("");
     } catch (ex) {
-      const parsed = getErrorMessage({ message: ex?.response?.data?.message });
-      setServerError(
-        parsed.isFormError
-          ? Object.values(parsed.data).join(", ")
-          : parsed.data,
-      );
+      setServerError(resolveServerError(ex));
     } finally {
       setResending(false);
     }
@@ -375,8 +381,19 @@ const StepNewPassword = ({ email, otp, onBack }) => {
       navigate("/login", { state: { resetSuccess: true } });
     } catch (ex) {
       const parsed = getErrorMessage({ message: ex?.response?.data?.message });
-      if (parsed.isFormError) setErrors(parsed.data);
-      else setServerError(parsed.data);
+      if (isAccountUsesSocialLoginError(ex) || !parsed?.isFormError) {
+        setServerError(resolveServerError(ex));
+        return;
+      }
+
+      // This step shows only the two password inputs, so an `account` or an expired
+      // `code` from the backend has nowhere to render and goes to the banner.
+      const { fieldErrors, unmatched } = splitFieldErrors(
+        parsed.data,
+        Object.keys(form),
+      );
+      if (Object.keys(fieldErrors).length > 0) setErrors(fieldErrors);
+      if (unmatched.length > 0) setServerError(unmatched.join(", "));
     } finally {
       setLoading(false);
     }

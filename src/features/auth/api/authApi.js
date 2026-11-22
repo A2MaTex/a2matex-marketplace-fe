@@ -80,7 +80,16 @@ const socialLogin = async (provider, code, redirectUri) => {
 
   // OAuth authorization codes are single-use. publicAxios has no automatic
   // 500 retry or auth-refresh interceptor, so this request is sent only once.
-  const response = await publicAxios.post(endpoint, { code, redirectUri });
+  //
+  // The backend allows itself OAUTH_HTTP_TIMEOUT_MS (10s) for the code exchange and
+  // the same again for the profile fetch, so the shared 15s client timeout could
+  // abort a request that was still going to succeed — and the code it just spent
+  // cannot be replayed. Give the whole round trip room instead.
+  const response = await publicAxios.post(
+    endpoint,
+    { code, redirectUri },
+    { timeout: 25000 },
+  );
   const credentials = response.data?.data;
   if (!credentials?.accessToken || !credentials?.refreshToken) {
     throw new Error("Social login response did not include credentials.");

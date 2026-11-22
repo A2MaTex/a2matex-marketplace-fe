@@ -160,14 +160,43 @@ HTTP-01 trên cổng 80 — **đừng đóng cổng 80**, kể cả khi thấy m
 
 Repo FE > Settings > Secrets and variables > Actions.
 
-| Loại         | Tên                  | Giá trị                               |
-| ------------ | -------------------- | ------------------------------------- |
-| Secret       | `VPS_HOST`           | `34.126.95.145`                       |
-| Secret       | `VPS_USER`           | `deploy`                              |
-| Secret       | `VPS_SSH_KEY`        | toàn bộ `~/.ssh/a2matex-fe-deploy`    |
-| **Variable** | `VITE_API_BASE_URL`  | `https://api.a2matex.com/api/v1`      |
+| Loại         | Tên                     | Giá trị                               |
+| ------------ | ----------------------- | ------------------------------------- |
+| Secret       | `VPS_HOST`              | `34.126.95.145`                       |
+| Secret       | `VPS_USER`              | `deploy`                              |
+| Secret       | `VPS_SSH_KEY`           | toàn bộ `~/.ssh/a2matex-fe-deploy`    |
+| **Variable** | `VITE_API_BASE_URL`     | `https://api.a2matex.com/api/v1`      |
+| **Variable** | `VITE_GOOGLE_CLIENT_ID` | client ID Google, lấy từ backend      |
+| **Variable** | `VITE_GITHUB_CLIENT_ID` | client ID GitHub, lấy từ backend      |
 
 Secrets là per-repo, không dùng chung được với repo backend.
+
+Thiếu bất kỳ biến nào trong ba `VITE_*` thì bước `Check build config` cho đỏ workflow.
+Build vẫn thành công khi thiếu biến, nên guard này là thứ duy nhất chặn một bản
+production hỏng âm thầm.
+
+### A7. Social login (Google + GitHub)
+
+Backend giữ client secret và tự đổi authorization code; FE chỉ dựng URL authorize nên
+cần **client ID**. Giá trị công khai (người dùng thấy trong URL authorize) → khai ở
+**Variables**, không phải Secrets. Phải trùng khít `GOOGLE_CLIENT_ID` /
+`GITHUB_CLIENT_ID` của backend, lệch một ký tự thì backend trả
+`Error.InvalidAuthorizationCode` — nhìn không giống lỗi cấu hình chút nào.
+
+Bốn redirect URI dưới đây phải khai **y hệt từng ký tự** ở cả ba nơi: biến
+`OAUTH_REDIRECT_URI_ALLOWLIST` của backend, Authorized redirect URI trong Google Cloud
+Console, và Callback URL của GitHub OAuth App (GitHub chỉ nhận một URL cho mỗi app, nên
+dev và production là hai app riêng).
+
+```
+https://a2matex.com/auth/google/callback
+https://a2matex.com/auth/github/callback
+http://localhost:3000/auth/google/callback
+http://localhost:3000/auth/github/callback
+```
+
+Backend khớp chuỗi tuyệt đối, không khớp theo tiền tố: thừa dấu `/` ở cuối cũng trượt.
+Dev bắt buộc cổng **3000** — `vite.config.js` khoá `strictPort` đúng vì lý do này.
 
 ## B. Vận hành
 
@@ -178,10 +207,15 @@ Push vào `main`. Workflow build rồi rsync lên, không cần restart gì.
 ### Deploy tay (khi Actions hỏng)
 
 ```bash
-VITE_API_BASE_URL="https://api.a2matex.com/api/v1" npm run build
+VITE_API_BASE_URL="https://api.a2matex.com/api/v1" \
+VITE_GOOGLE_CLIENT_ID="<client id Google>" \
+VITE_GITHUB_CLIENT_ID="<client id GitHub>" \
+npm run build
 rsync -az --delete -e "ssh -i ~/.ssh/a2matex-fe-deploy" \
   dist/ deploy@34.126.95.145:/var/www/fe/
 ```
+
+Deploy tay không có guard như trên Actions: quên một biến là ra bản hỏng âm thầm.
 
 ### Quay lui
 
@@ -189,7 +223,10 @@ Không có kho artifact như GHCR của backend. Quay lui bằng cách build l�
 
 ```bash
 git checkout <commit-cũ>
-VITE_API_BASE_URL="https://api.a2matex.com/api/v1" npm run build
+VITE_API_BASE_URL="https://api.a2matex.com/api/v1" \
+VITE_GOOGLE_CLIENT_ID="<client id Google>" \
+VITE_GITHUB_CLIENT_ID="<client id GitHub>" \
+npm run build
 rsync -az --delete -e "ssh -i ~/.ssh/a2matex-fe-deploy" dist/ deploy@34.126.95.145:/var/www/fe/
 git checkout main
 ```
@@ -216,6 +253,9 @@ giá trị nằm trong bundle, không nằm trong cấu hình máy.
 | -------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------- |
 | Trang trắng, console báo gọi `localhost:8080` | Build thiếu `VITE_API_BASE_URL`                                   | Xem bước `Check build config` trong log Actions          |
 | Vào route sâu bị 404                          | Mất `try_files` trong Caddyfile                                   | `curl -I https://a2matex.com/login` phải trả 200         |
+| Nút Google/GitHub báo "social sign-in is unavailable" | Build thiếu `VITE_GOOGLE_CLIENT_ID` / `VITE_GITHUB_CLIENT_ID` | Xem bước `Check build config` trong log Actions          |
+| Về trang callback rồi báo code hết hạn / đã dùng | Client ID của FE lệch với backend, hoặc redirect URI chưa khớp cả ba nơi | So `vars.VITE_*_CLIENT_ID` với `GOOGLE_CLIENT_ID`/`GITHUB_CLIENT_ID` và `OAUTH_REDIRECT_URI_ALLOWLIST` của backend |
+| Callback báo "sign-in session is invalid or expired" | `state` trong sessionStorage mất — người dùng đổi tab/cửa sổ, hoặc mở lại link callback cũ | Thử lại từ trang đăng nhập; không phải lỗi deploy |
 | Người dùng vẫn thấy bản cũ                    | `index.html` bị cache sai                                         | `curl -I https://a2matex.com/` phải có `cache-control: no-cache` |
 | Caddy không xin được chứng chỉ                | DNS chưa trỏ đủ cả 4 nameserver, hoặc cổng 80 bị chặn            | `dig`, `sudo ufw status`, `journalctl -u caddy`          |
 | CI báo Permission denied lúc rsync            | Sai `VPS_SSH_KEY`, hoặc `/var/www/fe` không thuộc `deploy`        | `ls -ld /var/www/fe`                                     |
