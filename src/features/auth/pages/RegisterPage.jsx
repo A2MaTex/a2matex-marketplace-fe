@@ -58,7 +58,7 @@ const validate = ({
   if (!confirmPassword)
     errors.confirmPassword = "Please confirm your password.";
   else if (password !== confirmPassword)
-    errors.confirmPassword = "Passwords do not match.";
+    errors.confirmPassword = "Password and confirm password must match."; // MSG04
 
   if (!code.trim()) errors.code = "Please enter OTP.";
   else if (!/^\d{6}$/.test(code.trim())) errors.code = "OTP must be 6 digits.";
