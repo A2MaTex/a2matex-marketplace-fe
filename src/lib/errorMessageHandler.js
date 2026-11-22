@@ -12,6 +12,7 @@ export const ERROR_MESSAGES = {
   "Error.EmailOrUsernameNotFound":
     "Incorrect account or password. Please check again.", // MSG10
   "Error.EmailNotFound": "No account is registered with this email.", // MSG11
+  "Error.SessionExpired": "Your session has expired. Please sign in again.", // MSG12
   "Error.RefreshTokenAlreadyUsed":
     "Your session has expired. Please sign in again.", // MSG12
   "Error.AccountBlocked": "You do not have permission to perform this action.", // MSG34

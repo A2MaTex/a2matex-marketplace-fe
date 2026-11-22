@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 import styles from "../styles/AuthPage.module.css";
 import Button from "@components/common/Button";
@@ -9,7 +9,7 @@ import { FiMonitor, FiUser, FiLock } from "react-icons/fi";
 import { FaGithub } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { authApi } from "../api/authApi";
-import { getErrorMessage } from "@lib/errorMessageHandler";
+import { getErrorMessage, ERROR_MESSAGES } from "@lib/errorMessageHandler";
 import axios from "@lib/axios.js";
 import ROLE from "@/constants/roles";
 
@@ -32,6 +32,7 @@ const validate = ({ account, password }) => {
 /* ── Component ── */
 const LoginPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [form, setForm] = useState({
     account: "",
@@ -40,7 +41,11 @@ const LoginPage = () => {
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [serverError, setServerError] = useState("");
+  const [serverError, setServerError] = useState(
+    searchParams.get("reason") === "session-expired"
+      ? ERROR_MESSAGES["Error.SessionExpired"]
+      : "",
+  );
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
