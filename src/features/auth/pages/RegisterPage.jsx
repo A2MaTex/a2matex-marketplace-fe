@@ -52,8 +52,9 @@ const validate = ({
     errors.email = "Invalid email address.";
 
   if (!password) errors.password = "Please enter your password.";
-  else if (password.length < 8)
-    errors.password = "Password must be at least 8 characters long.";
+  else if (password.length < 6 || password.length > 100)
+    // DEF-031
+    errors.password = "Password must be 6–100 characters long.";
 
   if (!confirmPassword)
     errors.confirmPassword = "Please confirm your password.";
