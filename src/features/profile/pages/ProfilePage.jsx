@@ -44,6 +44,7 @@ import { authApi } from "@/features/auth/api/authApi";
 import { getErrorMessage } from "@lib/errorMessageHandler";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineThunderbolt } from "react-icons/ai";
+// DEF-035
 
 /* ── helpers ─────────────────────────────────────────────────── */
 
@@ -163,9 +164,9 @@ const ProfilePage = () => {
         cacheImage(profile.id, ava.data);
       }
 
-      showToast("Cập nhật thông tin thành công!");
+      showToast("Saved successfully." /* MSG13 */);
     } catch (err) {
-      const msg = err?.response?.data?.message || "Cập nhật thất bại.";
+      const msg = err?.response?.data?.message || "Could not save the profile. Please try again.";
       showToast(msg, "error");
     } finally {
       setSaving(false);
@@ -177,7 +178,7 @@ const ProfilePage = () => {
     setForm((f) => ({ ...f, avatarStaticId: staticId }));
     setAvatarPreview(previewUrl);
     setShowAvatarModal(false);
-    showToast("Ảnh đã sẵn sàng — nhấn Save để lưu.");
+    showToast("Image ready. Click Save to apply it.");
   };
 
   /* delete avatar */
@@ -219,7 +220,7 @@ const ProfilePage = () => {
     } catch (error) {
       console.log(error);
 
-      showToast("Không thể tải thông tin tài khoản.", "error");
+      showToast("Could not load the account information.", "error");
     } finally {
       setLoading(false);
     }
@@ -235,11 +236,11 @@ const ProfilePage = () => {
   const validatePw = () => {
     const errs = {};
     if (!pwForm.currentPassword)
-      errs.currentPassword = "Vui lòng nhập mật khẩu hiện tại.";
+      errs.currentPassword = "Please enter your current password.";
     if (!pwForm.newPassword || pwForm.newPassword.length < 6 || pwForm.newPassword.length > 100)
       errs.newPassword = "New password must be 6–100 characters long."; // DEF-031
     if (pwForm.newPassword !== pwForm.confirmNewPassword)
-      errs.confirmNewPassword = "Mật khẩu xác nhận không khớp.";
+      errs.confirmNewPassword = "New password and confirm new password must match.";
     return errs;
   };
 
@@ -254,7 +255,7 @@ const ProfilePage = () => {
     try {
       await profileApi.changePassword(pwForm);
       setPwForm(EMPTY_PW);
-      showToast("Đổi mật khẩu thành công!");
+      showToast("Password changed successfully.");
     } catch (err) {
       // DEF-013
       const error = getErrorMessage({ message: err?.response?.data?.message });
@@ -660,7 +661,7 @@ const ProfilePage = () => {
             setProfile((prev) => ({ ...prev, balance: newBalance }));
             setShowTopUpModal(false);
             showToast(
-              `Đã nạp thành công ${newBalance.toLocaleString("vi-VN")} VND vào tài khoản`,
+              `Top-up successful. New balance: ${newBalance.toLocaleString("en-US")} VND`,
             );
           }}
         />
