@@ -199,20 +199,22 @@ const ProfilePage = () => {
 
   const loadProfile = async () => {
     try {
-      let myProfile = profile;
-      console.log(myProfile);
+      let myProfile = useAuthStore.getState().user;
+      let imgBlob = myProfile?.imgBlob;
 
-      if (!myProfile) {
-        console.log("xx");
-
+      // DEF-011
+      if (!myProfile?.id) {
         setLoading(true);
-        myProfile = await userApi.getMyProfile();
+        ({ user: myProfile, imgBlob } = await userApi.getMyProfile());
       }
 
-      const merged = { ...initProfile, ...myProfile };
+      const merged = { ...EMPTY_PROFILE };
+      for (const [key, value] of Object.entries(myProfile)) {
+        if (value !== null && value !== undefined) merged[key] = value;
+      }
       setProfile(merged);
       setForm(merged);
-      setAvatar(myProfile.imgBlob);
+      setAvatar(imgBlob);
     } catch (error) {
       console.log(error);
 
