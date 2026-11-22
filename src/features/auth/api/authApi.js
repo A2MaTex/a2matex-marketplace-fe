@@ -5,8 +5,11 @@ import {
   sendOTP,
   forgotPasswordUrl,
   refreshTokenUrl,
+  googleSocialLoginUrl,
+  githubSocialLoginUrl,
 } from "./authUrl";
 import axios from "@lib/axios.js";
+import publicAxios from "@/lib/publicAxios.js";
 import { useAuthStore } from "../store/authStore.js";
 import { auth } from "@/lib/token";
 
@@ -64,6 +67,28 @@ const refreshAccessToken = async (refreshToken) => {
   useAuthStore.getState().setCredentials(accessToken, newRefreshToken);
 };
 
+const socialLogin = async (provider, code, redirectUri) => {
+  const endpoints = {
+    google: googleSocialLoginUrl,
+    github: githubSocialLoginUrl,
+  };
+  const endpoint = endpoints[provider];
+
+  if (!endpoint) {
+    throw new Error("Unsupported social login provider.");
+  }
+
+  // OAuth authorization codes are single-use. publicAxios has no automatic
+  // 500 retry or auth-refresh interceptor, so this request is sent only once.
+  const response = await publicAxios.post(endpoint, { code, redirectUri });
+  const credentials = response.data?.data;
+  if (!credentials?.accessToken || !credentials?.refreshToken) {
+    throw new Error("Social login response did not include credentials.");
+  }
+
+  return credentials;
+};
+
 const forgotPassword = async ({
   email,
   code,
@@ -86,4 +111,5 @@ export const authApi = {
   sendOtp,
   forgotPassword,
   refreshAccessToken,
+  socialLogin,
 };

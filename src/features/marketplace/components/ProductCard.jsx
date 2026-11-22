@@ -18,7 +18,7 @@ const formatReleaseDate = (value) => {
   }).format(date);
 };
 
-const ProductCard = ({ product, featured = false }) => {
+const ProductCard = ({ product }) => {
   const [imageFailed, setImageFailed] = useState(false);
   const visual = selectMarketplaceMedia(product.media).cardVisual;
   const imageUrl = visual
@@ -27,11 +27,7 @@ const ProductCard = ({ product, featured = false }) => {
   const publishedAt = formatReleaseDate(product.currentRelease.publishedAt);
 
   return (
-    <article
-      className={[styles.card, featured ? styles.featured : ""]
-        .filter(Boolean)
-        .join(" ")}
-    >
+    <article className={styles.card}>
       <Link
         className={styles.cardLink}
         to={`/products/${product.id}`}

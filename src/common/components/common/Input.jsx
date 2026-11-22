@@ -120,8 +120,7 @@ const Input = ({
             type="button"
             className={styles.togglePassword}
             onClick={() => setShowPassword((v) => !v)}
-            aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-            tabIndex={-1}
+            aria-label={showPassword ? "Hide password" : "Show password"}
           >
             {showPassword ? <EyeClosedIcon /> : <EyeOpenIcon />}
           </button>
