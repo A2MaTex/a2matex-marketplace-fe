@@ -5,6 +5,7 @@ import { staticApi } from "@/common/api/static/staticApi";
 import styles from "./AvatarUpload.module.css";
 import { BsCameraFill, BsCheckLg, BsXLg } from "react-icons/bs";
 import { FiRefreshCw, FiUploadCloud } from "react-icons/fi";
+// DEF-035
 
 /* ── helpers ───────────────────────────────────────────────────── */
 function centerAspectCrop(mediaWidth, mediaHeight, aspect) {
@@ -61,11 +62,11 @@ const AvatarUpload = ({ onDone, onClose }) => {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      setError("Please choose a valid image file.");
+      setError("File must be an image up to 5 MB." /* MSG40 */);
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      setError("The image must be 5MB or smaller.");
+      setError("File must be an image up to 5 MB." /* MSG40 */);
       return;
     }
     setError("");
@@ -97,13 +98,13 @@ const AvatarUpload = ({ onDone, onClose }) => {
       const res = await staticApi.uploadImage({ file });
       const staticId = res?.data?.data?.id ?? res?.data?.id;
 
-      if (!staticId) throw new Error("The server did not return an image ID.");
+      if (!staticId) throw new Error("The server did not return the uploaded image ID.");
 
       // build preview URL from canvas
       const previewUrl = canvasRef.current.toDataURL("image/jpeg");
       onDone(staticId, previewUrl);
     } catch (err) {
-      const msg = err?.response?.data?.message || err.message || "Upload failed.";
+      const msg = err?.response?.data?.message || err.message || "Upload failed. Please try again.";
       setError(msg);
     } finally {
       setUploading(false);
@@ -153,7 +154,7 @@ const AvatarUpload = ({ onDone, onClose }) => {
             >
               <FiUploadCloud size={36} className={styles.dropIcon} />
               <p className={styles.dropPrimary}>Click or drag an image here</p>
-              <p className={styles.dropSub}>PNG, JPG, or WEBP — up to 5 MB</p>
+              <p className={styles.dropSub}>PNG, JPG, WEBP — up to 5 MB</p>
             </div>
           ) : (
             /* Crop area */
@@ -203,7 +204,7 @@ const AvatarUpload = ({ onDone, onClose }) => {
           )}
           {!imgSrc && (
             <button className={styles.btnGhost} onClick={() => inputRef.current?.click()}>
-              <BsCameraFill size={13} /> Choose an image
+              <BsCameraFill size={13} /> Choose image
             </button>
           )}
           <div className={styles.footerRight}>

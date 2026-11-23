@@ -5,6 +5,21 @@ import { termApi } from "@/features/term/termApi";
 import { profileApi } from "../api/profileApi";
 import styles from "./ActivatePublisherModal.module.css";
 import TERM_TYPE from "@/constants/term";
+import { translateError } from "@lib/errorMessageHandler";
+
+// DEF-014
+const toMessage = (data, fallback) => {
+  const message = data?.message;
+  if (Array.isArray(message)) {
+    const missing = message
+      .filter((item) => item.message === "Error.PublisherProfileIncomplete")
+      .map((item) => String(item.path).split(".").pop());
+    if (missing.length)
+      return `Please complete your profile: ${missing.join(", ")}.`; // MSG15
+    return message.map((item) => translateError(item.message)).join(" ");
+  }
+  return message ? translateError(message) : fallback;
+};
 
 /**
  * Props:
@@ -28,9 +43,11 @@ const ActivatePublisherModal = ({ onSuccess, onClose }) => {
         const res = await termApi.getCurrentTerms(TERM_TYPE.PUBLISHER_TERMS);
         setTerm(res.data?.data ?? res.data);
       } catch (err) {
+        // DEF-014
         const msg =
-          err?.response?.data?.message ||
-          "Unable to load the terms. Please try again.";
+          err?.response?.status === 404
+            ? "Publisher registration is temporarily unavailable." // MSG16
+            : toMessage(err?.response?.data, "Could not load the terms. Please try again.");
         setTermError(msg);
       } finally {
         setLoadingTerm(false);
@@ -47,9 +64,10 @@ const ActivatePublisherModal = ({ onSuccess, onClose }) => {
       await profileApi.activatePublisherAccount(term.id);
       onSuccess();
     } catch (err) {
-      const msg =
-        err?.response?.data?.message || "Activation failed. Please try again.";
-      setActivateError(msg);
+      // DEF-014
+      setActivateError(
+        toMessage(err?.response?.data, "Activation failed. Please try again."),
+      );
     } finally {
       setActivating(false);
     }

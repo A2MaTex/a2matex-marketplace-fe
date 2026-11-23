@@ -48,6 +48,7 @@ import {
 import { getErrorMessage } from "@lib/errorMessageHandler";
 import { useNavigate } from "react-router-dom";
 import { formatBalance } from "@/features/commerce/model/money";
+// DEF-035
 
 const resolvePwErrorMessage = (err) => {
   if (isAccountUsesSocialLoginError(err)) {
@@ -181,9 +182,9 @@ const ProfilePage = () => {
         cacheImage(profile.id, ava.data);
       }
 
-      showToast("Profile updated successfully!");
+      showToast("Saved successfully." /* MSG13 */);
     } catch (err) {
-      const msg = err?.response?.data?.message || "Update failed.";
+      const msg = err?.response?.data?.message || "Could not save the profile. Please try again.";
       showToast(msg, "error");
     } finally {
       setSaving(false);
@@ -216,6 +217,33 @@ const ProfilePage = () => {
       })
     : "—";
 
+  const loadProfile = async () => {
+    try {
+      let myProfile = useAuthStore.getState().user;
+      let imgBlob = myProfile?.imgBlob;
+
+      // DEF-011
+      if (!myProfile?.id) {
+        setLoading(true);
+        ({ user: myProfile, imgBlob } = await userApi.getMyProfile());
+      }
+
+      const merged = { ...EMPTY_PROFILE };
+      for (const [key, value] of Object.entries(myProfile)) {
+        if (value !== null && value !== undefined) merged[key] = value;
+      }
+      setProfile(merged);
+      setForm(merged);
+      setAvatar(imgBlob);
+    } catch (error) {
+      console.log(error);
+
+      showToast("Could not load the account information.", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   /* change password */
   const handlePwChange = (e) => {
     const { name, value } = e.target;
@@ -226,11 +254,11 @@ const ProfilePage = () => {
   const validatePw = () => {
     const errs = {};
     if (!pwForm.currentPassword)
-      errs.currentPassword = "Vui lòng nhập mật khẩu hiện tại.";
+      errs.currentPassword = "Please enter your current password.";
     if (!pwForm.newPassword || pwForm.newPassword.length < 6 || pwForm.newPassword.length > 100)
       errs.newPassword = "New password must be 6–100 characters long."; // DEF-031
     if (pwForm.newPassword !== pwForm.confirmNewPassword)
-      errs.confirmNewPassword = "The password confirmation does not match.";
+      errs.confirmNewPassword = "New password and confirm new password must match.";
     return errs;
   };
 
@@ -245,9 +273,20 @@ const ProfilePage = () => {
     try {
       await profileApi.changePassword(pwForm);
       setPwForm(EMPTY_PW);
-      showToast("Password changed successfully!");
+      showToast("Password changed successfully.");
     } catch (err) {
-      showToast(resolvePwErrorMessage(err), "error");
+      // DEF-013
+      const error = getErrorMessage({ message: err?.response?.data?.message });
+      if (error?.isFormError) {
+        const fieldErrors = { ...error.data };
+        if (err.response.data.message.some((m) => m.message === "Error.InvalidPassword")) {
+          delete fieldErrors.password;
+          fieldErrors.currentPassword = "Current password is incorrect."; // MSG14
+        }
+        setPwErrors(fieldErrors);
+      } else {
+        showToast(error?.data || "Could not change the password. Please try again.", "error");
+      }
     } finally {
       setPwSaving(false);
     }
@@ -638,7 +677,11 @@ const ProfilePage = () => {
           onSuccess={() => {
             setShowPublisherModal(false);
             showToast("Publisher role activated successfully!");
-            setProfile((prev) => prev.roles.push({ code: ROLE.PUBLISHER }));
+            // DEF-016
+            setProfile((prev) => ({
+              ...prev,
+              roles: [...(prev.roles || []), { name: ROLE.PUBLISHER }],
+            }));
           }}
           onClose={() => setShowPublisherModal(false)}
         />
@@ -651,7 +694,7 @@ const ProfilePage = () => {
             setProfile((prev) => ({ ...prev, balance: newBalance }));
             setShowTopUpModal(false);
             showToast(
-              `${formatBalance(newBalance)} VND has been added to your account.`,
+              `Top-up successful. New balance: ${newBalance.toLocaleString("en-US")} VND`,
             );
           }}
         />

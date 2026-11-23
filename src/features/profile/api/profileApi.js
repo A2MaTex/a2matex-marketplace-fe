@@ -7,8 +7,9 @@ import {
 
 const updateMyProfile = (data) => axios.put(updateMyProfileUrl, data);
 
+// DEF-013
 const changePassword = ({ currentPassword, newPassword, confirmNewPassword }) =>
-  axios.put(changePasswordUrl, {
+  axios.patch(changePasswordUrl, {
     currentPassword,
     newPassword,
     confirmNewPassword,
