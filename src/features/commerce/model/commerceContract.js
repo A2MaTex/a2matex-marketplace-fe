@@ -5,6 +5,12 @@ const ISO_DATE_PATTERN =
   /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
 const ORDER_STATUSES = new Set(["PAID"]);
 const ENTITLEMENT_STATUSES = new Set(["ACTIVE", "EXPIRED", "REVOKED"]);
+const PRODUCT_STATUSES = new Set([
+  "DRAFT",
+  "ACTIVE",
+  "SUSPENDED",
+  "ARCHIVED",
+]);
 const GRANT_SOURCES = new Set(["ORDER", "ADMIN_GRANT"]);
 const OFFER_TYPES = new Set(["SUBSCRIPTION", "ONE_TIME"]);
 
@@ -127,12 +133,18 @@ const parseOfferSnapshot = (value, label) => {
   };
 };
 
-const parseProductSummary = (value, label) => {
+const parseProductSummary = (value, label, { requireStatus = false } = {}) => {
   const product = object(value, label);
+  const status =
+    product.status === undefined && !requireStatus
+      ? null
+      : enumValue(product.status, PRODUCT_STATUSES, `${label}.status`);
+
   return {
     id: uuid(product.id, `${label}.id`),
     name: nullableString(product.name, `${label}.name`),
     slug: nullableString(product.slug, `${label}.slug`),
+    status,
   };
 };
 
@@ -187,6 +199,7 @@ const parseOrder = (value, label) => {
     product: parseProductSummary(
       item.product ?? order.product,
       `${label}.item.product`,
+      { requireStatus: true },
     ),
     createdAt: isoDate(order.createdAt ?? order.paidAt, `${label}.createdAt`),
     paidAt: optionalIsoDate(order.paidAt, `${label}.paidAt`),

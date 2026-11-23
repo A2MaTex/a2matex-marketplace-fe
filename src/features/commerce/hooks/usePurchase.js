@@ -153,7 +153,7 @@ export function usePurchase({
       profileRefreshFailed: false,
     }));
 
-    userApi.getMyProfile().catch(() => {
+    userApi.getMyProfile({ forceRefresh: true }).catch(() => {
       if (!mountedRef.current) return;
       setState((current) => ({ ...current, profileRefreshFailed: true }));
     });

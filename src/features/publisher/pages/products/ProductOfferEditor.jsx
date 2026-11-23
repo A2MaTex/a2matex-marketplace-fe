@@ -140,14 +140,6 @@ export default function ProductOfferEditor({
           >
             <FiPlus /> Subscription
           </button>
-          <button
-            type="button"
-            onClick={() => addOffer("ONE_TIME")}
-            disabled={disabled || saving || offers.length >= PRODUCT_OFFER_FORM_LIMITS.maxOffers}
-            title="Add one-time access"
-          >
-            <FiPlus /> One-time
-          </button>
         </div>
       </div>
 

@@ -34,6 +34,8 @@
 .orderIcon, .productIcon { display: grid; flex: 0 0 auto; place-items: center; border: 1px solid rgba(102, 231, 218, 0.19); background: rgba(102, 231, 218, 0.055); color: #66e7da; }
 .orderIcon { width: 43px; height: 43px; border-radius: 13px; }
 .orderCopy { min-width: 0; }
+.orderTitleRow { display: flex; min-width: 0; align-items: center; gap: 9px; }
+.orderTitleRow h2 { min-width: 0; }
 .orderCopy h2, .productCard h2 { overflow: hidden; margin: 0; color: #eef6fa; font-size: 16px; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
 .orderMeta { display: flex; flex-wrap: wrap; gap: 7px 13px; margin-top: 7px; color: #677789; font-size: 10px; }
 .orderMeta span { display: inline-flex; align-items: center; gap: 5px; }
@@ -47,6 +49,12 @@
 .statusPaid, .statusACTIVE { color: #66e7da; background: rgba(102, 231, 218, 0.065); }
 .statusEXPIRED { color: #e1ae5a; background: rgba(225, 174, 90, 0.065); }
 .statusREVOKED { color: #ef8585; background: rgba(239, 133, 133, 0.065); }
+
+.productStatusBadge { display: inline-flex; flex: 0 0 auto; width: fit-content; align-items: center; gap: 4px; padding: 4px 7px; border: 1px solid currentColor; border-radius: 5px; font-size: 8px; font-weight: 850; letter-spacing: 0.07em; line-height: 1; }
+.productStatusDRAFT { color: #e6d158; background: rgba(224, 184, 121, 0.06); }
+.productStatusACTIVE { color: #51dfad; background: rgba(81, 223, 173, 0.06); }
+.productStatusSUSPENDED { color: #ff9ca5; background: rgba(255, 105, 118, 0.06); }
+.productStatusARCHIVED { color: #f5a05f; background: rgba(249, 143, 64, 0.08); }
 
 .productCard { display: flex; min-width: 0; flex-direction: column; gap: 16px; padding: 24px; border-radius: 19px; }
 .productHeader { display: flex; min-width: 0; align-items: flex-start; gap: 14px; }
@@ -85,6 +93,7 @@
 .backLink:hover { color: #75e5db; }
 .detailCard { overflow: hidden; border-radius: 22px; }
 .detailHero { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; padding: 28px; border-bottom: 1px solid rgba(121, 176, 190, 0.12); background: radial-gradient(circle at 100% 0%, rgba(102, 231, 218, 0.08), transparent 38%); }
+.detailTitleRow { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
 .detailHero h1 { margin: 7px 0 6px; color: #f4fbff; font-size: clamp(28px, 4vw, 42px); letter-spacing: -0.045em; }
 .detailHero p { margin: 0; color: #68798c; font-family: ui-monospace, monospace; font-size: 10px; overflow-wrap: anywhere; }
 .detailSections { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }

@@ -87,9 +87,9 @@ const parseAdminEntitlement = (value, label) => {
       item.latestProductOfferId,
       `${label}.latestProductOfferId`,
     ),
-    latestOrderItemId: nullableUuid(
-      item.latestOrderItemId,
-      `${label}.latestOrderItemId`,
+    latestOrderId: nullableUuid(
+      item.latestOrderId,
+      `${label}.latestOrderId`,
     ),
     status: enumValue(item.status, STATUS_VALUES, `${label}.status`),
     storedStatus: enumValue(

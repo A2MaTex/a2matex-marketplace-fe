@@ -1,4 +1,4 @@
-import { FiCheck, FiClock, FiHash } from "react-icons/fi";
+import { FiCheck, FiClock } from "react-icons/fi";
 import { formatVndAmount } from "../model/money";
 import styles from "./PurchaseConfirmationDialog.module.css";
 
@@ -24,10 +24,6 @@ export default function PurchaseResult({ result, profileRefreshFailed }) {
       </div>
 
       <dl className={styles.resultDetails}>
-        <div>
-          <dt><FiHash aria-hidden="true" /> Order ID</dt>
-          <dd>{result.id}</dd>
-        </div>
         <div>
           <dt>Amount paid</dt>
           <dd>{formatVndAmount(result.totalAmount)}</dd>

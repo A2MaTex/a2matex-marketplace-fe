@@ -5,6 +5,7 @@ import {
   CommerceLoading,
 } from "../components/CommercePageState";
 import OrderStatusBadge from "../components/OrderStatusBadge";
+import ProductStatusBadge from "../components/ProductStatusBadge";
 import { useOrderDetail } from "../hooks/useOrderDetail";
 import { formatCommerceDate } from "../model/date";
 import { formatVndAmount } from "../model/money";
@@ -38,8 +39,10 @@ export default function OrderDetailPage() {
             <header className={styles.detailHero}>
               <div>
                 <span className={styles.eyebrow}>Paid order</span>
-                <h1>{order.data.product.name?.trim() || "Unavailable product"}</h1>
-                <p>{order.data.id}</p>
+                <div className={styles.detailTitleRow}>
+                  <h1>{order.data.product.name?.trim() || "Unavailable product"}</h1>
+                  <ProductStatusBadge status={order.data.product.status} />
+                </div>
               </div>
               <OrderStatusBadge status={order.data.status} />
             </header>
@@ -48,9 +51,6 @@ export default function OrderDetailPage() {
               <section className={styles.detailSection}>
                 <h2>Transaction</h2>
                 <dl className={styles.detailList}>
-                  <div className={styles.detailItem}>
-                    <dt>Order ID</dt><dd>{order.data.id}</dd>
-                  </div>
                   <div className={styles.detailItem}>
                     <dt>Paid at</dt><dd>{formatCommerceDate(order.data.createdAt, { withTime: true })}</dd>
                   </div>

@@ -8,6 +8,7 @@ import {
   CommerceLoading,
 } from "../components/CommercePageState";
 import OrderStatusBadge from "../components/OrderStatusBadge";
+import ProductStatusBadge from "../components/ProductStatusBadge";
 import { useMyOrders } from "../hooks/useMyOrders";
 import { formatCommerceDate } from "../model/date";
 import { formatVndAmount } from "../model/money";
@@ -95,10 +96,12 @@ export default function OrdersPage() {
                   <div className={styles.orderPrimary}>
                     <span className={styles.orderIcon}><FiFileText aria-hidden="true" /></span>
                     <div className={styles.orderCopy}>
-                      <h2>{productName(order)}</h2>
+                      <div className={styles.orderTitleRow}>
+                        <h2>{productName(order)}</h2>
+                        <ProductStatusBadge status={order.product.status} />
+                      </div>
                       <div className={styles.orderMeta}>
                         <span><FiCalendar aria-hidden="true" /> {formatCommerceDate(order.createdAt, { withTime: true })}</span>
-                        <span>#{order.id.slice(0, 8)}</span>
                         <OrderStatusBadge status={order.status} />
                       </div>
                     </div>
