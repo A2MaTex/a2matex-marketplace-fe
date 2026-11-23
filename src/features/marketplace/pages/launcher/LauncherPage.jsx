@@ -16,6 +16,11 @@ import Button from "@components/common/Button";
 import { releaseApi } from "@/features/admin/pages/launcher-release/api/api";
 import { useEffect, useState } from "react";
 import { staticApi } from "@/common/api/static/staticApi";
+import {
+  getCurrentLauncherRelease,
+  isNoActiveLauncherReleaseError,
+  NO_DOWNLOAD_MESSAGE,
+} from "./launcherReleaseState";
 
 /* ─── Data ───────────────────────────────────────────────────────── */
 
@@ -113,12 +118,36 @@ const LOG_LINES = [
   },
 ];
 
+const fetchCurrentReleaseState = async () => {
+  try {
+    const response = await releaseApi.getCurrentRelease();
+    const release = getCurrentLauncherRelease(response);
+
+    return release
+      ? { status: "ready", release }
+      : { status: "error", release: null };
+  } catch (error) {
+    if (isNoActiveLauncherReleaseError(error)) {
+      return { status: "unavailable", release: null };
+    }
+
+    console.error("Unable to load the current launcher release.", error);
+    return { status: "error", release: null };
+  }
+};
+
 /* ─── Component ─────────────────────────────────────────────────── */
 
 const LauncherPage = () => {
-  const [currentRelease, setCurrentRelease] = useState();
+  const [releaseState, setReleaseState] = useState({
+    status: "loading",
+    release: null,
+  });
+  const currentRelease = releaseState.release;
 
   const handleDownload = async () => {
+    if (releaseState.status !== "ready" || !currentRelease?.staticId) return;
+
     try {
       const response = await staticApi.getFileDownloadUrl(
         currentRelease.staticId,
@@ -138,21 +167,20 @@ const LauncherPage = () => {
     }
   };
 
-  const handleGetCurrentRelease = async () => {
-    try {
-      const res = await releaseApi.getCurrentRelease();
-      setCurrentRelease(
-        res?.data?.data || {
-          version: "v0.0.0",
-        },
-      );
-    } catch (error) {
-      console.error(error);
-    }
+  const handleRetryCurrentRelease = () => {
+    setReleaseState({ status: "loading", release: null });
+    fetchCurrentReleaseState().then(setReleaseState);
   };
 
   useEffect(() => {
-    handleGetCurrentRelease();
+    let active = true;
+    fetchCurrentReleaseState().then((nextState) => {
+      if (active) setReleaseState(nextState);
+    });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   return (
@@ -164,7 +192,8 @@ const LauncherPage = () => {
           <div className={styles.heroLeft}>
             <div className={styles.badge}>
               <span className={styles.badgeDot} />
-              CLIENT RUNTIME ENGINE {currentRelease?.version || "v0.0.0"}{" "}
+              CLIENT RUNTIME ENGINE
+              {currentRelease?.version ? ` ${currentRelease.version}` : ""}{" "}
               &nbsp;/&nbsp; FOR TOOL RUNNERS
             </div>
 
@@ -179,17 +208,35 @@ const LauncherPage = () => {
               centralized desktop application.
             </p>
 
-            <Button
-              className={styles.downloadBtn}
-              size="lg"
-              leftIcon={<FiDownload size={18} />}
-              onClick={handleDownload}
-            >
-              <span>Download for Windows</span>
-              <span className={styles.downloadMeta}>
-                x64 • {currentRelease?.version || "v0.0.0"}
-              </span>
-            </Button>
+            {releaseState.status === "ready" ? (
+              <Button
+                className={styles.downloadBtn}
+                size="lg"
+                leftIcon={<FiDownload size={18} />}
+                onClick={handleDownload}
+              >
+                <span>Download for Windows</span>
+                <span className={styles.downloadMeta}>
+                  x64 • {currentRelease.version}
+                </span>
+              </Button>
+            ) : releaseState.status === "loading" ? (
+              <p className={styles.releaseStatus} role="status">
+                <RiLoader4Line className={styles.releaseSpinner} size={18} />
+                Checking download availability…
+              </p>
+            ) : releaseState.status === "unavailable" ? (
+              <p className={styles.releaseStatus} role="status">
+                {NO_DOWNLOAD_MESSAGE}
+              </p>
+            ) : (
+              <div className={styles.releaseError} role="alert">
+                <span>Unable to check download availability.</span>
+                <button type="button" onClick={handleRetryCurrentRelease}>
+                  Try again
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Right – live mockup */}
@@ -392,14 +439,18 @@ const LauncherPage = () => {
 
       {/* ── Final CTA ──────────────────────────────────────────── */}
       <section id="download" className={styles.ctaSection}>
-        <Button
-          className={styles.ctaBtn}
-          href="/launcher#download"
-          leftIcon={<RiLoader4Line size={16} />}
-          size="lg"
-        >
-          Download Launcher Now (.exe)
-        </Button>
+        {releaseState.status === "ready" ? (
+          <Button
+            className={styles.ctaBtn}
+            onClick={handleDownload}
+            leftIcon={<FiDownload size={16} />}
+            size="lg"
+          >
+            Download Launcher Now (.exe)
+          </Button>
+        ) : releaseState.status === "unavailable" ? (
+          <p className={styles.ctaStatus}>{NO_DOWNLOAD_MESSAGE}</p>
+        ) : null}
       </section>
     </div>
   );

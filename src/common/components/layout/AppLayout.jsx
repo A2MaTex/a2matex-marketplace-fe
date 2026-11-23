@@ -7,17 +7,17 @@ import { Outlet } from "react-router-dom";
 
 const AppLayout = () => {
   const user = useAuthStore((s) => s.user);
-  const imgBlob = useAuthStore((s) => s.imgBlob);
+  const avatarBlob = useAuthStore((s) => s.avatarBlob);
   const [loaded, setLoaded] = useState(!!user);
   
   useEffect(() => {
     if (loaded) return;
     userApi.getMyProfile().then(() => setLoaded(true));
-  }, []);
+  }, [loaded]);
 
   return (
     <div className={styles.layout}>
-      <Header user={user} avatar={user?.imgBlob || null} />
+      <Header user={user} avatar={avatarBlob} />
       <main className={styles.main}>
         <Outlet />
       </main>

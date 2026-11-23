@@ -279,7 +279,6 @@ const ProductEditor = ({
 
           {!statusIsEditable ? (
             <div className={styles.readOnlyNotice} role="status">
-              <FiAlertTriangle />
               <div>
                 <strong>This product is read-only.</strong>
                 <span>{product?.status === "SUSPENDED" ? product.statusReason || "It was suspended by an administrator." : "Archived products cannot be edited."}</span>

@@ -41,30 +41,10 @@ import { useAuthStore } from "@/features/auth/store/authStore";
 import ROLE from "@/constants/roles";
 import GENDER from "@/constants/gender";
 import { authApi } from "@/features/auth/api/authApi";
-import {
-  getSocialLoginProviderLabels,
-  isAccountUsesSocialLoginError,
-} from "@/features/auth/api/socialLoginErrors";
 import { getErrorMessage } from "@lib/errorMessageHandler";
 import { useNavigate } from "react-router-dom";
 import { formatBalance } from "@/features/commerce/model/money";
 // DEF-035
-
-const resolvePwErrorMessage = (err) => {
-  if (isAccountUsesSocialLoginError(err)) {
-    const providers = getSocialLoginProviderLabels(err).join(" or ");
-    return providers
-      ? `This account uses ${providers} sign-in and has no password to change.`
-      : "This account uses social sign-in and has no password to change.";
-  }
-
-  const parsed = getErrorMessage({ message: err?.response?.data?.message });
-  if (!parsed) return "Password change failed.";
-
-  return parsed.isFormError
-    ? Object.values(parsed.data).join(", ")
-    : parsed.data;
-};
 
 const SOCIAL_FIELDS = [
   {
@@ -171,16 +151,39 @@ const ProfilePage = () => {
         email: form.email || null,
       };
       await profileApi.updateMyProfile(payload);
-      setProfile({ ...form });
-      setAvatarPreview(null); // preview now committed — clear so server URL takes over
+      const committedProfile = { ...form };
+      let committedAvatar = avatar;
 
       if (payload.avatarStaticId) {
-        const ava = await staticApi.getImageById({
-          imageId: payload.avatarStaticId,
-        });
-        setAvatar(ava.data);
-        cacheImage(profile.id, ava.data);
+        try {
+          const ava = await staticApi.getImageById({
+            imageId: payload.avatarStaticId,
+          });
+          committedAvatar = ava.data;
+          await cacheImage(profile.id, ava.data);
+        } catch (error) {
+          // The profile is already saved. Avoid keeping the previous image under
+          // a newly committed avatar ID if the image refresh fails.
+          if (payload.avatarStaticId !== profile.avatarStaticId) {
+            committedAvatar = null;
+          }
+          console.error("Unable to refresh the saved avatar.", error);
+        }
+      } else {
+        committedAvatar = null;
       }
+
+      setProfile(committedProfile);
+      setForm(committedProfile);
+      setAvatar(committedAvatar);
+      setAvatarPreview(null); // preview now committed — clear so server URL takes over
+
+      const authStore = useAuthStore.getState();
+      authStore.setUser({
+        ...authStore.user,
+        ...committedProfile,
+      });
+      authStore.setAvatarBlob(committedAvatar);
 
       showToast("Saved successfully." /* MSG13 */);
     } catch (err) {
@@ -216,33 +219,6 @@ const ProfilePage = () => {
         year: "numeric",
       })
     : "—";
-
-  const loadProfile = async () => {
-    try {
-      let myProfile = useAuthStore.getState().user;
-      let imgBlob = myProfile?.imgBlob;
-
-      // DEF-011
-      if (!myProfile?.id) {
-        setLoading(true);
-        ({ user: myProfile, imgBlob } = await userApi.getMyProfile());
-      }
-
-      const merged = { ...EMPTY_PROFILE };
-      for (const [key, value] of Object.entries(myProfile)) {
-        if (value !== null && value !== undefined) merged[key] = value;
-      }
-      setProfile(merged);
-      setForm(merged);
-      setAvatar(imgBlob);
-    } catch (error) {
-      console.log(error);
-
-      showToast("Could not load the account information.", "error");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   /* change password */
   const handlePwChange = (e) => {

@@ -137,6 +137,48 @@
   margin-left: 2px;
 }
 
+.releaseStatus,
+.releaseError {
+  display: flex;
+  width: fit-content;
+  min-height: 48px;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: #91a7b9;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.releaseSpinner {
+  flex: 0 0 auto;
+  animation: releaseSpin 0.9s linear infinite;
+  color: #59e4f2;
+}
+
+.releaseError {
+  align-items: flex-start;
+  flex-direction: column;
+}
+
+.releaseError button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #59e4f2;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
+.releaseError button:hover {
+  text-decoration: underline;
+}
+
+@keyframes releaseSpin {
+  to { transform: rotate(360deg); }
+}
+
 .downloadIcon {
   margin-left: auto;
 }
@@ -862,6 +904,7 @@
 .ctaSection { position: relative; padding: 54px 24px 76px; }
 .ctaSection::before { position: absolute; inset: 0 12%; z-index: -1; background: radial-gradient(ellipse, rgba(8, 142, 180, 0.13), transparent 68%); content: ""; }
 .ctaBtn { min-height: 58px; padding: 0 28px; border-radius: 16px; font-weight: 800; }
+.ctaStatus { margin: 0; color: #91a7b9; font-size: 14px; }
 
 @media (max-width: 768px) {
   .hero { padding: 54px 0 52px; }
@@ -882,6 +925,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .badgeDot { animation: none; }
+  .releaseSpinner { animation: none; }
   .downloadBtn,
   .ctaBtn,
   .sysCtaBtn,
