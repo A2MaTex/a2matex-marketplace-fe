@@ -73,7 +73,12 @@ axiosInstance.interceptors.response.use(
         config.headers.Authorization = `Bearer ${auth.getToken()}`;
         return axiosInstance(config);
       } catch {
-        // Refresh failed — reject with the original error
+        // DEF-033
+        auth.removeToken();
+        auth.removeRefreshToken();
+        if (window.location.pathname !== "/login") {
+          window.location.assign("/login?reason=session-expired");
+        }
         return Promise.reject(error);
       }
     }

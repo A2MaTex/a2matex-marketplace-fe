@@ -348,8 +348,8 @@ const StepNewPassword = ({ email, otp, onBack }) => {
 
   const validate = () => {
     const errs = {};
-    if (!form.newPassword || form.newPassword.length < 6)
-      errs.newPassword = "Your new password must be at least 6 characters long.";
+    if (!form.newPassword || form.newPassword.length < 6 || form.newPassword.length > 100)
+      errs.newPassword = "New password must be 6–100 characters long."; // DEF-031
     if (form.newPassword !== form.confirmNewPassword)
       errs.confirmNewPassword = "The password confirmation does not match.";
     return errs;

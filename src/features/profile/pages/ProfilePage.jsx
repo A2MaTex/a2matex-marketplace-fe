@@ -226,9 +226,9 @@ const ProfilePage = () => {
   const validatePw = () => {
     const errs = {};
     if (!pwForm.currentPassword)
-      errs.currentPassword = "Please enter your current password.";
-    if (!pwForm.newPassword || pwForm.newPassword.length < 6)
-      errs.newPassword = "Your new password must be at least 6 characters long.";
+      errs.currentPassword = "Vui lòng nhập mật khẩu hiện tại.";
+    if (!pwForm.newPassword || pwForm.newPassword.length < 6 || pwForm.newPassword.length > 100)
+      errs.newPassword = "New password must be 6–100 characters long."; // DEF-031
     if (pwForm.newPassword !== pwForm.confirmNewPassword)
       errs.confirmNewPassword = "The password confirmation does not match.";
     return errs;

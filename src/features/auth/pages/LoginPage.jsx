@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 import styles from "../styles/AuthPage.module.css";
 import Button from "@components/common/Button";
@@ -10,15 +10,19 @@ import { FiUser, FiLock } from "react-icons/fi";
 import { FaGithub } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { authApi } from "../api/authApi";
-import { getErrorMessage } from "@lib/errorMessageHandler";
+import { ERROR_MESSAGES, getErrorMessage } from "@lib/errorMessageHandler";
 import { useSocialLogin } from "../hooks/useSocialLogin";
 import { isAccountUsesSocialLoginError } from "../api/socialLoginErrors";
 import { getSafeReturnTo } from "../api/safeReturnTo";
+import axios from "axios";
+import ROLE from "@/constants/roles";
 
 const ACCOUNT_USES_SOCIAL_LOGIN_MESSAGE =
   "This account uses social sign-in. Choose Google or GitHub below.";
 const NETWORK_ERROR =
   "We could not reach the server. Check your connection and try again.";
+
+const ADMIN_HOME = "/admin/permission-role"
 
 const UserIcon = (props) => <FiUser size={16} {...props} />;
 const LockIcon = (props) => <FiLock size={16} {...props} />;
@@ -37,6 +41,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const returnTo = getSafeReturnTo(location.search);
+  const [searchParams] = useSearchParams();
 
   const [form, setForm] = useState({
     account: "",
@@ -45,8 +50,12 @@ const LoginPage = () => {
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [serverError, setServerError] = useState("");
   const socialLogin = useSocialLogin(returnTo);
+  const [serverError, setServerError] = useState(
+    searchParams.get("reason") === "session-expired"
+      ? ERROR_MESSAGES["Error.SessionExpired"]
+      : "",
+  );
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -70,7 +79,16 @@ const LoginPage = () => {
     setLoading(true);
     try {
       await authApi.login(form.account, form.password);
-      navigate(returnTo, { replace: true });
+      let isAdmin = false;
+      try {
+        const me = await axios.get("/profiles/me");
+        isAdmin = Boolean(
+          me.data?.data?.roles?.some((role) => role.name === ROLE.ADMIN),
+        );
+      } catch {
+        // DEF-008
+      }
+      navigate(isAdmin ? ADMIN_HOME : "/");
     } catch (err) {
       console.error(err);
       if (isAccountUsesSocialLoginError(err)) {
