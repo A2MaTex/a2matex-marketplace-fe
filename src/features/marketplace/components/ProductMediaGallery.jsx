@@ -10,7 +10,7 @@ export default function ProductMediaGallery({ media, productName }) {
   const visuals = selectMarketplaceMedia(media).detailVisuals;
   const [selectedId, setSelectedId] = useState(visuals[0]?.id ?? null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [failedIds, setFailedIds] = useState(() => new Set());
+  const [failedVariants, setFailedVariants] = useState(() => new Set());
   const selected = visuals.find((item) => item.id === selectedId) ?? visuals[0] ?? null;
 
   useEffect(() => {
@@ -22,8 +22,11 @@ export default function ProductMediaGallery({ media, productName }) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [lightboxOpen]);
 
-  const markFailed = (staticId) => {
-    setFailedIds((current) => new Set(current).add(staticId));
+  const hasFailed = (staticId, variant) =>
+    failedVariants.has(`${staticId}:${variant}`);
+
+  const markFailed = (staticId, variant) => {
+    setFailedVariants((current) => new Set(current).add(`${staticId}:${variant}`));
   };
 
   if (!selected) {
@@ -35,7 +38,8 @@ export default function ProductMediaGallery({ media, productName }) {
     );
   }
 
-  const selectedFailed = failedIds.has(selected.staticId);
+  const selectedFailed = hasFailed(selected.staticId, "medium");
+  const selectedLargeFailed = hasFailed(selected.staticId, "large");
   const selectedAlt = selected.altText ?? `${productName} preview`;
 
   return (
@@ -55,7 +59,7 @@ export default function ProductMediaGallery({ media, productName }) {
           <img
             src={buildMarketplaceImageUrl(selected.staticId, "medium")}
             alt={selectedAlt}
-            onError={() => markFailed(selected.staticId)}
+            onError={() => markFailed(selected.staticId, "medium")}
           />
         )}
         {!selectedFailed ? (
@@ -68,7 +72,7 @@ export default function ProductMediaGallery({ media, productName }) {
       {visuals.length > 1 ? (
         <div className={styles.thumbnails} aria-label="Product previews">
           {visuals.map((item, index) => {
-            const failed = failedIds.has(item.staticId);
+            const failed = hasFailed(item.staticId, "small");
             return (
               <button
                 key={item.id}
@@ -85,7 +89,7 @@ export default function ProductMediaGallery({ media, productName }) {
                     src={buildMarketplaceImageUrl(item.staticId, "small")}
                     alt=""
                     loading="lazy"
-                    onError={() => markFailed(item.staticId)}
+                    onError={() => markFailed(item.staticId, "small")}
                   />
                 )}
               </button>
@@ -94,13 +98,13 @@ export default function ProductMediaGallery({ media, productName }) {
         </div>
       ) : null}
 
-      {lightboxOpen && !selectedFailed ? (
+      {lightboxOpen ? (
         <div
           className={styles.lightbox}
           role="dialog"
           aria-modal="true"
           aria-label={`${productName} large preview`}
-          onMouseDown={(event) => {
+          onClick={(event) => {
             if (event.target === event.currentTarget) setLightboxOpen(false);
           }}
         >
@@ -112,14 +116,20 @@ export default function ProductMediaGallery({ media, productName }) {
           >
             <FiX aria-hidden="true" />
           </button>
-          <img
-            src={buildMarketplaceImageUrl(selected.staticId, "large")}
-            alt={selectedAlt}
-            onError={() => {
-              markFailed(selected.staticId);
-              setLightboxOpen(false);
-            }}
-          />
+          {selectedLargeFailed ? (
+            <span className={styles.lightboxFallback} role="status">
+              <FiBox aria-hidden="true" /> Full-size image unavailable
+            </span>
+          ) : (
+            <img
+              className={styles.lightboxImage}
+              src={buildMarketplaceImageUrl(selected.staticId, "large")}
+              alt={selectedAlt}
+              loading="eager"
+              decoding="async"
+              onError={() => markFailed(selected.staticId, "large")}
+            />
+          )}
         </div>
       ) : null}
     </div>

@@ -122,7 +122,11 @@ export default function MyProductsPage() {
                     <p className={styles.cardMessage}>{STATUS_COPY[entitlement.status]}</p>
                     <div className={styles.productActions}>
                       <span className={styles.publisher}>
-                        {entitlement.grantSource === "ORDER" ? "Purchased access" : "Granted by administrator"}
+                        {entitlement.grantSource === "ORDER"
+                          ? "Purchased access"
+                          : entitlement.grantSource === "ADMIN_GRANT"
+                            ? "Granted by administrator"
+                            : "Product access"}
                       </span>
                       {entitlement.status === "REVOKED" ? (
                         <span className={styles.supportLabel}><FiLifeBuoy aria-hidden="true" /> Contact support</span>

@@ -80,9 +80,13 @@ export const parseMarketplaceOffer = (value, label = "offer") => {
   }
 
   const durationDays = offer.durationDays;
-  if (type === "ONE_TIME" && durationDays !== null) {
+  if (
+    type === "ONE_TIME" &&
+    durationDays !== null &&
+    (!Number.isInteger(durationDays) || durationDays <= 0)
+  ) {
     throw new MarketplaceContractError(
-      `${label}.durationDays must be null for ONE_TIME offers.`,
+      `${label}.durationDays must be null or a positive integer for ONE_TIME offers.`,
     );
   }
   if (

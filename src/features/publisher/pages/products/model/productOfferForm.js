@@ -50,9 +50,14 @@ const normalizeOffer = (offer, index) => {
         `${path}.durationDays`,
       );
     }
-  } else if (offer.durationDays !== null) {
+  } else if (
+    offer.durationDays !== null &&
+    (!Number.isInteger(offer.durationDays) ||
+      offer.durationDays <= 0 ||
+      offer.durationDays > MAX_DURATION_DAYS)
+  ) {
     throw new ProductOfferValidationError(
-      "One-time offers must not have a duration.",
+      `One-time duration must be empty for lifetime access or between 1 and ${MAX_DURATION_DAYS} days.`,
       `${path}.durationDays`,
     );
   }

@@ -11,6 +11,7 @@ import {
   FiUser,
 } from "react-icons/fi";
 import PurchaseConfirmationDialog from "@/features/commerce/components/PurchaseConfirmationDialog";
+import { useProductAccess } from "@/features/commerce/hooks/useProductAccess";
 import { usePurchase } from "@/features/commerce/hooks/usePurchase";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import TopUpModal from "@/features/profile/components/top-up/TopUpModal";
@@ -86,10 +87,21 @@ export default function ProductDetailPage() {
   const [selectedOfferId, setSelectedOfferId] = useState(null);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const user = useAuthStore((state) => state.user);
+  const {
+    activeEntitlements,
+    currentOrder,
+    loading: accessLoading,
+    error: accessError,
+    refetch: refetchProductAccess,
+  } = useProductAccess({
+    productId: validProductId ? productId : null,
+    enabled: isAuthenticated,
+  });
   const purchase = usePurchase({
     productId,
     offers: product?.offers ?? [],
     refetchProduct: refetch,
+    activeEntitlements,
   });
 
   useEffect(() => {
@@ -137,8 +149,11 @@ export default function ProductDetailPage() {
   }
 
   const defaultOffer = findDefaultOffer(product);
+  const currentOfferId = currentOrder?.productOfferId ?? null;
   const selectedOffer =
-    product.offers.find((offer) => offer.id === selectedOfferId) ?? defaultOffer;
+    product.offers.find((offer) => offer.id === selectedOfferId) ??
+    product.offers.find((offer) => offer.id === currentOfferId) ??
+    defaultOffer;
   const publishedAt = formatPublishedDate(product.currentRelease.publishedAt);
 
   return (
@@ -212,7 +227,7 @@ export default function ProductDetailPage() {
                   offers={product.offers}
                   selectedOfferId={selectedOffer.id}
                   onSelect={setSelectedOfferId}
-                  disabledOfferIds={purchase.blockedOfferIds}
+                  currentOfferId={currentOfferId}
                 />
               </section>
             ) : (
@@ -231,6 +246,11 @@ export default function ProductDetailPage() {
                 purchase={purchase}
                 isAuthenticated={isAuthenticated}
                 balance={user?.balance ?? "0"}
+                activeEntitlements={activeEntitlements}
+                currentOfferId={currentOfferId}
+                accessLoading={accessLoading}
+                accessError={accessError}
+                onRetryAccess={refetchProductAccess}
               />
             </div>
           ) : null}

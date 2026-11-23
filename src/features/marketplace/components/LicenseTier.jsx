@@ -1,4 +1,4 @@
-import { FiCheck, FiClock } from "react-icons/fi";
+import { FiClock } from "react-icons/fi";
 import { MdAllInclusive } from "react-icons/md";
 import { formatOfferDuration, formatVnd } from "../utils/formatVnd";
 import styles from "./LicenseTier.module.css";
@@ -7,39 +7,48 @@ export default function LicenseTier({
   offers,
   selectedOfferId,
   onSelect,
-  disabledOfferIds = new Set(),
+  currentOfferId = null,
 }) {
   return (
     <div className={styles.wrap}>
       <div className={styles.sectionLabel}>
-        <span className={styles.labelAccent}>Available access</span>
-        <h2 className={styles.heading}>Choose an offer</h2>
-        <p>Compare the publisher&apos;s currently available access options.</p>
+        <span className={styles.labelAccent}>Access plans</span>
+        <h2 className={styles.heading}>Choose your package</h2>
+        <p>Pick the access period that works best for you.</p>
       </div>
 
       <div className={styles.grid}>
         {offers.map((offer) => {
           const selected = offer.id === selectedOfferId;
+          const current = offer.id === currentOfferId;
           const isLifetime = offer.type === "ONE_TIME";
-          const disabled = disabledOfferIds.has(offer.id);
           return (
             <button
               key={offer.id}
               type="button"
-              className={selected ? styles.selected : styles.card}
+              className={`${styles.card} ${selected ? styles.selected : ""} ${current ? styles.currentPackage : ""}`}
               onClick={() => onSelect(offer.id)}
               aria-pressed={selected}
-              disabled={disabled}
+              aria-current={current ? "true" : undefined}
             >
-              <span className={styles.offerType}>
-                {isLifetime ? <MdAllInclusive aria-hidden="true" /> : <FiClock aria-hidden="true" />}
-                {isLifetime ? "One-time access" : "Subscription"}
+              <span className={styles.cardHead}>
+                <span className={styles.planIcon}>
+                  {isLifetime ? <MdAllInclusive aria-hidden="true" /> : <FiClock aria-hidden="true" />}
+                </span>
+                <span className={styles.planName}>
+                  <span className={styles.offerType}>{isLifetime ? "One-time access" : "Subscription"}</span>
+                </span>
               </span>
-              <strong>{formatVnd(offer.priceAmount)}</strong>
-              <span className={styles.duration}>{formatOfferDuration(offer)}</span>
+              <span className={styles.price}>{formatVnd(offer.priceAmount)}</span>
+              <span className={styles.duration}>
+                {formatOfferDuration(offer)} access
+              </span>
               <span className={styles.selection}>
-                {selected ? <FiCheck aria-hidden="true" /> : null}
-                {disabled ? "Already used" : selected ? "Selected" : "Select offer"}
+                {current
+                  ? "Your current package"
+                  : selected
+                      ? "Package selected"
+                      : "Choose package"}
               </span>
             </button>
           );

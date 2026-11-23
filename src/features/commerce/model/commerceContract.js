@@ -99,9 +99,13 @@ const parseOfferSnapshot = (value, label) => {
   );
   const durationDays = snapshot.durationDays;
 
-  if (offerType === "ONE_TIME" && durationDays !== null) {
+  if (
+    offerType === "ONE_TIME" &&
+    durationDays !== null &&
+    (!Number.isInteger(durationDays) || durationDays <= 0)
+  ) {
     throw new CommerceContractError(
-      `${label}.durationDays must be null for ONE_TIME.`,
+      `${label}.durationDays must be null or a positive integer for ONE_TIME.`,
     );
   }
   if (
@@ -147,27 +151,45 @@ const parsePublisherSummary = (value, label) => {
 
 const parseOrder = (value, label) => {
   const order = object(value, label);
+  const item =
+    order.item === null || order.item === undefined
+      ? order
+      : object(order.item, `${label}.item`);
   return {
     id: uuid(order.id, `${label}.id`),
     customerId: optionalUuid(order.customerId, `${label}.customerId`),
-    productId: optionalUuid(order.productId, `${label}.productId`),
+    productId: optionalUuid(
+      item.productId ?? order.productId,
+      `${label}.item.productId`,
+    ),
     productOfferId: optionalUuid(
-      order.productOfferId,
-      `${label}.productOfferId`,
+      item.productOfferId ?? order.productOfferId,
+      `${label}.item.productOfferId`,
     ),
     status: enumValue(order.status, ORDER_STATUSES, `${label}.status`),
-    quantity: optionalInteger(order.quantity, `${label}.quantity`, 1),
+    quantity: optionalInteger(
+      item.quantity ?? order.quantity,
+      `${label}.item.quantity`,
+      1,
+    ),
     unitPriceAmount: decimalString(
-      order.unitPriceAmount,
-      `${label}.unitPriceAmount`,
+      item.unitPriceAmount ?? order.unitPriceAmount,
+      `${label}.item.unitPriceAmount`,
     ),
-    totalAmount: decimalString(order.totalAmount, `${label}.totalAmount`),
+    totalAmount: decimalString(
+      order.totalAmount ?? item.totalAmount,
+      `${label}.totalAmount`,
+    ),
     offerSnapshot: parseOfferSnapshot(
-      order.offerSnapshot,
-      `${label}.offerSnapshot`,
+      item.offerSnapshot ?? order.offerSnapshot,
+      `${label}.item.offerSnapshot`,
     ),
-    product: parseProductSummary(order.product, `${label}.product`),
-    createdAt: isoDate(order.createdAt, `${label}.createdAt`),
+    product: parseProductSummary(
+      item.product ?? order.product,
+      `${label}.item.product`,
+    ),
+    createdAt: isoDate(order.createdAt ?? order.paidAt, `${label}.createdAt`),
+    paidAt: optionalIsoDate(order.paidAt, `${label}.paidAt`),
   };
 };
 
@@ -181,7 +203,6 @@ export const parseEntitlement = (value, label = "entitlement") => {
     id: uuid(entitlement.id, `${label}.id`),
     customerId: optionalUuid(entitlement.customerId, `${label}.customerId`),
     productId: optionalUuid(entitlement.productId, `${label}.productId`),
-    orderId: optionalUuid(entitlement.orderId, `${label}.orderId`),
     status: enumValue(
       entitlement.status,
       ENTITLEMENT_STATUSES,
@@ -204,8 +225,33 @@ export const parseEntitlement = (value, label = "entitlement") => {
   };
 };
 
+const parsePurchaseEntitlement = (value) => {
+  const entitlement = object(value, "createOrder.data.entitlement");
+  return {
+    id: uuid(entitlement.id, "createOrder.data.entitlement.id"),
+    status: enumValue(
+      entitlement.status,
+      ENTITLEMENT_STATUSES,
+      "createOrder.data.entitlement.status",
+    ),
+    startsAt: isoDate(
+      entitlement.startsAt,
+      "createOrder.data.entitlement.startsAt",
+    ),
+    expiresAt: nullableIsoDate(
+      entitlement.expiresAt,
+      "createOrder.data.entitlement.expiresAt",
+    ),
+  };
+};
+
 export const parseCreatedOrderEnvelope = (payload) => {
   const order = envelopeData(payload, "createOrder");
+  const item =
+    order.item === null || order.item === undefined
+      ? order
+      : object(order.item, "createOrder.data.item");
+  const entitlement = order.entitlement ?? item.entitlement ?? null;
 
   return {
     id: uuid(order.id, "createOrder.data.id"),
@@ -213,10 +259,13 @@ export const parseCreatedOrderEnvelope = (payload) => {
       order.customerId,
       "createOrder.data.customerId",
     ),
-    productId: optionalUuid(order.productId, "createOrder.data.productId"),
-    productOfferId: optionalUuid(
-      order.productOfferId,
-      "createOrder.data.productOfferId",
+    productId: uuid(
+      item.productId ?? order.productId,
+      "createOrder.data.item.productId",
+    ),
+    productOfferId: uuid(
+      item.productOfferId ?? order.productOfferId,
+      "createOrder.data.item.productOfferId",
     ),
     status: enumValue(
       order.status,
@@ -224,22 +273,23 @@ export const parseCreatedOrderEnvelope = (payload) => {
       "createOrder.data.status",
     ),
     unitPriceAmount: decimalString(
-      order.unitPriceAmount,
-      "createOrder.data.unitPriceAmount",
+      item.unitPriceAmount ?? order.unitPriceAmount,
+      "createOrder.data.item.unitPriceAmount",
     ),
     totalAmount: decimalString(
-      order.totalAmount,
+      order.totalAmount ?? item.totalAmount,
       "createOrder.data.totalAmount",
     ),
     offerSnapshot: parseOfferSnapshot(
-      order.offerSnapshot,
-      "createOrder.data.offerSnapshot",
+      item.offerSnapshot ?? order.offerSnapshot,
+      "createOrder.data.item.offerSnapshot",
     ),
-    createdAt: isoDate(order.createdAt, "createOrder.data.createdAt"),
-    entitlement: parseEntitlement(
-      order.entitlement,
-      "createOrder.data.entitlement",
+    createdAt: isoDate(
+      order.createdAt ?? order.paidAt,
+      "createOrder.data.createdAt",
     ),
+    paidAt: optionalIsoDate(order.paidAt, "createOrder.data.paidAt"),
+    entitlement: entitlement ? parsePurchaseEntitlement(entitlement) : null,
   };
 };
 

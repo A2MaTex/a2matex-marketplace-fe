@@ -43,7 +43,7 @@
 .amount { min-width: 140px; text-align: right; }
 .amount strong { color: #fff; font-size: 18px; }
 
-.statusBadge { display: inline-flex; width: fit-content; align-items: center; gap: 5px; padding: 5px 8px; border: 1px solid currentColor; border-radius: 999px; font-size: 9px; font-weight: 850; letter-spacing: 0.08em; }
+.statusBadge { display: inline-flex; width: fit-content; align-items: center; gap: 5px; padding: 5px 8px; font-size: 9px; font-weight: 850; letter-spacing: 0.08em; }
 .statusPaid, .statusACTIVE { color: #66e7da; background: rgba(102, 231, 218, 0.065); }
 .statusEXPIRED { color: #e1ae5a; background: rgba(225, 174, 90, 0.065); }
 .statusREVOKED { color: #ef8585; background: rgba(239, 133, 133, 0.065); }

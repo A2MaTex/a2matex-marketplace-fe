@@ -170,7 +170,7 @@ export default function PurchaseConfirmationDialog({
           <div>
             <span>Protected checkout</span>
             <h2 id="purchase-dialog-title">
-              {purchase.phase === "success" ? "Access confirmed" : product.name}
+              {purchase.phase === "success" ? "Purchase confirmed" : product.name}
             </h2>
           </div>
           <button

@@ -19,10 +19,15 @@ const formatReleaseDate = (value) => {
 };
 
 const ProductCard = ({ product }) => {
-  const [imageFailed, setImageFailed] = useState(false);
-  const visual = selectMarketplaceMedia(product.media).cardVisual;
-  const imageUrl = visual
+  const [failedVisualIds, setFailedVisualIds] = useState(() => new Set());
+  const [iconFailed, setIconFailed] = useState(false);
+  const { cardVisuals, icon } = selectMarketplaceMedia(product.media);
+  const visual = cardVisuals.find((item) => !failedVisualIds.has(item.id)) ?? null;
+  const visualUrl = visual
     ? buildMarketplaceImageUrl(visual.staticId, "medium")
+    : null;
+  const iconUrl = icon
+    ? buildMarketplaceImageUrl(icon.staticId, "small")
     : null;
   const publishedAt = formatReleaseDate(product.currentRelease.publishedAt);
 
@@ -35,13 +40,15 @@ const ProductCard = ({ product }) => {
       />
 
       <div className={styles.visual}>
-        {imageUrl && !imageFailed ? (
+        {visualUrl ? (
           <img
-            src={imageUrl}
+            src={visualUrl}
             alt={visual.altText ?? product.name}
             loading="lazy"
             decoding="async"
-            onError={() => setImageFailed(true)}
+            onError={() => {
+              setFailedVisualIds((current) => new Set(current).add(visual.id));
+            }}
           />
         ) : (
           <div className={styles.visualFallback} aria-hidden="true">
@@ -65,8 +72,25 @@ const ProductCard = ({ product }) => {
             </span>
           ) : null}
         </div>
-        <h2 className={styles.title}>{product.name}</h2>
-        <p className={styles.desc}>{product.shortDescription}</p>
+        <div className={styles.productSummary}>
+          <div className={styles.productIcon} aria-hidden="true">
+            {iconUrl && !iconFailed ? (
+              <img
+                src={iconUrl}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                onError={() => setIconFailed(true)}
+              />
+            ) : (
+              <FiBox />
+            )}
+          </div>
+          <div className={styles.productCopy}>
+            <h2 className={styles.title}>{product.name}</h2>
+            <p className={styles.desc}>{product.shortDescription}</p>
+          </div>
+        </div>
       </div>
 
       <footer className={styles.footer}>

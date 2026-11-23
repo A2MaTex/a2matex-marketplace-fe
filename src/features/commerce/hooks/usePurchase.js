@@ -1,7 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { userApi } from "@/common/api/user/userApi";
 import { orderApi } from "../api/orderApi";
-import { parseCreatedOrderEnvelope } from "../model/commerceContract";
+import {
+  CommerceContractError,
+  parseCreatedOrderEnvelope,
+} from "../model/commerceContract";
+import {
+  hasActiveProductAccess,
+  isConfirmedOrderForIntent,
+} from "../model/entitlementAccess";
 import { toCommerceError } from "../model/commerceError";
 import { invalidateCommerceResources } from "../model/commerceInvalidation";
 import {
@@ -40,7 +47,12 @@ const STALE_PRODUCT_CODES = new Set([
   "Error.ProductNotPurchasable",
 ]);
 
-export function usePurchase({ productId, offers, refetchProduct }) {
+export function usePurchase({
+  productId,
+  offers,
+  refetchProduct,
+  activeEntitlements = [],
+}) {
   const [state, setState] = useState(() => initialState(productId));
   const [blockedOfferIds, setBlockedOfferIds] = useState(() => new Set());
   const [productPurchaseBlocked, setProductPurchaseBlocked] = useState(false);
@@ -78,6 +90,9 @@ export function usePurchase({ productId, offers, refetchProduct }) {
 
   const openConfirmation = useCallback(
     (offer) => {
+      if (hasActiveProductAccess(activeEntitlements, productId)) {
+        return;
+      }
       const persistedIntent = state.intent ?? readOrderIntent(productId);
       if (
         persistedIntent &&
@@ -106,7 +121,7 @@ export function usePurchase({ productId, offers, refetchProduct }) {
         result: null,
       }));
     },
-    [productId, state.intent],
+    [activeEntitlements, productId, state.intent],
   );
 
   const reviewPendingPurchase = useCallback(() => {
@@ -153,6 +168,7 @@ export function usePurchase({ productId, offers, refetchProduct }) {
       if (error.uncertain) {
         intent = setOrderIntentState(requestIntent, "UNCERTAIN");
         phase = "uncertain";
+        invalidateCommerceResources(["orders", "entitlements"]);
       } else if (error.code === "Error.InsufficientBalance") {
         intent = setOrderIntentState(requestIntent, "AWAITING_TOPUP");
         phase = "awaiting_topup";
@@ -221,6 +237,11 @@ export function usePurchase({ productId, offers, refetchProduct }) {
         )
         .then((response) => parseCreatedOrderEnvelope(response.data))
         .then((result) => {
+          if (!isConfirmedOrderForIntent(result, intent)) {
+            throw new CommerceContractError(
+              "createOrder.data does not confirm the requested product and offer.",
+            );
+          }
           if (mountedRef.current) completeSuccessfulPurchase(result);
           return result;
         })
@@ -321,7 +342,7 @@ export function usePurchase({ productId, offers, refetchProduct }) {
     candidateOffer,
     blockedOfferIds,
     productPurchaseBlocked,
-    hasPendingPurchase: Boolean(state.intent),
+    hasUnresolvedOrderIntent: Boolean(state.intent),
     openConfirmation,
     reviewPendingPurchase,
     confirmPurchase,

@@ -20,12 +20,14 @@ export const selectMarketplaceMedia = (media = []) => {
   const icon = sorted.find((item) => item.type === "ICON") ?? null;
   const cover = sorted.find((item) => item.type === "COVER") ?? null;
   const gallery = sorted.filter((item) => item.type === "GALLERY");
+  const cardVisuals = [...(cover ? [cover] : []), ...gallery, ...(icon ? [icon] : [])];
 
   return {
     icon,
     cover,
     gallery,
-    cardVisual: cover ?? icon,
+    cardVisual: cardVisuals[0] ?? null,
+    cardVisuals,
     detailVisuals: cover ? [cover, ...gallery] : gallery.length ? gallery : icon ? [icon] : [],
   };
 };

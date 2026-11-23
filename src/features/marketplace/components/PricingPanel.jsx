@@ -1,5 +1,6 @@
 import { FiAlertCircle, FiCheckCircle, FiLock, FiRefreshCw } from "react-icons/fi";
 import Button from "@/common/components/common/Button";
+import { hasActiveProductAccess } from "@/features/commerce/model/entitlementAccess";
 import { formatBalance, isZeroAmount } from "@/features/commerce/model/money";
 import { formatOfferDuration, formatVnd } from "../utils/formatVnd";
 import styles from "./PricingPanel.module.css";
@@ -10,11 +11,26 @@ export default function PricingPanel({
   purchase,
   isAuthenticated,
   balance,
+  activeEntitlements = [],
+  currentOfferId = null,
+  accessLoading,
+  accessError,
+  onRetryAccess,
 }) {
   const offerBlocked = purchase.blockedOfferIds.has(offer.id);
   const blocked = offerBlocked || purchase.productPurchaseBlocked;
+  const hasCurrentAccess = hasActiveProductAccess(
+    activeEntitlements,
+    productId,
+  );
+  const isCurrentOffer =
+    hasCurrentAccess && currentOfferId === offer.id;
+  const isLockedOffer = hasCurrentAccess && !isCurrentOffer;
+  const checkingAccess =
+    isAuthenticated && accessLoading && !hasCurrentAccess;
+  const accessCheckFailed =
+    isAuthenticated && Boolean(accessError) && !hasCurrentAccess;
   const returnTo = `/products/${productId}`;
-
   return (
     <aside className={styles.panel} aria-label="Selected offer summary">
       <span className={styles.eyebrow}>Offer summary</span>
@@ -26,26 +42,24 @@ export default function PricingPanel({
         <div><dt>Offer type</dt><dd>{offer.type === "ONE_TIME" ? "One-time" : "Recurring period"}</dd></div>
       </dl>
 
-      <div className={styles.selectedNote}>
-        <FiCheckCircle aria-hidden="true" />
-        <span>This is the offer currently selected above.</span>
-      </div>
-
-      {isAuthenticated ? (
+      {isAuthenticated && !hasCurrentAccess ? (
         <div className={styles.balance}>
           <span>Available balance</span>
           <strong>{formatBalance(balance)} VND</strong>
         </div>
       ) : null}
 
-      {purchase.hasPendingPurchase ? (
+      {!hasCurrentAccess && !checkingAccess && !accessCheckFailed && purchase.hasUnresolvedOrderIntent ? (
         <div className={styles.pendingNote}>
           <FiRefreshCw aria-hidden="true" />
-          <p>A protected purchase is waiting for your review. Its original request key is preserved.</p>
+          <p>
+            A previous checkout did not receive a conclusive response. Its
+            original request key is preserved for safe review.
+          </p>
         </div>
       ) : null}
 
-      {blocked ? (
+      {!hasCurrentAccess && !checkingAccess && !accessCheckFailed && blocked ? (
         <div className={styles.blockedNote} role="status">
           <FiAlertCircle aria-hidden="true" />
           <p>
@@ -59,16 +73,50 @@ export default function PricingPanel({
       {!isAuthenticated ? (
         <Button
           href={`/login?returnTo=${encodeURIComponent(returnTo)}`}
-          fullWidth
           size="lg"
           leftIcon={<FiLock />}
           className={styles.purchaseButton}
         >
           Sign in to purchase
         </Button>
-      ) : purchase.hasPendingPurchase ? (
+      ) : checkingAccess ? (
         <Button
-          fullWidth
+          size="lg"
+          loading
+          disabled
+          className={styles.purchaseButton}
+        >
+          Checking access
+        </Button>
+      ) : accessCheckFailed ? (
+        <Button
+          size="lg"
+          leftIcon={<FiRefreshCw />}
+          onClick={onRetryAccess}
+          className={styles.purchaseButton}
+        >
+          Retry access check
+        </Button>
+      ) : isCurrentOffer ? (
+        <Button
+          href="/my-products"
+          size="lg"
+          leftIcon={<FiCheckCircle />}
+          className={styles.purchaseButton}
+        >
+          View in My Products
+        </Button>
+      ) : isLockedOffer ? (
+        <Button
+          size="lg"
+          disabled
+          leftIcon={<FiLock />}
+          className={`${styles.purchaseButton} ${styles.lockedButton}`}
+        >
+          Locked
+        </Button>
+      ) : purchase.hasUnresolvedOrderIntent ? (
+        <Button
           size="lg"
           leftIcon={<FiRefreshCw />}
           onClick={purchase.reviewPendingPurchase}
@@ -78,7 +126,6 @@ export default function PricingPanel({
         </Button>
       ) : (
         <Button
-          fullWidth
           size="lg"
           disabled={blocked}
           leftIcon={<FiLock />}
@@ -90,7 +137,11 @@ export default function PricingPanel({
       )}
 
       <p className={styles.purchaseFootnote}>
-        Secure, immediate purchase. The server verifies the current price and access eligibility.
+        {isCurrentOffer
+          ? "This package matches your latest paid order."
+          : isLockedOffer
+            ? "Current access must end before another package can be purchased."
+            : "The server verifies the current price and access eligibility."}
       </p>
     </aside>
   );

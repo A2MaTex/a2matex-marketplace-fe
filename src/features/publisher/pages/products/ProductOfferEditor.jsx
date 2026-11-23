@@ -65,7 +65,6 @@ export default function ProductOfferEditor({
   const [error, setError] = useState(null);
   const [notice, setNotice] = useState(null);
   const dirty = signatureOf(offers) !== savedSignature;
-  const hasOneTime = offers.some((offer) => offer.type === "ONE_TIME");
 
   useEffect(() => onDirtyChange?.(dirty), [dirty, onDirtyChange]);
 
@@ -144,8 +143,8 @@ export default function ProductOfferEditor({
           <button
             type="button"
             onClick={() => addOffer("ONE_TIME")}
-            disabled={disabled || saving || hasOneTime || offers.length >= PRODUCT_OFFER_FORM_LIMITS.maxOffers}
-            title={hasOneTime ? "Only one lifetime offer is allowed." : "Add lifetime access"}
+            disabled={disabled || saving || offers.length >= PRODUCT_OFFER_FORM_LIMITS.maxOffers}
+            title="Add one-time access"
           >
             <FiPlus /> One-time
           </button>
@@ -155,7 +154,8 @@ export default function ProductOfferEditor({
       {offers.length ? (
         <div className={styles.offerGrid}>
           {offers.map((offer, index) => {
-            const lifetime = offer.type === "ONE_TIME";
+            const oneTime = offer.type === "ONE_TIME";
+            const lifetime = oneTime && offer.durationDays === null;
             return (
               <article className={styles.offerCard} key={offer.id ?? `new-${index}`}>
                 <header>
@@ -163,15 +163,27 @@ export default function ProductOfferEditor({
                     {lifetime ? <MdAllInclusive /> : <FiClock />}
                   </span>
                   <div>
-                    <strong>{lifetime ? "Lifetime access" : "Subscription"}</strong>
-                    <small>{lifetime ? "No duration" : "Recurring access period"}</small>
+                    <strong>
+                      {lifetime
+                        ? "Lifetime access"
+                        : oneTime
+                          ? "One-time access"
+                          : "Subscription"}
+                    </strong>
+                    <small>
+                      {lifetime
+                        ? "No duration"
+                        : oneTime
+                          ? "Fixed access period, paid once"
+                          : "Recurring access period"}
+                    </small>
                   </div>
                   <button
                     type="button"
                     className={styles.removeButton}
                     onClick={() => removeOffer(index)}
                     disabled={disabled || saving}
-                    aria-label={`Remove ${lifetime ? "lifetime" : "subscription"} offer ${index + 1}`}
+                    aria-label={`Remove ${oneTime ? "one-time" : "subscription"} offer ${index + 1}`}
                   >
                     <FiTrash2 />
                   </button>
@@ -187,7 +199,13 @@ export default function ProductOfferEditor({
                         const type = event.target.value;
                         updateOffer(index, {
                           type,
-                          durationDays: type === "ONE_TIME" ? null : 30,
+                          durationDays:
+                            Number.isInteger(offer.durationDays) &&
+                            offer.durationDays > 0
+                              ? offer.durationDays
+                              : type === "ONE_TIME"
+                                ? null
+                                : 30,
                         });
                       }}
                     >
@@ -217,12 +235,14 @@ export default function ProductOfferEditor({
                       min="1"
                       max={PRODUCT_OFFER_FORM_LIMITS.maxDurationDays}
                       value={offer.durationDays ?? ""}
-                      disabled={disabled || saving || lifetime}
-                      placeholder={lifetime ? "Lifetime" : "30"}
+                      disabled={disabled || saving}
+                      placeholder={oneTime ? "Blank for lifetime" : "30"}
                       onChange={(event) =>
                         updateOffer(index, {
                           durationDays: event.target.value === ""
-                            ? ""
+                            ? oneTime
+                              ? null
+                              : ""
                             : Number(event.target.value),
                         })
                       }

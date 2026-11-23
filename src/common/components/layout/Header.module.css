@@ -215,7 +215,7 @@
 .searchWrap {
   position: relative;
   display: flex;
-  width: clamp(190px, 19vw, 300px);
+  width: clamp(190px, 19vw, 240px);
   height: 42px;
   box-sizing: border-box;
   align-items: center;

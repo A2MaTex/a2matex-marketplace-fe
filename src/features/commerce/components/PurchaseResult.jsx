@@ -16,10 +16,10 @@ export default function PurchaseResult({ result, profileRefreshFailed }) {
       </span>
       <div>
         <span className={styles.resultEyebrow}>Purchase complete</span>
-        <h3>Your access is ready</h3>
+        <h3>Purchase confirmed</h3>
         <p>
-          The server confirmed the order and created your entitlement. No
-          additional checkout step is required.
+          The server confirmed your paid order. You can check the product in
+          My Products.
         </p>
       </div>
 
@@ -32,22 +32,31 @@ export default function PurchaseResult({ result, profileRefreshFailed }) {
           <dt>Amount paid</dt>
           <dd>{formatVndAmount(result.totalAmount)}</dd>
         </div>
-        <div>
-          <dt>Access status</dt>
-          <dd><span className={styles.activeBadge}>{result.entitlement.status}</span></dd>
-        </div>
-        <div>
-          <dt><FiClock aria-hidden="true" /> Starts</dt>
-          <dd>{formatDateTime(result.entitlement.startsAt)}</dd>
-        </div>
-        <div>
-          <dt>Expires</dt>
-          <dd>
-            {result.entitlement.expiresAt
-              ? formatDateTime(result.entitlement.expiresAt)
-              : "Lifetime"}
-          </dd>
-        </div>
+        {result.entitlement ? (
+          <>
+            <div>
+              <dt>Access status</dt>
+              <dd><span className={styles.activeBadge}>{result.entitlement.status}</span></dd>
+            </div>
+            <div>
+              <dt><FiClock aria-hidden="true" /> Starts</dt>
+              <dd>{formatDateTime(result.entitlement.startsAt)}</dd>
+            </div>
+            <div>
+              <dt>Expires</dt>
+              <dd>
+                {result.entitlement.expiresAt
+                  ? formatDateTime(result.entitlement.expiresAt)
+                  : "Lifetime"}
+              </dd>
+            </div>
+          </>
+        ) : (
+          <div>
+            <dt>Payment status</dt>
+            <dd><span className={styles.activeBadge}>PAID</span></dd>
+          </div>
+        )}
       </dl>
 
       {profileRefreshFailed ? (

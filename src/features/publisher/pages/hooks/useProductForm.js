@@ -14,8 +14,8 @@ export function generateSlug(text) {
   return (text ?? "")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
-    .replace(/đ/g, "d")
-    .replace(/Đ/g, "D")
+    .replace(/đ/g, "VND")
+    .replace(/Đ/g, "VND")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");

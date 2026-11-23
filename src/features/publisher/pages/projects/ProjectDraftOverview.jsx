@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { Component, lazy, Suspense } from "react";
 import {
   FiArchive,
   FiClock,
@@ -9,7 +9,54 @@ import {
 import { getGraphSummary } from "./model/projectContract";
 import styles from "./ProjectDraftOverview.module.css";
 
-const ProjectCanvasPreview = lazy(() => import("./ProjectCanvasPreview"));
+const PROJECT_PREVIEW_RETRY_KEY = "project-canvas-preview-import-retried";
+
+const ProjectCanvasPreview = lazy(() =>
+  import("./ProjectCanvasPreview")
+    .then((module) => {
+      try {
+        window.sessionStorage.removeItem(PROJECT_PREVIEW_RETRY_KEY);
+      } catch {
+        // Storage may be disabled; the preview still works without it.
+      }
+      return module;
+    })
+    .catch((error) => {
+      try {
+        if (!window.sessionStorage.getItem(PROJECT_PREVIEW_RETRY_KEY)) {
+          window.sessionStorage.setItem(PROJECT_PREVIEW_RETRY_KEY, "1");
+          window.location.reload();
+          return new Promise(() => {});
+        }
+        window.sessionStorage.removeItem(PROJECT_PREVIEW_RETRY_KEY);
+      } catch {
+        // Fall through to the local error boundary if storage is unavailable.
+      }
+      throw error;
+    }),
+);
+
+class PreviewLoadBoundary extends Component {
+  state = { failed: false };
+
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+
+  render() {
+    if (this.state.failed) {
+      return (
+        <div className={styles.previewError} role="alert">
+          <p>Workflow preview could not be loaded.</p>
+          <button type="button" onClick={() => window.location.reload()}>
+            Reload page
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 const formatSavedAt = (value) => {
   if (!value) return "Unknown";
@@ -200,9 +247,11 @@ const ProjectDraftOverview = ({
         </div>
 
         <div className={styles.graphPreview}>
-          <Suspense fallback={<div className={styles.previewLoading}>Preparing graph...</div>}>
-            <ProjectCanvasPreview draft={draft} />
-          </Suspense>
+          <PreviewLoadBoundary>
+            <Suspense fallback={<div className={styles.previewLoading}>Preparing graph...</div>}>
+              <ProjectCanvasPreview draft={draft} />
+            </Suspense>
+          </PreviewLoadBoundary>
         </div>
 
         <dl className={styles.metadata}>
