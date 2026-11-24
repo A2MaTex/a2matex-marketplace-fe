@@ -5,10 +5,19 @@ import {
   buildRevokeEntitlementRequest,
 } from "../model/adminEntitlementRequest";
 import { toAdminEntitlementError } from "../model/adminEntitlementError";
+import { parseAdminEntitlementEnvelope } from "../model/adminEntitlementContract";
 import AdminEntitlementDialog from "./AdminEntitlementDialog";
+import base from "../../user-manage/page/UserManage.module.css";
 import styles from "../EntitlementManagementPage.module.css";
 
-export default function RevokeEntitlementDialog({ entitlement, onClose, onSuccess, onConflict }) {
+export default function RevokeEntitlementDialog({
+  entitlement,
+  customerReference,
+  productReference,
+  onClose,
+  onSuccess,
+  onVerify,
+}) {
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
@@ -33,7 +42,8 @@ export default function RevokeEntitlementDialog({ entitlement, onClose, onSucces
     setBusy(true);
     setError(null);
     try {
-      await adminEntitlementApi.revoke(entitlement.id, request);
+      const response = await adminEntitlementApi.revoke(entitlement.id, request);
+      parseAdminEntitlementEnvelope(response.data);
       onSuccess();
     } catch (caught) {
       const mapped = toAdminEntitlementError(
@@ -41,7 +51,7 @@ export default function RevokeEntitlementDialog({ entitlement, onClose, onSucces
         "Unable to revoke this entitlement.",
       );
       setError(mapped);
-      if (mapped.code === "Error.EntitlementAlreadyRevoked") onConflict();
+      if (mapped.verifyRequired) onVerify(mapped.conflict);
     } finally {
       setBusy(false);
     }
@@ -50,13 +60,18 @@ export default function RevokeEntitlementDialog({ entitlement, onClose, onSucces
   return (
     <AdminEntitlementDialog
       title="Revoke entitlement"
-      description={`Entitlement ${entitlement.id}`}
+      description={`${customerReference?.name || "Customer"} · ${productReference?.name || "Product"}`}
       busy={busy}
+      tone="danger"
       onClose={onClose}
     >
-      <form className={styles.dialogBody} onSubmit={submit} noValidate>
+      <form
+        className={`${base.dialogBody} ${styles.dialogBody}`}
+        onSubmit={submit}
+        noValidate
+      >
         {error ? (
-          <div ref={errorRef} className={styles.formError} role="alert" tabIndex={-1}>
+          <div ref={errorRef} className={base.formError} role="alert" tabIndex={-1}>
             {error.message}
             {error.conflict ? " The list is being refreshed from the server." : ""}
           </div>
@@ -64,8 +79,12 @@ export default function RevokeEntitlementDialog({ entitlement, onClose, onSucces
         <div className={styles.dangerNotice} role="note">
           <strong>Access will be blocked immediately.</strong>
           <span>No local status is applied. The refreshed server record supplies the revocation time, actor and audit history.</span>
+          <dl>
+            <div><dt>Customer</dt><dd>{customerReference?.name ?? entitlement.customerId}</dd></div>
+            <div><dt>Product</dt><dd>{productReference?.name ?? entitlement.productId}</dd></div>
+          </dl>
         </div>
-        <label className={styles.field}>
+        <label className={base.dialogField}>
           <span>Revocation reason</span>
           <textarea
             value={reason}
@@ -80,9 +99,9 @@ export default function RevokeEntitlementDialog({ entitlement, onClose, onSucces
           />
           <small>{reason.length} / {ADMIN_ENTITLEMENT_REASON_MAX_LENGTH}</small>
         </label>
-        <footer className={styles.dialogActions}>
-          <button type="button" className={styles.secondaryButton} onClick={onClose} disabled={busy}>Cancel</button>
-          <button type="submit" className={styles.dangerButton} disabled={busy}>
+        <footer className={base.dialogActions}>
+          <button type="button" className={base.secondaryButton} onClick={onClose} disabled={busy}>Cancel</button>
+          <button type="submit" className={base.dangerButton} disabled={busy}>
             {busy ? "Revoking…" : "Revoke access"}
           </button>
         </footer>

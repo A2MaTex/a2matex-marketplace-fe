@@ -3,12 +3,23 @@ import {
   isCommerceUuid,
 } from "../../../../commerce/model/commerceContract.js";
 
-const STATUS_VALUES = new Set(["ACTIVE", "EXPIRED", "REVOKED"]);
+const EFFECTIVE_STATUS_VALUES = new Set(["ACTIVE", "EXPIRED", "REVOKED"]);
+const STORED_STATUS_VALUES = new Set(["ACTIVE", "REVOKED"]);
 const GRANT_SOURCE_VALUES = new Set(["ORDER", "ADMIN_GRANT"]);
+const AUDIT_ACTION_VALUES = new Set(["GRANT", "REVOKE"]);
+
+const own = (record, key) => Object.prototype.hasOwnProperty.call(record, key);
 
 const object = (value, label) => {
   if (value === null || typeof value !== "object" || Array.isArray(value)) {
     throw new CommerceContractError(`${label} must be an object.`);
+  }
+  return value;
+};
+
+const string = (value, label) => {
+  if (typeof value !== "string") {
+    throw new CommerceContractError(`${label} must be a string.`);
   }
   return value;
 };
@@ -20,9 +31,6 @@ const uuid = (value, label) => {
   return value;
 };
 
-const nullableUuid = (value, label) =>
-  value === null || value === undefined ? null : uuid(value, label);
-
 const isoDate = (value, label) => {
   if (typeof value !== "string" || Number.isNaN(Date.parse(value))) {
     throw new CommerceContractError(`${label} must be an ISO date.`);
@@ -30,22 +38,16 @@ const isoDate = (value, label) => {
   return value;
 };
 
-const nullableIsoDate = (value, label) =>
-  value === null || value === undefined ? null : isoDate(value, label);
-
-const requiredNullableIsoDate = (record, key, label) => {
-  if (!Object.prototype.hasOwnProperty.call(record, key)) {
+const requiredNullable = (record, key, label, parser) => {
+  if (!own(record, key)) {
     throw new CommerceContractError(`${label} is required and may be null.`);
   }
-  return record[key] === null ? null : isoDate(record[key], label);
+  return record[key] === null ? null : parser(record[key], label);
 };
 
-const nullableString = (value, label) => {
-  if (value === null || value === undefined) return null;
-  if (typeof value !== "string") {
-    throw new CommerceContractError(`${label} must be a string or null.`);
-  }
-  return value;
+const optionalNullable = (record, key, label, parser) => {
+  if (!own(record, key) || record[key] === null) return null;
+  return parser(record[key], label);
 };
 
 const enumValue = (value, values, label) => {
@@ -56,24 +58,70 @@ const enumValue = (value, values, label) => {
 };
 
 const integer = (value, label, minimum = 0) => {
-  if (!Number.isInteger(value) || value < minimum) {
+  if (!Number.isSafeInteger(value) || value < minimum) {
     throw new CommerceContractError(
-      `${label} must be an integer greater than or equal to ${minimum}.`,
+      `${label} must be a safe integer greater than or equal to ${minimum}.`,
     );
   }
   return value;
 };
 
-const jsonValue = (value, label) => {
-  try {
-    JSON.stringify(value);
-  } catch {
-    throw new CommerceContractError(`${label} must be JSON serializable.`);
-  }
-  return value;
+const parseSnapshot = (value, label) => {
+  const snapshot = object(value, label);
+  return {
+    status: enumValue(snapshot.status, STORED_STATUS_VALUES, `${label}.status`),
+    grantSource: enumValue(
+      snapshot.grantSource,
+      GRANT_SOURCE_VALUES,
+      `${label}.grantSource`,
+    ),
+    startsAt: isoDate(snapshot.startsAt, `${label}.startsAt`),
+    expiresAt: requiredNullable(
+      snapshot,
+      "expiresAt",
+      `${label}.expiresAt`,
+      isoDate,
+    ),
+    revokedAt: optionalNullable(
+      snapshot,
+      "revokedAt",
+      `${label}.revokedAt`,
+      isoDate,
+    ),
+    revokedById: optionalNullable(
+      snapshot,
+      "revokedById",
+      `${label}.revokedById`,
+      uuid,
+    ),
+    revokedReason: optionalNullable(
+      snapshot,
+      "revokedReason",
+      `${label}.revokedReason`,
+      string,
+    ),
+  };
 };
 
-const parseAdminEntitlement = (value, label) => {
+const parseAuditEntry = (value, label) => {
+  const entry = object(value, label);
+  if (!own(entry, "before")) {
+    throw new CommerceContractError(`${label}.before is required and may be null.`);
+  }
+  return {
+    action: enumValue(entry.action, AUDIT_ACTION_VALUES, `${label}.action`),
+    reason: string(entry.reason, `${label}.reason`),
+    actedAt: isoDate(entry.actedAt, `${label}.actedAt`),
+    actedById: uuid(entry.actedById, `${label}.actedById`),
+    before:
+      entry.before === null
+        ? null
+        : parseSnapshot(entry.before, `${label}.before`),
+    after: parseSnapshot(entry.after, `${label}.after`),
+  };
+};
+
+export const parseAdminEntitlement = (value, label = "adminEntitlement") => {
   const item = object(value, label);
   if (!Array.isArray(item.auditHistory)) {
     throw new CommerceContractError(`${label}.auditHistory must be an array.`);
@@ -83,18 +131,10 @@ const parseAdminEntitlement = (value, label) => {
     id: uuid(item.id, `${label}.id`),
     customerId: uuid(item.customerId, `${label}.customerId`),
     productId: uuid(item.productId, `${label}.productId`),
-    latestProductOfferId: nullableUuid(
-      item.latestProductOfferId,
-      `${label}.latestProductOfferId`,
-    ),
-    latestOrderId: nullableUuid(
-      item.latestOrderId,
-      `${label}.latestOrderId`,
-    ),
-    status: enumValue(item.status, STATUS_VALUES, `${label}.status`),
+    status: enumValue(item.status, EFFECTIVE_STATUS_VALUES, `${label}.status`),
     storedStatus: enumValue(
       item.storedStatus,
-      STATUS_VALUES,
+      STORED_STATUS_VALUES,
       `${label}.storedStatus`,
     ),
     grantSource: enumValue(
@@ -102,21 +142,71 @@ const parseAdminEntitlement = (value, label) => {
       GRANT_SOURCE_VALUES,
       `${label}.grantSource`,
     ),
+    grantedById: requiredNullable(
+      item,
+      "grantedById",
+      `${label}.grantedById`,
+      uuid,
+    ),
     startsAt: isoDate(item.startsAt, `${label}.startsAt`),
-    expiresAt: requiredNullableIsoDate(item, "expiresAt", `${label}.expiresAt`),
-    grantedById: nullableUuid(item.grantedById, `${label}.grantedById`),
-    revokedAt: nullableIsoDate(item.revokedAt, `${label}.revokedAt`),
-    revokedById: nullableUuid(item.revokedById, `${label}.revokedById`),
-    revokedReason: nullableString(
-      item.revokedReason,
+    expiresAt: requiredNullable(
+      item,
+      "expiresAt",
+      `${label}.expiresAt`,
+      isoDate,
+    ),
+    latestProductOfferId: requiredNullable(
+      item,
+      "latestProductOfferId",
+      `${label}.latestProductOfferId`,
+      uuid,
+    ),
+    latestOrderId: requiredNullable(
+      item,
+      "latestOrderId",
+      `${label}.latestOrderId`,
+      uuid,
+    ),
+    oneTimePurchasedAt: requiredNullable(
+      item,
+      "oneTimePurchasedAt",
+      `${label}.oneTimePurchasedAt`,
+      isoDate,
+    ),
+    revokedAt: requiredNullable(
+      item,
+      "revokedAt",
+      `${label}.revokedAt`,
+      isoDate,
+    ),
+    revokedById: requiredNullable(
+      item,
+      "revokedById",
+      `${label}.revokedById`,
+      uuid,
+    ),
+    revokedReason: requiredNullable(
+      item,
+      "revokedReason",
       `${label}.revokedReason`,
+      string,
+    ),
+    auditHistory: item.auditHistory.map((entry, index) =>
+      parseAuditEntry(entry, `${label}.auditHistory[${index}]`),
     ),
     createdAt: isoDate(item.createdAt, `${label}.createdAt`),
-    updatedAt: nullableIsoDate(item.updatedAt, `${label}.updatedAt`),
-    auditHistory: item.auditHistory.map((entry, index) =>
-      jsonValue(entry, `${label}.auditHistory[${index}]`),
+    updatedAt: requiredNullable(
+      item,
+      "updatedAt",
+      `${label}.updatedAt`,
+      isoDate,
     ),
   };
+};
+
+export const parseAdminEntitlementEnvelope = (payload) => {
+  const envelope = object(payload, "adminEntitlement envelope");
+  return parseAdminEntitlement(envelope.data, "adminEntitlement.data");
 };
 
 export const parseAdminEntitlementPageEnvelope = (payload) => {
@@ -132,17 +222,14 @@ export const parseAdminEntitlementPageEnvelope = (payload) => {
     items: data.items.map((item, index) =>
       parseAdminEntitlement(item, `adminEntitlements.data.items[${index}]`),
     ),
-    totalItems: integer(
-      data.totalItems,
-      "adminEntitlements.data.totalItems",
-    ),
+    totalItems: integer(data.totalItems, "adminEntitlements.data.totalItems"),
     page: integer(data.page, "adminEntitlements.data.page", 1),
     pageSize: integer(data.pageSize, "adminEntitlements.data.pageSize", 1),
-    totalPages: integer(
-      data.totalPages,
-      "adminEntitlements.data.totalPages",
-    ),
+    totalPages: integer(data.totalPages, "adminEntitlements.data.totalPages"),
   };
 };
 
-export const ADMIN_ENTITLEMENT_STATUSES = [...STATUS_VALUES];
+export const ADMIN_ENTITLEMENT_EFFECTIVE_STATUSES = [
+  ...EFFECTIVE_STATUS_VALUES,
+];
+export const ADMIN_ENTITLEMENT_STORED_STATUSES = [...STORED_STATUS_VALUES];

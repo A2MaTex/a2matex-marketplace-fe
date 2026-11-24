@@ -1,0 +1,191 @@
+.compactFilterGrid {
+  grid-template-columns: minmax(190px, 280px) auto;
+  justify-content: start;
+}
+
+.compactFilterGrid > button {
+  min-width: 132px;
+}
+
+.publisherTable {
+  min-width: 980px;
+}
+
+.publisherCell {
+  min-width: 260px;
+}
+
+.statusBLOCKED {
+  color: #ff7b83;
+}
+
+.statusBLOCKED > span {
+  background: currentColor;
+  box-shadow: 0 0 0 3px rgba(255, 123, 131, 0.1);
+}
+
+.termsBadge,
+.complianceSummary,
+.roleActive,
+.roleInactive {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid;
+  border-radius: 999px;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.45px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.termsBadge {
+  padding: 2px 12px;
+}
+
+.termsCurrent,
+.compliant,
+.roleActive {
+  border-color: #275d3d;
+  background: rgba(22, 73, 43, 0.36);
+  color: #63dc8d;
+}
+
+.termsMissing,
+.nonCompliant,
+.roleInactive {
+  border-color: #64522c;
+  background: rgba(83, 62, 19, 0.28);
+  color: #d7b45b;
+}
+
+.userWarning {
+  line-height: 1.5;
+}
+
+.userWarning svg {
+  flex: 0 0 auto;
+  font-size: 18px;
+}
+
+.detailGrid > section:nth-child(3) {
+  grid-column: 1 / -1;
+}
+
+.profileCard {
+  grid-column: 1 / -1;
+}
+
+.longText {
+  white-space: pre-wrap;
+}
+
+.rolePanel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1px;
+  padding: 1px 0 0;
+  background: #202b38;
+}
+
+.roleItem {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px 20px;
+  background: #0d1117;
+}
+
+.roleItem > div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.roleItem strong {
+  color: #dce7f3;
+  font-size: 11px;
+}
+
+.roleItem code {
+  overflow: hidden;
+  color: #8296ae;
+  font-size: 8px;
+  text-overflow: ellipsis;
+}
+
+.roleActive,
+.roleInactive,
+.complianceSummary {
+  padding: 4px 8px;
+}
+
+.complianceSummary {
+  margin-left: auto;
+}
+
+.dialogWarning {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin-bottom: 14px;
+  padding: 11px 12px;
+  border-left: 2px solid #ba9848;
+  background: linear-gradient(90deg, rgba(119, 91, 30, 0.2), transparent 90%);
+  color: #c8b06d;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.dialogWarning svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
+.fieldHintRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.fieldHintRow > span:last-child {
+  flex: 0 0 auto;
+  color: #72849a;
+  font-variant-numeric: tabular-nums;
+}
+
+.unblockNotice {
+  padding: 12px 13px;
+  border: 1px solid #253847;
+  border-radius: 8px;
+  background: rgba(21, 43, 54, 0.42);
+  color: #7f94aa;
+  font-size: 10px;
+  line-height: 1.55;
+}
+
+@media (max-width: 560px) {
+  .compactFilterGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .compactFilterGrid > button {
+    width: 100%;
+  }
+
+  .rolePanel {
+    grid-template-columns: 1fr;
+  }
+
+  .roleItem {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .complianceSummary {
+    margin-left: 0;
+  }
+}

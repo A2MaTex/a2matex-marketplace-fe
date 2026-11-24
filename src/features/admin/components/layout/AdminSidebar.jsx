@@ -40,8 +40,7 @@ const NAV_SECTIONS = [
       {
         label: "Publisher Moderation",
         icon: <FiUserCheck />,
-        status: "Planned",
-        disabledReason: "The frontend implementation is not built yet.",
+        to: "/admin/publishers",
       },
       {
         label: "Roles & Permissions",
@@ -76,7 +75,7 @@ const NAV_SECTIONS = [
       {
         label: "Entitlements",
         icon: <FiKey />,
-        disabledReason: "Backend permissions must be seeded before this feature is enabled.",
+        to: "/admin/entitlements",
       },
       {
         label: "Orders",

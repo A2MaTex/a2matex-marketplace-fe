@@ -1,17 +1,12 @@
-import { MdCheckCircle, MdErrorOutline, MdSchedule } from "react-icons/md";
+import base from "../../user-manage/page/UserManage.module.css";
 import styles from "../EntitlementManagementPage.module.css";
 
-const ICONS = {
-  ACTIVE: MdCheckCircle,
-  EXPIRED: MdSchedule,
-  REVOKED: MdErrorOutline,
-};
-
 export default function AdminEntitlementStatus({ status, label }) {
-  const Icon = ICONS[status] ?? MdErrorOutline;
   return (
-    <span className={`${styles.status} ${styles[`status${status}`]}`}>
-      <Icon aria-hidden="true" />
+    <span
+      className={`${base.statusBadge} ${styles[`status${status}`] ?? ""}`}
+    >
+      <span aria-hidden="true" />
       {label ?? status}
     </span>
   );

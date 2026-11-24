@@ -11,6 +11,8 @@ import LauncherReleasePage from "../pages/launcher-release/page/LauncherReleaseP
 import EntitlementManagementPage from "../pages/entitlements/EntitlementManagementPage";
 import UserManage from "../pages/user-manage/page/UserManage";
 import UserDetail from "../pages/user-manage/page/UserDetail";
+import AdminPublishersPage from "../pages/publisher-moderation/page/AdminPublishersPage";
+import AdminPublisherDetailPage from "../pages/publisher-moderation/page/AdminPublisherDetailPage";
 import {
   MdOutlineAttachMoney,
   MdOutlineBlock,
@@ -30,6 +32,14 @@ export default function adminRoutes() {
     {
       path: "/admin/users/:userId",
       element: <UserDetail />,
+    },
+    {
+      path: "/admin/publishers",
+      element: <AdminPublishersPage />,
+    },
+    {
+      path: "/admin/publishers/:publisherAccountId",
+      element: <AdminPublisherDetailPage />,
     },
     {
       label: "Entitlements",

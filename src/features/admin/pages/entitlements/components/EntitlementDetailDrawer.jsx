@@ -2,12 +2,34 @@ import { formatCommerceDate } from "@/features/commerce/model/date";
 import { auditEntryMeta, formatAuditEvidence } from "../model/safeAuditEvidence";
 import AdminEntitlementDialog from "./AdminEntitlementDialog";
 import AdminEntitlementStatus from "./AdminEntitlementStatus";
+import base from "../../user-manage/page/UserManage.module.css";
 import styles from "../EntitlementManagementPage.module.css";
 
 const dateTime = (value) =>
   value ? formatCommerceDate(value, { withTime: true }) : "Not recorded";
 
-export default function EntitlementDetailDrawer({ entitlement, onClose, onRevoke }) {
+const referenceName = (reference, kind) => {
+  if (reference?.status === "loading") return `Loading ${kind}…`;
+  return reference?.name || `${kind} unavailable`;
+};
+
+function ReferenceDetail({ reference, kind, id }) {
+  return (
+    <dd className={styles.namedReference}>
+      <strong>{referenceName(reference, kind)}</strong>
+      {reference?.secondary ? <span>{reference.secondary}</span> : null}
+      <code>{id}</code>
+    </dd>
+  );
+}
+
+export default function EntitlementDetailDrawer({
+  entitlement,
+  customerReference,
+  productReference,
+  onClose,
+  onRevoke,
+}) {
   return (
     <AdminEntitlementDialog
       title="Entitlement record"
@@ -42,8 +64,22 @@ export default function EntitlementDetailDrawer({ entitlement, onClose, onRevoke
 
         <section className={styles.detailGrid}>
           <dl>
-            <div><dt>Customer</dt><dd>{entitlement.customerId}</dd></div>
-            <div><dt>Product</dt><dd>{entitlement.productId}</dd></div>
+            <div>
+              <dt>Customer</dt>
+              <ReferenceDetail
+                reference={customerReference}
+                kind="Customer"
+                id={entitlement.customerId}
+              />
+            </div>
+            <div>
+              <dt>Product</dt>
+              <ReferenceDetail
+                reference={productReference}
+                kind="Product"
+                id={entitlement.productId}
+              />
+            </div>
             <div><dt>Grant source</dt><dd>{entitlement.grantSource}</dd></div>
             <div><dt>Granted by</dt><dd>{entitlement.grantedById ?? "Order transaction"}</dd></div>
           </dl>
@@ -55,11 +91,23 @@ export default function EntitlementDetailDrawer({ entitlement, onClose, onRevoke
           </dl>
         </section>
 
+        <section className={styles.commerceEvidence}>
+          <div className={styles.sectionHeading}>
+            <span>Commerce evidence</span>
+            <small>Read-only links retained across Admin resets</small>
+          </div>
+          <dl>
+            <div><dt>Latest Product Offer</dt><dd>{entitlement.latestProductOfferId ?? "Not recorded"}</dd></div>
+            <div><dt>Latest Order</dt><dd>{entitlement.latestOrderId ?? "Not recorded"}</dd></div>
+            <div><dt>One-time purchased</dt><dd>{dateTime(entitlement.oneTimePurchasedAt)}</dd></div>
+          </dl>
+        </section>
+
         <section className={styles.revokeMetadata}>
           <div className={styles.sectionHeading}>
             <span>Revocation metadata</span>
-            {entitlement.status !== "REVOKED" ? (
-              <button type="button" className={styles.dangerButton} onClick={onRevoke}>Revoke access</button>
+            {entitlement.storedStatus !== "REVOKED" ? (
+              <button type="button" className={base.dangerButton} onClick={onRevoke}>Revoke access</button>
             ) : null}
           </div>
           {entitlement.revokedAt ? (
@@ -83,25 +131,23 @@ export default function EntitlementDetailDrawer({ entitlement, onClose, onRevoke
           ) : (
             <ol className={styles.timeline}>
               {entitlement.auditHistory.map((entry, index) => {
-                const meta = auditEntryMeta(entry, index);
+                const meta = auditEntryMeta(entry);
                 return (
-                  <li key={`${entitlement.id}-audit-${index}`}>
+                  <li key={`${entry.actedAt}-${entry.action}-${index}`}>
                     <div className={styles.timelineDot} aria-hidden="true" />
                     <div className={styles.timelineCard}>
                       <header>
                         <strong>{String(meta.title)}</strong>
-                        <time>{meta.timestamp ? dateTime(meta.timestamp) : "Time unavailable"}</time>
+                        <time dateTime={meta.timestamp}>{dateTime(meta.timestamp)}</time>
                       </header>
-                      {meta.actor ? <p>Actor · <code>{String(meta.actor)}</code></p> : null}
+                      <p className={styles.auditReason}>{meta.reason}</p>
+                      <p>Actor · <code>{meta.actor}</code></p>
                       <div className={styles.evidenceGrid}>
                         {meta.before !== null ? (
                           <div><span>Before</span><pre>{formatAuditEvidence(meta.before)}</pre></div>
                         ) : null}
                         {meta.after !== null ? (
                           <div><span>After</span><pre>{formatAuditEvidence(meta.after)}</pre></div>
-                        ) : null}
-                        {meta.before === null && meta.after === null ? (
-                          <div><span>Evidence</span><pre>{formatAuditEvidence(meta.raw)}</pre></div>
                         ) : null}
                       </div>
                     </div>

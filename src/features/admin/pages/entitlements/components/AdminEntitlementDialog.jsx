@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { MdClose } from "react-icons/md";
+import { MdClose, MdOutlineKey, MdWarningAmber } from "react-icons/md";
+import base from "../../user-manage/page/UserManage.module.css";
 import styles from "../EntitlementManagementPage.module.css";
 
 const FOCUSABLE =
@@ -11,6 +12,7 @@ export default function AdminEntitlementDialog({
   description,
   busy = false,
   wide = false,
+  tone = "default",
   onClose,
   children,
 }) {
@@ -53,28 +55,42 @@ export default function AdminEntitlementDialog({
 
   return createPortal(
     <div
-      className={styles.dialogBackdrop}
+      className={base.dialogBackdrop}
       onMouseDown={(event) => {
         if (event.target === event.currentTarget && !busy) onClose();
       }}
     >
       <section
         ref={dialogRef}
-        className={`${styles.dialog} ${wide ? styles.dialogWide : ""}`}
+        className={`${base.dialog} ${wide ? styles.dialogWide : ""}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={description ? descriptionId : undefined}
         onKeyDown={handleKeyDown}
       >
-        <header className={styles.dialogHeader}>
-          <div>
+        <header className={base.dialogHeader}>
+          <div
+            className={
+              tone === "danger"
+                ? base.dialogDangerIcon
+                : base.dialogSuccessIcon
+            }
+          >
+            {tone === "danger" ? (
+              <MdWarningAmber aria-hidden="true" />
+            ) : (
+              <MdOutlineKey aria-hidden="true" />
+            )}
+          </div>
+          <div className={styles.dialogHeaderCopy}>
+            <span className={base.eyebrow}>Entitlement access</span>
             <h2 id={titleId}>{title}</h2>
             {description ? <p id={descriptionId}>{description}</p> : null}
           </div>
           <button
             type="button"
-            className={styles.iconButton}
+            className={base.iconButton}
             onClick={onClose}
             disabled={busy}
             aria-label={`Close ${title}`}

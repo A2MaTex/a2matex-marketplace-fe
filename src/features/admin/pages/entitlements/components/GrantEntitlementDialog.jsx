@@ -1,11 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { isCommerceUuid } from "@/features/commerce/model/commerceContract";
 import { adminEntitlementApi } from "../api/adminEntitlementApi";
+import { useAdminEntitlementReferences } from "../hooks/useAdminEntitlementReferences";
 import {
   ADMIN_ENTITLEMENT_REASON_MAX_LENGTH,
   buildGrantEntitlementRequest,
 } from "../model/adminEntitlementRequest";
 import { toAdminEntitlementError } from "../model/adminEntitlementError";
+import { parseAdminEntitlementEnvelope } from "../model/adminEntitlementContract";
 import AdminEntitlementDialog from "./AdminEntitlementDialog";
+import base from "../../user-manage/page/UserManage.module.css";
 import styles from "../EntitlementManagementPage.module.css";
 
 const initialForm = (defaults) => ({
@@ -16,7 +20,12 @@ const initialForm = (defaults) => ({
   reason: "",
 });
 
-export default function GrantEntitlementDialog({ defaults, onClose, onSuccess }) {
+export default function GrantEntitlementDialog({
+  defaults,
+  onClose,
+  onSuccess,
+  onVerify,
+}) {
   const [form, setForm] = useState(() => initialForm(defaults));
   const [request, setRequest] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -26,6 +35,20 @@ export default function GrantEntitlementDialog({ defaults, onClose, onSuccess })
     () => Intl.DateTimeFormat().resolvedOptions().timeZone || "Local timezone",
     [],
   );
+  const normalizedCustomerId = form.customerId.trim();
+  const normalizedProductId = form.productId.trim();
+  const references = useAdminEntitlementReferences([
+    {
+      customerId: isCommerceUuid(normalizedCustomerId)
+        ? normalizedCustomerId
+        : null,
+      productId: isCommerceUuid(normalizedProductId)
+        ? normalizedProductId
+        : null,
+    },
+  ]);
+  const customerReference = references.customers[normalizedCustomerId];
+  const productReference = references.products[normalizedProductId];
 
   useEffect(() => {
     if (error) errorRef.current?.focus();
@@ -52,12 +75,16 @@ export default function GrantEntitlementDialog({ defaults, onClose, onSuccess })
     setBusy(true);
     setError(null);
     try {
-      await adminEntitlementApi.grant(request);
+      const response = await adminEntitlementApi.grant(request);
+      parseAdminEntitlementEnvelope(response.data);
       onSuccess();
     } catch (caught) {
-      setError(
-        toAdminEntitlementError(caught, "Unable to grant this entitlement."),
+      const mapped = toAdminEntitlementError(
+        caught,
+        "Unable to grant this entitlement.",
       );
+      setError(mapped);
+      if (mapped.verifyRequired) onVerify();
     } finally {
       setBusy(false);
     }
@@ -66,15 +93,19 @@ export default function GrantEntitlementDialog({ defaults, onClose, onSuccess })
   return (
     <AdminEntitlementDialog
       title="Grant or reset access"
-      description="Use authoritative Customer and Product UUIDs. No lookup API is available in the current contract."
+      description="Enter authoritative UUIDs. Customer and Product names are resolved before confirmation."
       busy={busy}
       onClose={onClose}
     >
-      <form className={styles.dialogBody} onSubmit={prepareConfirmation} noValidate>
+      <form
+        className={`${base.dialogBody} ${styles.dialogBody}`}
+        onSubmit={prepareConfirmation}
+        noValidate
+      >
         {error ? (
           <div
             ref={errorRef}
-            className={styles.formError}
+            className={base.formError}
             role="alert"
             tabIndex={-1}
           >
@@ -82,7 +113,7 @@ export default function GrantEntitlementDialog({ defaults, onClose, onSuccess })
           </div>
         ) : null}
 
-        <label className={styles.field}>
+        <label className={base.field}>
           <span>Customer UUID</span>
           <input
             value={form.customerId}
@@ -91,9 +122,17 @@ export default function GrantEntitlementDialog({ defaults, onClose, onSuccess })
             aria-invalid={error?.field === "customerId"}
             placeholder="00000000-0000-4000-8000-000000000000"
           />
+          {customerReference ? (
+            <small className={styles.referenceHint}>
+              {customerReference.status === "loading"
+                ? "Resolving customer…"
+                : customerReference.name || "Customer name unavailable"}
+              {customerReference.secondary ? ` · ${customerReference.secondary}` : ""}
+            </small>
+          ) : null}
         </label>
 
-        <label className={styles.field}>
+        <label className={base.field}>
           <span>Product UUID</span>
           <input
             value={form.productId}
@@ -102,6 +141,14 @@ export default function GrantEntitlementDialog({ defaults, onClose, onSuccess })
             aria-invalid={error?.field === "productId"}
             placeholder="00000000-0000-4000-8000-000000000000"
           />
+          {productReference ? (
+            <small className={styles.referenceHint}>
+              {productReference.status === "loading"
+                ? "Resolving product…"
+                : productReference.name || "Product name unavailable"}
+              {productReference.secondary ? ` · ${productReference.secondary}` : ""}
+            </small>
+          ) : null}
         </label>
 
         <fieldset className={styles.expiryFieldset}>
@@ -113,7 +160,7 @@ export default function GrantEntitlementDialog({ defaults, onClose, onSuccess })
               checked={form.lifetime}
               onChange={() => update("lifetime", true)}
             />
-            <span><strong>Lifetime</strong> — send explicit <code>null</code></span>
+            <span><strong>Lifetime</strong></span>
           </label>
           <label className={styles.radioRow}>
             <input
@@ -125,7 +172,7 @@ export default function GrantEntitlementDialog({ defaults, onClose, onSuccess })
             <span><strong>Finite access</strong></span>
           </label>
           {!form.lifetime ? (
-            <label className={styles.field}>
+            <label className={base.field}>
               <span>Local expiry · {timezone}</span>
               <input
                 type="datetime-local"
@@ -137,7 +184,7 @@ export default function GrantEntitlementDialog({ defaults, onClose, onSuccess })
           ) : null}
         </fieldset>
 
-        <label className={styles.field}>
+        <label className={base.dialogField}>
           <span>Audit reason</span>
           <textarea
             value={form.reason}
@@ -159,21 +206,23 @@ export default function GrantEntitlementDialog({ defaults, onClose, onSuccess })
               audit metadata.
             </span>
             <dl>
+              <div><dt>Customer</dt><dd>{customerReference?.name ?? request.customerId}</dd></div>
+              <div><dt>Product</dt><dd>{productReference?.name ?? request.productId}</dd></div>
               <div><dt>Expiry sent</dt><dd>{request.expiresAt ?? "null (Lifetime)"}</dd></div>
             </dl>
           </div>
         ) : null}
 
-        <footer className={styles.dialogActions}>
-          <button type="button" className={styles.secondaryButton} onClick={onClose} disabled={busy}>
+        <footer className={base.dialogActions}>
+          <button type="button" className={base.secondaryButton} onClick={onClose} disabled={busy}>
             Cancel
           </button>
           {request ? (
-            <button type="button" className={styles.primaryButton} onClick={submit} disabled={busy}>
+            <button type="button" className={base.primaryButton} onClick={submit} disabled={busy}>
               {busy ? "Applying…" : "Confirm reset"}
             </button>
           ) : (
-            <button type="submit" className={styles.primaryButton}>
+            <button type="submit" className={base.primaryButton}>
               Review grant
             </button>
           )}

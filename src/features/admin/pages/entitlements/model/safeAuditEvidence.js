@@ -1,54 +1,66 @@
 const SENSITIVE_KEY_PATTERN =
   /(?:authorization|password|passwd|token|secret|cookie|api[-_]?key)/i;
 
-const redact = (value, seen) => {
+const DEFAULT_LIMITS = {
+  maxDepth: 6,
+  maxEntries: 50,
+  maxStringLength: 2000,
+};
+
+const redact = (value, seen, depth, limits) => {
+  if (typeof value === "string") {
+    return value.length <= limits.maxStringLength
+      ? value
+      : `${value.slice(0, limits.maxStringLength)}…`;
+  }
   if (value === null || typeof value !== "object") return value;
+  if (depth >= limits.maxDepth) return "[Depth limit]";
   if (seen.has(value)) return "[Circular]";
   seen.add(value);
 
   if (Array.isArray(value)) {
-    return value.map((item) => redact(item, seen));
+    const result = value
+      .slice(0, limits.maxEntries)
+      .map((item) => redact(item, seen, depth + 1, limits));
+    if (value.length > limits.maxEntries) result.push("[Entries truncated]");
+    return result;
   }
 
-  return Object.fromEntries(
-    Object.entries(value).map(([key, item]) => [
+  const entries = Object.entries(value).slice(0, limits.maxEntries);
+  const result = Object.fromEntries(
+    entries.map(([key, item]) => [
       key,
-      SENSITIVE_KEY_PATTERN.test(key) ? "[Redacted]" : redact(item, seen),
+      SENSITIVE_KEY_PATTERN.test(key)
+        ? "[Redacted]"
+        : redact(item, seen, depth + 1, limits),
     ]),
   );
+  if (Object.keys(value).length > limits.maxEntries) {
+    result["…"] = "[Entries truncated]";
+  }
+  return result;
 };
 
-export const formatAuditEvidence = (value, maxLength = 6000) => {
-  const formatted = JSON.stringify(redact(value, new WeakSet()), null, 2);
+export const formatAuditEvidence = (
+  value,
+  maxLength = 6000,
+  limits = DEFAULT_LIMITS,
+) => {
+  const formatted = JSON.stringify(
+    redact(value, new WeakSet(), 0, { ...DEFAULT_LIMITS, ...limits }),
+    null,
+    2,
+  );
   if (formatted.length <= maxLength) return formatted;
   return `${formatted.slice(0, maxLength)}\n… evidence truncated`;
 };
 
-export const auditEntryMeta = (entry, index) => {
-  if (entry === null || typeof entry !== "object" || Array.isArray(entry)) {
-    return {
-      title: `Audit event ${index + 1}`,
-      actor: null,
-      timestamp: null,
-      before: null,
-      after: null,
-      raw: entry,
-    };
-  }
-
-  return {
-    title:
-      entry.action ?? entry.event ?? entry.type ?? `Audit event ${index + 1}`,
-    actor:
-      entry.actorId ?? entry.updatedById ?? entry.grantedById ?? entry.revokedById ?? null,
-    timestamp:
-      entry.createdAt ?? entry.updatedAt ?? entry.timestamp ?? entry.occurredAt ?? null,
-    before: Object.prototype.hasOwnProperty.call(entry, "before")
-      ? entry.before
-      : null,
-    after: Object.prototype.hasOwnProperty.call(entry, "after")
-      ? entry.after
-      : null,
-    raw: entry,
-  };
-};
+export const auditEntryMeta = (entry) => ({
+  title: entry.action === "GRANT" ? "Access granted or reset" : "Access revoked",
+  action: entry.action,
+  actor: entry.actedById,
+  timestamp: entry.actedAt,
+  reason: entry.reason,
+  before: entry.before,
+  after: entry.after,
+});

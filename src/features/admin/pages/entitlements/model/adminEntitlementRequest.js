@@ -10,10 +10,13 @@ export class AdminEntitlementInputError extends Error {
   }
 }
 
-const positiveInteger = (value, field) => {
+const positiveInteger = (value, field, maximum = Number.MAX_SAFE_INTEGER) => {
   const number = Number(value);
-  if (!Number.isInteger(number) || number < 1) {
-    throw new AdminEntitlementInputError(field, `${field} must be positive.`);
+  if (!Number.isSafeInteger(number) || number < 1 || number > maximum) {
+    throw new AdminEntitlementInputError(
+      field,
+      `${field} must be between 1 and ${maximum}.`,
+    );
   }
   return number;
 };
@@ -48,7 +51,7 @@ export const buildAdminEntitlementQuery = ({
 } = {}) => {
   const query = {
     page: positiveInteger(page, "page"),
-    limit: positiveInteger(limit, "limit"),
+    limit: positiveInteger(limit, "limit", 100),
   };
 
   const normalizedCustomerId = customerId?.trim();
@@ -64,7 +67,6 @@ export const buildAdminEntitlementQuery = ({
 
 export const buildGrantEntitlementRequest = (
   { customerId, productId, lifetime, expiresAt, reason },
-  { now = Date.now() } = {},
 ) => {
   let normalizedExpiresAt = null;
   if (!lifetime) {
@@ -73,12 +75,6 @@ export const buildGrantEntitlementRequest = (
       throw new AdminEntitlementInputError(
         "expiresAt",
         "Choose a valid expiry date and time.",
-      );
-    }
-    if (instant.getTime() <= now) {
-      throw new AdminEntitlementInputError(
-        "expiresAt",
-        "Expiry must be in the future.",
       );
     }
     normalizedExpiresAt = instant.toISOString();
