@@ -8,6 +8,7 @@ import AdminSubmissionDetailPage from "../pages/submission-review/page/AdminSubm
 import AdminSubmissionWorkflowPage from "../pages/submission-review/page/AdminSubmissionWorkflowPage";
 import TermsPage from "../pages/terms/page/TermsPage";
 import LauncherReleasePage from "../pages/launcher-release/page/LauncherReleasePage";
+import StudioReleasePage from "../pages/studio-release/page/StudioReleasePage";
 import EntitlementManagementPage from "../pages/entitlements/EntitlementManagementPage";
 import UserManage from "../pages/user-manage/page/UserManage";
 import UserDetail from "../pages/user-manage/page/UserDetail";
@@ -120,6 +121,12 @@ export default function adminRoutes() {
       icon: <MdOutlineRocketLaunch />,
       path: "/admin/launcher-releases",
       element: <LauncherReleasePage />,
+    },
+    {
+      label: "Studio Releases",
+      icon: <MdOutlineRocketLaunch />,
+      path: "/admin/studio-releases",
+      element: <StudioReleasePage />,
     },
   ];
   return adminRoutes;

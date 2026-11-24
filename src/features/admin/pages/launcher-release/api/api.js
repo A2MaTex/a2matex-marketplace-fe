@@ -8,9 +8,11 @@ import {
   updateReleaseUrl,
 } from "./url";
 
-const getAllRelease = () => axiosInstance.get(getAllReleaseUrl);
+const getAllRelease = (params, config = {}) =>
+  axiosInstance.get(getAllReleaseUrl, { ...config, params });
 
-const getDetailRelease = (id) => axiosInstance.get(getDetailReleaseUrl(id));
+const getDetailRelease = (id, config = {}) =>
+  axiosInstance.get(getDetailReleaseUrl(id), config);
 
 const createRelease = (body) => axiosInstance.post(createNewReleaseUrl, body);
 
@@ -19,7 +21,8 @@ const updateRelease = (id, body) =>
 
 const activateRelease = (id) => axiosInstance.put(activateReleaseUrl(id));
 
-const getCurrentRelease = () => axiosInstance.get(getCurrentReleaseUrl);
+const getCurrentRelease = (config = {}) =>
+  axiosInstance.get(getCurrentReleaseUrl, config);
 
 export const releaseApi = {
   getAllRelease,
@@ -27,5 +30,5 @@ export const releaseApi = {
   createRelease,
   updateRelease,
   activateRelease,
-  getCurrentRelease
+  getCurrentRelease,
 };

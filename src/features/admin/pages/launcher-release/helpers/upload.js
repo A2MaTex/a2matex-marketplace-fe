@@ -3,6 +3,8 @@ import { CHUNK_SIZE } from "@/constants/static";
 
 export const MAX_CHUNK_RETRIES = 3; // số lần retry tối đa cho mỗi chunk
 export const RETRY_DELAY_MS = 1000; // delay giữa các lần retry (1s)
+export const MAX_CONCURRENT_CHUNKS = 4;
+export const MAX_RECOVERY_ROUNDS = 3;
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -67,31 +69,23 @@ export async function uploadChunks({ file, uploadUrls, signal, onChunkDone }) {
   const parts = [];
   const chunksFailed = [];
 
-  const results = await Promise.allSettled(
-    uploadUrls.map(async ({ partNumber, url }) => {
-      const chunk = getChunkForPart(file, partNumber);
-      const part = await uploadChunkWithRetry({
-        url,
-        chunk,
-        partNumber,
-        signal,
-      });
-      onChunkDone?.(partNumber);
-      return part;
-    }),
-  );
+  for (let start = 0; start < uploadUrls.length; start += MAX_CONCURRENT_CHUNKS) {
+    const group = uploadUrls.slice(start, start + MAX_CONCURRENT_CHUNKS);
+    const results = await Promise.allSettled(
+      group.map(async ({ partNumber, url }) => {
+        const chunk = getChunkForPart(file, partNumber);
+        const part = await uploadChunkWithRetry({ url, chunk, partNumber, signal });
+        onChunkDone?.(partNumber);
+        return part;
+      }),
+    );
 
-  // Nếu bị abort thì ném lại để caller dừng toàn bộ quá trình
-  if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
-
-  results.forEach((result, idx) => {
-    if (result.status === "fulfilled") {
-      parts.push(result.value);
-    } else {
-      // Lấy partNumber tương ứng từ uploadUrls theo index
-      chunksFailed.push(uploadUrls[idx].partNumber);
-    }
-  });
+    if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
+    results.forEach((result, index) => {
+      if (result.status === "fulfilled") parts.push(result.value);
+      else chunksFailed.push(group[index].partNumber);
+    });
+  }
 
   return { parts, chunksFailed };
 }
@@ -113,6 +107,7 @@ export async function uploadAllChunksWithRecovery({
 }) {
   const allParts = [];
   let pendingUrls = uploadUrls;
+  let recoveryRound = 0;
 
   while (pendingUrls.length > 0) {
     if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
@@ -128,6 +123,10 @@ export async function uploadAllChunksWithRecovery({
 
     // Không còn chunk fail => xong
     if (chunksFailed.length === 0) break;
+    recoveryRound += 1;
+    if (recoveryRound > MAX_RECOVERY_ROUNDS) {
+      throw new Error(`Upload failed after ${MAX_RECOVERY_ROUNDS} recovery rounds`);
+    }
 
     // Có chunk fail => xin URL mới cho đúng các part đó rồi upload lại
     const retryRes = await staticApi.getUrlsForRetry({

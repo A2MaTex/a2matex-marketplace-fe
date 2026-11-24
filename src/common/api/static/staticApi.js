@@ -36,28 +36,28 @@ const getStaticById = (staticId) =>
 const getImageById = ({ imageId, variant = "small" }) =>
   axiosInstance.get(getImageUrl(imageId, variant), { responseType: "blob" });
 
-const startMultipartUpload = ({
-  originalFileName,
-  lastModified,
-  contentType,
-  size,
-  prefix = LAUNCHER_RELEASES_PREFIX,
-  requestedPartNumbers,
-}) => {
-  return axiosInstance.post(startMultipartUploadUrl, {
+const startMultipartUpload = (
+  {
     originalFileName,
     lastModified,
     contentType,
     size,
-    prefix,
+    prefix = LAUNCHER_RELEASES_PREFIX,
     requestedPartNumbers,
-  });
-};
+  },
+  config = {},
+) =>
+  axiosInstance.post(
+    startMultipartUploadUrl,
+    { originalFileName, lastModified, contentType, size, prefix, requestedPartNumbers },
+    config,
+  );
 
-const completeMultipartUpload = ({ sessionId, parts }) =>
-  axiosInstance.post(completeMultipartUploadUrl, { sessionId, parts });
+const completeMultipartUpload = ({ sessionId, parts }, config = {}) =>
+  axiosInstance.post(completeMultipartUploadUrl, { sessionId, parts }, config);
 
-const getUrlsForRetry = (body) => axiosInstance.post(getPresignUrlsUrl, body);
+const getUrlsForRetry = (body, config = {}) =>
+  axiosInstance.post(getPresignUrlsUrl, body, config);
 
 const getFileDownloadUrl = (staticId) =>
   axiosInstance.get(getDownloadUrlUrl(staticId));

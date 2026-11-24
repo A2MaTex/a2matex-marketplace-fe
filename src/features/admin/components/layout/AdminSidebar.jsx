@@ -94,7 +94,7 @@ const NAV_SECTIONS = [
       {
         label: "Studio Releases",
         icon: <FiPackage />,
-        disabledReason: "Backend permissions must be seeded before this feature is enabled.",
+        to: "/admin/studio-releases",
       },
     ],
   },
