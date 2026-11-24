@@ -88,7 +88,9 @@ const LoginPage = () => {
       } catch {
         // DEF-008
       }
-      navigate(isAdmin ? ADMIN_HOME : "/");
+      navigate(returnTo !== "/" ? returnTo : isAdmin ? ADMIN_HOME : "/", {
+        replace: true,
+      });
     } catch (err) {
       console.error(err);
       if (isAccountUsesSocialLoginError(err)) {

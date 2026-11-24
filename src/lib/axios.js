@@ -1,7 +1,9 @@
 import axios from "axios";
 import { auth } from "./token";
-import { authApi } from "@/features/auth/api/authApi";
+import { refreshSession } from "@/features/auth/api/refreshSession";
+import { useAuthStore } from "@/features/auth/store/authStore";
 import { API_BASE_URL } from "./apiBaseUrl";
+import { redirectToLogin, requiresLogin } from "./sessionRedirect";
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -28,15 +30,19 @@ axiosInstance.interceptors.request.use(
 // Tracks an in-flight refresh so concurrent 401s share one call
 let refreshPromise = null;
 
+const expireSession = () => {
+  useAuthStore.getState().logout();
+  redirectToLogin();
+};
+
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const config = error.config;
     const status = error.response?.status;
-    const message = error.response?.data?.message;
 
     // ── 500 auto-retry (up to 3 attempts) ──────────────
-    if (status === 500) {
+    if (status === 500 && config) {
       config._retryCount = (config._retryCount ?? 0) + 1;
       if (config._retryCount <= 3) {
         // Exponential back-off: 300ms, 600ms, 1200ms
@@ -48,11 +54,18 @@ axiosInstance.interceptors.response.use(
     }
 
     // ── 401 + InvalidAccessToken: try refresh ──────────
-    if (status === 401 && message === "Error.InvalidAccessToken") {
+    if (requiresLogin(error)) {
       const refreshToken = auth.getRefreshToken();
 
-      // No refresh token available — reject immediately
-      if (!refreshToken) {
+      const canRefresh =
+        status === 401 &&
+        Boolean(auth.getToken()) &&
+        Boolean(refreshToken) &&
+        Boolean(config) &&
+        !config._retryAfterRefresh;
+
+      if (!canRefresh) {
+        expireSession();
         return Promise.reject(error);
       }
 
@@ -60,7 +73,7 @@ axiosInstance.interceptors.response.use(
       if (!refreshPromise) {
         refreshPromise = (async () => {
           try {
-            await authApi.refreshAccessToken(refreshToken);
+            await refreshSession(refreshToken);
           } finally {
             refreshPromise = null;
           }
@@ -70,15 +83,11 @@ axiosInstance.interceptors.response.use(
       try {
         await refreshPromise;
         // Retry original request with the new access token
+        config._retryAfterRefresh = true;
         config.headers.Authorization = `Bearer ${auth.getToken()}`;
         return axiosInstance(config);
       } catch {
-        // DEF-033
-        auth.removeToken();
-        auth.removeRefreshToken();
-        if (window.location.pathname !== "/login") {
-          window.location.assign("/login?reason=session-expired");
-        }
+        expireSession();
         return Promise.reject(error);
       }
     }

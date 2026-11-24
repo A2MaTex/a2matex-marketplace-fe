@@ -4,7 +4,6 @@ import {
   registerUrl,
   sendOTP,
   forgotPasswordUrl,
-  refreshTokenUrl,
   googleSocialLoginUrl,
   githubSocialLoginUrl,
 } from "./authUrl";
@@ -12,9 +11,10 @@ import axios from "@lib/axios.js";
 import publicAxios from "@/lib/publicAxios.js";
 import { useAuthStore } from "../store/authStore.js";
 import { auth } from "@/lib/token";
+import { refreshSession } from "./refreshSession.js";
 
 const login = async (account, password) => {
-  const response = await axios.post(loginUrl, {
+  const response = await publicAxios.post(loginUrl, {
     account,
     password,
   });
@@ -32,7 +32,7 @@ const register = async ({
   confirmPassword,
   code,
 }) => {
-  const response = await axios.post(registerUrl, {
+  const response = await publicAxios.post(registerUrl, {
     fullName,
     username,
     email,
@@ -50,7 +50,7 @@ const logout = async () => {
   return response.data;
 };
 const sendOtp = async ({ email, type = "REGISTER" }) => {
-  const response = await axios.post(sendOTP, {
+  const response = await publicAxios.post(sendOTP, {
     email,
     type,
   });
@@ -59,12 +59,7 @@ const sendOtp = async ({ email, type = "REGISTER" }) => {
 };
 
 const refreshAccessToken = async (refreshToken) => {
-  const response = await axios.post(refreshTokenUrl, {
-    refreshToken,
-  });
-
-  const { accessToken, refreshToken: newRefreshToken } = response.data.data;
-  useAuthStore.getState().setCredentials(accessToken, newRefreshToken);
+  await refreshSession(refreshToken);
 };
 
 const socialLogin = async (provider, code, redirectUri) => {
@@ -104,7 +99,7 @@ const forgotPassword = async ({
   newPassword,
   confirmNewPassword,
 }) => {
-  const response = await axios.post(forgotPasswordUrl, {
+  const response = await publicAxios.post(forgotPasswordUrl, {
     email,
     code,
     newPassword,

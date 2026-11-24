@@ -8,12 +8,17 @@ import { Outlet } from "react-router-dom";
 const AppLayout = () => {
   const user = useAuthStore((s) => s.user);
   const avatarBlob = useAuthStore((s) => s.avatarBlob);
-  const [loaded, setLoaded] = useState(!!user);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const [loaded, setLoaded] = useState(!isAuthenticated || !!user);
   
   useEffect(() => {
-    if (loaded) return;
-    userApi.getMyProfile().then(() => setLoaded(true));
-  }, [loaded]);
+    if (loaded || !isAuthenticated) return;
+
+    userApi.getMyProfile().then(
+      () => setLoaded(true),
+      () => setLoaded(true),
+    );
+  }, [isAuthenticated, loaded]);
 
   return (
     <div className={styles.layout}>

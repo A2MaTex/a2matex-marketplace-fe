@@ -1,4 +1,5 @@
 import axiosInstance from "@/lib/axios";
+import publicAxios from "@/lib/publicAxios";
 import {
   changeTermStatusUrl,
   createTermUrl,
@@ -8,7 +9,7 @@ import {
 } from "./termUrl";
 
 const getCurrentTerms = (termType, config) =>
-  axiosInstance.get(getCurrentTermsUrl(termType), config);
+  publicAxios.get(getCurrentTermsUrl(termType), config);
 
 const createNewTerm = (body) => axiosInstance.post(createTermUrl, body);
 
