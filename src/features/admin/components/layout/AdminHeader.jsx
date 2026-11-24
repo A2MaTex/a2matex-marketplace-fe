@@ -12,7 +12,6 @@ export default function AdminHeader({ user, avatar }) {
         <Link to="/" className={styles.logo}>
           <img src={logo} height={32} alt="logo" />
         </Link>
-        <span className={styles.portalBadge}>Admin Portal v2.5.0</span>
       </div>
 
       {/* Center: Search */}

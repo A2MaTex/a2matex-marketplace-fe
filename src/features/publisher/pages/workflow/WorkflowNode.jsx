@@ -33,6 +33,7 @@ const WorkflowNode = ({ data, selected }) => {
     <div
       className={`${styles.node} ${iconOnly ? styles.iconOnly : ""} ${selected ? styles.selected : ""} ${data.disabled ? styles.disabled : ""}`}
       data-tone={nodeTone(data)}
+      role="img"
       aria-label={`${data.label}, ${data.nodeType}`}
       title={data.description || data.label}
     >

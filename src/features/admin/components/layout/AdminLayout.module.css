@@ -16,7 +16,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   display: flex;
-  margin-left: 228px;
+  margin-left: 268px;
   flex-direction: column;
 }
 
@@ -34,5 +34,5 @@
 }
 
 @media (max-width: 820px) {
-  .main { margin-left: 68px; }
+  .main { margin-left: 72px; }
 }

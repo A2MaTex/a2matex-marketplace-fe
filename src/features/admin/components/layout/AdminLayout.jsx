@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { userApi } from "@api/user/userApi";
 import { useAuthStore } from "@features/auth/store/authStore";
-import AdminHeader from "./AdminHeader";
+import Header from "@/common/components/layout/Header";
 import AdminSidebar from "./AdminSidebar";
 import styles from "./AdminLayout.module.css";
 
 export default function AdminLayout() {
   const user = useAuthStore((s) => s.user);
+  const avatarBlob = useAuthStore((s) => s.avatarBlob);
   const [loaded, setLoaded] = useState(!!user);
 
   const navigate = useNavigate();
@@ -22,9 +23,9 @@ export default function AdminLayout() {
 
   return (
     <div className={styles.shell}>
-      <AdminHeader user={user} avatar={user?.imgBlob || null} />
+      <Header user={user} avatar={avatarBlob} />
       <div className={styles.body}>
-        <AdminSidebar user={user} />
+        <AdminSidebar />
         <main className={styles.main}>
           <Outlet />
         </main>

@@ -14,7 +14,7 @@ import { ERROR_MESSAGES, getErrorMessage } from "@lib/errorMessageHandler";
 import { useSocialLogin } from "../hooks/useSocialLogin";
 import { isAccountUsesSocialLoginError } from "../api/socialLoginErrors";
 import { getSafeReturnTo } from "../api/safeReturnTo";
-import axios from "axios";
+import { userApi } from "@api/user/userApi";
 import ROLE from "@/constants/roles";
 
 const ACCOUNT_USES_SOCIAL_LOGIN_MESSAGE =
@@ -22,7 +22,7 @@ const ACCOUNT_USES_SOCIAL_LOGIN_MESSAGE =
 const NETWORK_ERROR =
   "We could not reach the server. Check your connection and try again.";
 
-const ADMIN_HOME = "/admin/permission-role"
+const ADMIN_HOME = "/admin/permission-role";
 
 const UserIcon = (props) => <FiUser size={16} {...props} />;
 const LockIcon = (props) => <FiLock size={16} {...props} />;
@@ -81,9 +81,9 @@ const LoginPage = () => {
       await authApi.login(form.account, form.password);
       let isAdmin = false;
       try {
-        const me = await axios.get("/profiles/me");
+        const { user } = await userApi.getMyProfile({ forceRefresh: true });
         isAdmin = Boolean(
-          me.data?.data?.roles?.some((role) => role.name === ROLE.ADMIN),
+          user.roles?.some((role) => role.name === ROLE.ADMIN),
         );
       } catch {
         // DEF-008

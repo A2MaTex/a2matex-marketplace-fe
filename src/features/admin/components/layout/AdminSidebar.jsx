@@ -1,71 +1,176 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import styles from "./AdminSidebar.module.css";
-import { FiLogOut } from "react-icons/fi";
-import { authApi } from "@/features/auth/api/authApi";
-import adminRoutes from "../../routers/adminRoute";
+import {
+  FiActivity,
+  FiBox,
+  FiCreditCard,
+  FiFileText,
+  FiKey,
+  FiLayers,
+  FiMonitor,
+  FiPackage,
+  FiPieChart,
+  FiSettings,
+  FiShield,
+  FiShoppingBag,
+  FiUserCheck,
+  FiUsers,
+} from "react-icons/fi";
 
-export default function AdminSidebar({ user }) {
-  const navigate = useNavigate();
-  const handleLogout = async () => {
-    await authApi.logout();
-    navigate("/");
-  };
+const NAV_SECTIONS = [
+  {
+    label: "Overview",
+    items: [
+      {
+        label: "Dashboard",
+        icon: <FiPieChart />,
+        status: "API needed",
+        disabledReason: "Dashboard metrics require a future aggregate API.",
+      },
+    ],
+  },
+  {
+    label: "Identity & Access",
+    items: [
+      {
+        label: "User Management",
+        icon: <FiUsers />,
+        to: "/admin/users",
+      },
+      {
+        label: "Publisher Moderation",
+        icon: <FiUserCheck />,
+        status: "Planned",
+        disabledReason: "The frontend implementation is not built yet.",
+      },
+      {
+        label: "Roles & Permissions",
+        icon: <FiShield />,
+        to: "/admin/permission-role",
+      },
+    ],
+  },
+  {
+    label: "Marketplace Governance",
+    items: [
+      {
+        label: "Submission Review",
+        icon: <FiLayers />,
+        to: "/admin/submissions",
+      },
+      {
+        label: "Product Moderation",
+        icon: <FiBox />,
+        disabledReason: "The product moderation page is not implemented yet.",
+      },
+      {
+        label: "Product Releases",
+        icon: <FiPackage />,
+        disabledReason: "The Admin product release page is not implemented yet.",
+      },
+    ],
+  },
+  {
+    label: "Commerce",
+    items: [
+      {
+        label: "Entitlements",
+        icon: <FiKey />,
+        disabledReason: "Backend permissions must be seeded before this feature is enabled.",
+      },
+      {
+        label: "Orders",
+        icon: <FiShoppingBag />,
+        disabledReason: "There is no Admin order API yet.",
+      },
+      {
+        label: "Top-up Transactions",
+        icon: <FiCreditCard />,
+        disabledReason: "There is no Admin transaction API yet.",
+      },
+    ],
+  },
+  {
+    label: "Distribution",
+    items: [
+      {
+        label: "Launcher Releases",
+        icon: <FiMonitor />,
+        to: "/admin/launcher-releases",
+      },
+      {
+        label: "Studio Releases",
+        icon: <FiPackage />,
+        disabledReason: "Backend permissions must be seeded before this feature is enabled.",
+      },
+    ],
+  },
+  {
+    label: "Content & Configuration",
+    items: [
+      {
+        label: "Terms & Policy",
+        icon: <FiFileText />,
+        to: "/admin/terms",
+      },
+      {
+        label: "System Settings",
+        icon: <FiSettings />,
+        disabledReason: "Backend permissions must be seeded before this feature is enabled.",
+      },
+    ],
+  },
+  {
+    label: "Operations",
+    items: [
+      {
+        label: "Audit Log",
+        icon: <FiActivity />,
+        disabledReason: "There is no central audit log API yet.",
+      },
+    ],
+  },
+];
 
-  const NAV_ITEMS = adminRoutes().filter((e) => !!e.label);
-
+export default function AdminSidebar() {
   return (
     <aside className={styles.sidebar}>
-      {/* Brand */}
-      <div className={styles.brand}>
-        <div className={styles.brandTop}>
-          <div className={styles.brandDot} />
-          <span className={styles.brandName}>CORE CONTROL PLANE</span>
-        </div>
-      </div>
-
-      {/* Nav */}
-      <nav className={styles.navSection}>
-        {NAV_ITEMS.map((item) => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            className={({ isActive }) =>
-              [styles.navItem, isActive ? styles.active : ""]
-                .filter(Boolean)
-                .join(" ")
-            }
-          >
-            <span className={styles.navIcon}>{item.icon}</span>
-            <span className={styles.navLabel}>{item.label}</span>
-            {item.badge && (
-              <span
-                className={[
-                  styles.navBadge,
-                  item.badgeType === "warn" ? styles.warn : "",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-              >
-                {item.badge}
-              </span>
-            )}
-          </NavLink>
+      <nav className={styles.nav} aria-label="Admin features">
+        {NAV_SECTIONS.map((section) => (
+          <section className={styles.navSection} key={section.label}>
+            <h2 className={styles.sectionLabel}>{section.label}</h2>
+            <div className={styles.sectionItems}>
+              {section.items.map((item) =>
+                item.to ? (
+                  <NavLink
+                    key={item.label}
+                    to={item.to}
+                    title={item.label}
+                    className={({ isActive }) =>
+                      [styles.navItem, isActive ? styles.active : ""]
+                        .filter(Boolean)
+                        .join(" ")
+                    }
+                  >
+                    <span className={styles.navIcon}>{item.icon}</span>
+                    <span className={styles.navLabel}>{item.label}</span>
+                  </NavLink>
+                ) : (
+                  <div
+                    key={item.label}
+                    className={`${styles.navItem} ${styles.disabled}`}
+                    aria-disabled="true"
+                    title={item.disabledReason}
+                  >
+                    <span className={styles.navIcon}>{item.icon}</span>
+                    <span className={styles.navLabel}>{item.label}</span>
+                  </div>
+                ),
+              )}
+            </div>
+          </section>
         ))}
       </nav>
-
-      {/* User block */}
-      <div className={styles.userBlock}>
-        <div className={styles.avatar}>A</div>
-        <div className={styles.userInfo}>
-          <div className={styles.userName}>{user?.fullName || ""}</div>
-          <div className={styles.userRole}>ADMIN</div>
-        </div>
-        <FiLogOut
-          onClick={handleLogout}
-          className={styles.logOutIcon}
-          title="Logout"
-        />
-      </div>
     </aside>
   );
 }
