@@ -42,7 +42,7 @@ axiosInstance.interceptors.response.use(
     const status = error.response?.status;
 
     // ── 500 auto-retry (up to 3 attempts) ──────────────
-    if (status === 500 && config) {
+    if (status === 500 && config && !config.skipServerErrorRetry) {
       config._retryCount = (config._retryCount ?? 0) + 1;
       if (config._retryCount <= 3) {
         // Exponential back-off: 300ms, 600ms, 1200ms

@@ -12,6 +12,7 @@ import {
   formatBalance,
   normalizeDecimalString,
 } from "@/features/commerce/model/money";
+import { createVietQrImageUrl } from "@/features/commerce/model/vietQr";
 
 const MAX_SAFE_AMOUNT = BigInt(Number.MAX_SAFE_INTEGER);
 
@@ -31,15 +32,13 @@ const TopUpModal = ({
 
   /* Build VietQR URL from topUpData */
   const vietqrUrl = topUpData
-    ? `https://vietqr.app/img?${new URLSearchParams({
-        acc: topUpData.bankAccountNumber,
-        bank: topUpData.bankName,
-        amount: String(topUpData.amount),
-        des: topUpData.transferContent,
-        template: "compact",
-        showinfo: "true",
-        holder: topUpData.accountHolderName,
-      }).toString()}`
+    ? createVietQrImageUrl({
+        accountNumber: topUpData.bankAccountNumber,
+        bankName: topUpData.bankName,
+        accountHolder: topUpData.accountHolderName,
+        amount: topUpData.amount,
+        transferContent: topUpData.transferContent,
+      })
     : "";
 
   const startPolling = (initialBalance) => {

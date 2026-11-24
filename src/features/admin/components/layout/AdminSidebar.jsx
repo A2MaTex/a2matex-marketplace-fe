@@ -109,7 +109,7 @@ const NAV_SECTIONS = [
       {
         label: "System Settings",
         icon: <FiSettings />,
-        disabledReason: "Backend permissions must be seeded before this feature is enabled.",
+        to: "/admin/system-settings",
       },
     ],
   },

@@ -9,6 +9,7 @@ import AdminSubmissionWorkflowPage from "../pages/submission-review/page/AdminSu
 import TermsPage from "../pages/terms/page/TermsPage";
 import LauncherReleasePage from "../pages/launcher-release/page/LauncherReleasePage";
 import StudioReleasePage from "../pages/studio-release/page/StudioReleasePage";
+import AdminSystemSettingsPage from "../pages/system-settings/page/AdminSystemSettingsPage";
 import EntitlementManagementPage from "../pages/entitlements/EntitlementManagementPage";
 import UserManage from "../pages/user-manage/page/UserManage";
 import UserDetail from "../pages/user-manage/page/UserDetail";
@@ -26,6 +27,7 @@ import {
   MdOutlineGavel,
   MdOutlineRocketLaunch,
   MdOutlineVpnKey,
+  MdOutlineSettings,
 } from "react-icons/md";
 
 export default function adminRoutes() {
@@ -127,6 +129,12 @@ export default function adminRoutes() {
       icon: <MdOutlineRocketLaunch />,
       path: "/admin/studio-releases",
       element: <StudioReleasePage />,
+    },
+    {
+      label: "System Settings",
+      icon: <MdOutlineSettings />,
+      path: "/admin/system-settings",
+      element: <AdminSystemSettingsPage />,
     },
   ];
   return adminRoutes;
