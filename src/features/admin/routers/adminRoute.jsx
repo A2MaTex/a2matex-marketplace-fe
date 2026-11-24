@@ -13,6 +13,10 @@ import UserManage from "../pages/user-manage/page/UserManage";
 import UserDetail from "../pages/user-manage/page/UserDetail";
 import AdminPublishersPage from "../pages/publisher-moderation/page/AdminPublishersPage";
 import AdminPublisherDetailPage from "../pages/publisher-moderation/page/AdminPublisherDetailPage";
+import AdminProductsPage from "../pages/product-governance/page/AdminProductsPage";
+import AdminProductDetailPage from "../pages/product-governance/page/AdminProductDetailPage";
+import AdminProductReleasesPage from "../pages/product-governance/page/AdminProductReleasesPage";
+import AdminProductReleaseDetailPage from "../pages/product-governance/page/AdminProductReleaseDetailPage";
 import {
   MdOutlineAttachMoney,
   MdOutlineBlock,
@@ -40,6 +44,22 @@ export default function adminRoutes() {
     {
       path: "/admin/publishers/:publisherAccountId",
       element: <AdminPublisherDetailPage />,
+    },
+    {
+      path: "/admin/products",
+      element: <AdminProductsPage />,
+    },
+    {
+      path: "/admin/products/:productId",
+      element: <AdminProductDetailPage />,
+    },
+    {
+      path: "/admin/products/:productId/releases",
+      element: <AdminProductReleasesPage />,
+    },
+    {
+      path: "/admin/products/:productId/releases/:releaseId",
+      element: <AdminProductReleaseDetailPage />,
     },
     {
       label: "Entitlements",

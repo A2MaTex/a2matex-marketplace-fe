@@ -2,7 +2,6 @@ import { NavLink } from "react-router-dom";
 import styles from "./AdminSidebar.module.css";
 import {
   FiActivity,
-  FiBox,
   FiCreditCard,
   FiFileText,
   FiKey,
@@ -58,14 +57,9 @@ const NAV_SECTIONS = [
         to: "/admin/submissions",
       },
       {
-        label: "Product Moderation",
-        icon: <FiBox />,
-        disabledReason: "The product moderation page is not implemented yet.",
-      },
-      {
         label: "Product Releases",
         icon: <FiPackage />,
-        disabledReason: "The Admin product release page is not implemented yet.",
+        to: "/admin/products",
       },
     ],
   },
