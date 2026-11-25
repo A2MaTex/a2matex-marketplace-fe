@@ -1,10 +1,11 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   FiArrowDownRight,
   FiCheck,
   FiChevronRight,
   FiDownload,
   FiLayers,
+  FiRefreshCw,
   FiShield,
   FiZap,
 } from "react-icons/fi";
@@ -13,6 +14,13 @@ import { TbCloudUpload, TbDragDrop, TbRoute } from "react-icons/tb";
 import demoVideo from "@/assets/demo.mp4";
 import styles from "./StudioLandingPage.module.css";
 import { CgFileDocument } from "react-icons/cg";
+import { staticApi } from "@/common/api/static/staticApi";
+import { studioReleaseApi } from "./studioReleaseApi";
+import {
+  getCurrentStudioRelease,
+  getStudioDownload,
+  isNoActiveStudioReleaseError,
+} from "./studioReleaseState";
 
 const RELEASES = [
   {
@@ -21,6 +29,7 @@ const RELEASES = [
     description: "Windows 10 / 11 · 64-bit",
     format: ".exe installer",
     href: import.meta.env.VITE_STUDIO_WINDOWS_DOWNLOAD_URL || "",
+    usesCurrentRelease: true,
   },
   {
     os: "Linux",
@@ -28,6 +37,7 @@ const RELEASES = [
     description: "Ubuntu 20.04+ · 64-bit",
     format: "AppImage / .deb",
     href: import.meta.env.VITE_STUDIO_LINUX_DOWNLOAD_URL || "",
+    usesCurrentRelease: false,
   },
 ];
 
@@ -96,29 +106,139 @@ const SIGNALS = [
   "Marketplace publishing",
 ];
 
-const DownloadAction = ({ release }) => {
+const fetchCurrentReleaseState = async () => {
+  try {
+    const response = await studioReleaseApi.getCurrent();
+    const release = getCurrentStudioRelease(response);
+    return release
+      ? { status: "ready", release }
+      : { status: "error", release: null };
+  } catch (error) {
+    if (isNoActiveStudioReleaseError(error)) {
+      return { status: "unavailable", release: null };
+    }
+    console.error("Unable to load the current Studio release.", error);
+    return { status: "error", release: null };
+  }
+};
+
+const DownloadAction = ({
+  availability,
+  downloadFailed,
+  downloading,
+  onDownload,
+  onRetry,
+  release,
+  version,
+}) => {
   const Icon = release.icon;
-  if (!release.href) {
+  if (availability === "external") {
+    return (
+      <a className={styles.releaseAction} href={release.href}>
+        <Icon aria-hidden="true" /> Download for {release.os}{" "}
+        <FiDownload aria-hidden="true" />
+      </a>
+    );
+  }
+  if (availability === "ready") {
+    return (
+      <button
+        type="button"
+        className={`${styles.primaryAction} ${styles.releaseActionButton}`}
+        disabled={downloading}
+        onClick={onDownload}
+      >
+        <Icon aria-hidden="true" />
+        {downloading
+          ? "Preparing download…"
+          : downloadFailed
+            ? "Retry download"
+            : `Download v${version}`}
+        {!downloading ? <FiDownload aria-hidden="true" /> : null}
+      </button>
+    );
+  }
+  if (availability === "loading") {
     return (
       <span
         className={`${styles.releaseAction} ${styles.releasePending}`}
         aria-disabled="true"
       >
-        <Icon aria-hidden="true" /> Release coming soon
+        <Icon aria-hidden="true" /> Checking release…
       </span>
     );
   }
-
+  if (availability === "error") {
+    return (
+      <button
+        type="button"
+        className={`${styles.releaseAction} ${styles.releasePending} ${styles.releaseActionButton}`}
+        onClick={onRetry}
+      >
+        <FiRefreshCw aria-hidden="true" /> Retry release check
+      </button>
+    );
+  }
   return (
-    <a className={styles.releaseAction} href={release.href}>
-      <Icon aria-hidden="true" /> Download for {release.os}{" "}
-      <FiDownload aria-hidden="true" />
-    </a>
+    <span
+      className={`${styles.releaseAction} ${styles.releasePending}`}
+      aria-disabled="true"
+    >
+      <Icon aria-hidden="true" /> Release coming soon
+    </span>
   );
 };
 
 const StudioLandingPage = () => {
   const pageRef = useRef(null);
+  const [releaseState, setReleaseState] = useState({
+    status: "loading",
+    release: null,
+  });
+  const [downloadState, setDownloadState] = useState("idle");
+
+  const loadCurrentRelease = useCallback(() => {
+    setReleaseState({ status: "loading", release: null });
+    fetchCurrentReleaseState().then(setReleaseState);
+  }, []);
+
+  const downloadCurrentRelease = useCallback(async () => {
+    if (releaseState.status !== "ready" || !releaseState.release?.staticId) return;
+    setDownloadState("loading");
+    try {
+      const response = await staticApi.getFileDownloadUrl(
+        releaseState.release.staticId,
+      );
+      const download = getStudioDownload(response);
+      if (!download) throw new Error("The download service returned an invalid response.");
+      const url = new URL(download.downloadUrl);
+      if (url.protocol !== "https:" && url.protocol !== "http:") {
+        throw new Error("The download service returned an unsafe URL.");
+      }
+      const anchor = document.createElement("a");
+      anchor.href = url.toString();
+      anchor.download = download.fileName;
+      anchor.rel = "noopener";
+      anchor.style.display = "none";
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      setDownloadState("idle");
+    } catch (error) {
+      console.error("Unable to prepare the Studio download.", error);
+      setDownloadState("error");
+    }
+  }, [releaseState]);
+
+  useEffect(() => {
+    let active = true;
+    fetchCurrentReleaseState().then((nextState) => {
+      if (active) setReleaseState(nextState);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     const elements = pageRef.current?.querySelectorAll("[data-reveal]") ?? [];
@@ -309,6 +429,15 @@ const StudioLandingPage = () => {
           <div className={styles.releaseList}>
             {RELEASES.map((release, index) => {
               const Icon = release.icon;
+              const currentReleaseReady =
+                release.usesCurrentRelease && releaseState.status === "ready";
+              const availability = currentReleaseReady
+                ? "ready"
+                : release.href
+                  ? "external"
+                  : release.usesCurrentRelease
+                    ? releaseState.status
+                    : "unavailable";
               return (
                 <article
                   key={release.os}
@@ -324,7 +453,19 @@ const StudioLandingPage = () => {
                     <p>{release.description}</p>
                   </div>
                   <span className={styles.releaseFormat}>{release.format}</span>
-                  <DownloadAction release={release} />
+                  <DownloadAction
+                    availability={availability}
+                    downloadFailed={downloadState === "error"}
+                    downloading={downloadState === "loading"}
+                    onDownload={downloadCurrentRelease}
+                    onRetry={
+                      downloadState === "error"
+                        ? downloadCurrentRelease
+                        : loadCurrentRelease
+                    }
+                    release={release}
+                    version={releaseState.release?.version}
+                  />
                 </article>
               );
             })}
