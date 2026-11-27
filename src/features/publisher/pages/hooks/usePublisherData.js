@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { publisherProjectApi } from "../api/project/api";
 import { publisherProductApi } from "../api/product/api";
+import { getApiErrorMessage } from "@/lib/errorMessageHandler";
 
 /**
  * Fetches all projects and products for the current publisher.
@@ -37,7 +38,7 @@ export function usePublisherData() {
       setProductMap(map);
     } catch (err) {
       console.error("[usePublisherData] fetch error:", err);
-      setError(err?.response?.data?.message ?? "Unable to load data.");
+      setError(getApiErrorMessage(err, "Unable to load data."));
     } finally {
       setLoading(false);
     }

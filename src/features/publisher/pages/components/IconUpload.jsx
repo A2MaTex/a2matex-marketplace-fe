@@ -1,5 +1,6 @@
 import { useRef, useState, useCallback } from "react";
 import { staticApi } from "@api/static/staticApi";
+import { getApiErrorMessage } from "@/lib/errorMessageHandler";
 import StaticImage from "./StaticImage";
 import styles from "./IconUpload.module.css";
 
@@ -52,7 +53,7 @@ const IconUpload = ({ icon, onIconChange }) => {
       } catch (err) {
         URL.revokeObjectURL(previewUrl);
         console.error("[IconUpload] upload error:", err);
-        setError(err?.response?.data?.message ?? "Upload failed.");
+        setError(getApiErrorMessage(err, "Upload failed."));
       } finally {
         setUploading(false);
         if (fileInputRef.current) fileInputRef.current.value = "";

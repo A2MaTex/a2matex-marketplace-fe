@@ -41,7 +41,7 @@ import { useAuthStore } from "@/features/auth/store/authStore";
 import ROLE from "@/constants/roles";
 import GENDER from "@/constants/gender";
 import { authApi } from "@/features/auth/api/authApi";
-import { getErrorMessage } from "@lib/errorMessageHandler";
+import { getApiErrorMessage, getErrorMessage } from "@lib/errorMessageHandler";
 import { useNavigate } from "react-router-dom";
 import { formatBalance } from "@/features/commerce/model/money";
 // DEF-035
@@ -187,8 +187,7 @@ const ProfilePage = () => {
 
       showToast("Saved successfully." /* MSG13 */);
     } catch (err) {
-      const msg = err?.response?.data?.message || "Could not save the profile. Please try again.";
-      showToast(msg, "error");
+      showToast(getApiErrorMessage(err, "Could not save the profile. Please try again."), "error");
     } finally {
       setSaving(false);
     }
@@ -255,7 +254,10 @@ const ProfilePage = () => {
       const error = getErrorMessage({ message: err?.response?.data?.message });
       if (error?.isFormError) {
         const fieldErrors = { ...error.data };
-        if (err.response.data.message.some((m) => m.message === "Error.InvalidPassword")) {
+        if (
+          Array.isArray(err?.response?.data?.message) &&
+          err.response.data.message.some((m) => m?.message === "Error.InvalidPassword")
+        ) {
           delete fieldErrors.password;
           fieldErrors.currentPassword = "Current password is incorrect."; // MSG14
         }

@@ -5,7 +5,7 @@ import {
   FiMinusCircle,
   FiX,
 } from "react-icons/fi";
-import { SCAN_STATUS_LABELS } from "../model/adminSubmissionPresentation";
+import { formatScanStatus } from "../model/adminSubmissionPresentation";
 import styles from "../page/AdminSubmissionReview.module.css";
 
 const ICONS = {
@@ -18,10 +18,11 @@ const ICONS = {
 
 export default function ScanStatusBadge({ status }) {
   const Icon = ICONS[status] ?? FiMinusCircle;
+  const style = styles[`scan${status}`] ?? styles.scanUnknown;
   return (
-    <span className={`${styles.badge} ${styles[`scan${status}`]}`}>
+    <span className={`${styles.badge} ${style}`}>
       <Icon aria-hidden="true" />
-      {SCAN_STATUS_LABELS[status] ?? status}
+      {formatScanStatus(status)}
     </span>
   );
 }

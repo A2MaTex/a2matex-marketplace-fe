@@ -240,7 +240,7 @@
 .directoryHeader > span { color: #73859b; font-size: 10px; font-weight: 650; }
 .loadingLine { position: absolute; z-index: 3; top: 0; left: 0; width: 32%; height: 2px; background: linear-gradient(90deg, transparent, var(--cyan), transparent); animation: loadingLine 1.1s linear infinite; }
 .tableScroller { overflow-x: auto; }
-.submissionTable { width: 100%; min-width: 940px; border-collapse: collapse; }
+.submissionTable { width: 100%; min-width: 1080px; border-collapse: collapse; }
 .submissionTable th { height: 40px; padding: 0 14px; border-bottom: 1px solid var(--line); background: rgba(15, 21, 29, 0.48); color: #63758c; font-size: 9px; font-weight: 800; letter-spacing: 0.8px; text-align: left; text-transform: uppercase; white-space: nowrap; }
 .submissionTable td { padding: 14px; border-bottom: 1px solid var(--line-soft); color: #9dadbf; font-size: 11px; vertical-align: middle; }
 .submissionTable tbody tr { transition: background 140ms ease; }
@@ -260,6 +260,9 @@
 .productIconFallback { display: grid; place-items: center; background: linear-gradient(135deg, #133948, #122336); color: #70dff2; font-size: 15px; }
 .submissionCell code { width: fit-content; padding: 2px 5px; color: #91a6ba; font-size: 9px; }
 .submissionTable time { color: #91a1b3; font-size: 10px; white-space: nowrap; }
+.personCell { display: grid; min-width: 125px; gap: 3px; }
+.personCell strong { overflow: hidden; color: #c5d3df; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.personCell small { overflow: hidden; color: #71859a; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
 
 .badge {
   display: inline-flex;
@@ -393,7 +396,7 @@
 .findingGroup li { padding: 14px 0; border-top: 1px solid var(--line-soft); }
 .findingGroup li > p { margin-top: 8px; color: #a9bac9; font-size: 11px; line-height: 1.65; white-space: pre-wrap; }
 .findingHeading { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-.findingHeading code { color: #91a6b9; font-size: 9px; }
+.findingHeading strong { color: #b9cad9; font-size: 10px; font-weight: 750; }
 .findingHeading > span { color: #8ca3b7; font-size: 9px; }
 .findingNode,
 .findingNodeUnavailable { display: flex; max-width: 620px; align-items: center; gap: 10px; margin-top: 10px; padding: 10px 12px; border-left: 2px solid #39bfd8; background: linear-gradient(90deg, rgba(22, 81, 101, 0.22), transparent 92%); color: #94aabd; text-decoration: none; }
@@ -533,8 +536,10 @@
 .identityCard dl > div { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--line-soft); }
 .identityCard dl > div:last-child { border-bottom: 0; }
 .identityCard dt { color: #71849a; font-size: 9px; }
-.identityCard dd { margin: 0; }
+.identityCard dd { max-width: 65%; overflow: hidden; margin: 0; color: #c6d3df; font-size: 10px; font-weight: 650; text-align: right; text-overflow: ellipsis; white-space: nowrap; }
 .identityCard code { color: #91a8bb; font-size: 8px; }
+
+.scanUnknown { border-color: rgba(131, 148, 170, 0.28); background: rgba(101, 120, 143, 0.12); color: #a8b7c8; }
 
 /* Dialogs stay bounded because they are transient interaction surfaces. */
 .dialogBackdrop { position: fixed; z-index: 1000; inset: 0; display: grid; place-items: center; overflow-y: auto; padding: 24px; background: rgba(2, 7, 13, 0.8); backdrop-filter: blur(8px); }
@@ -611,8 +616,8 @@
 @keyframes loadingLine { from { transform: translateX(-120%); } to { transform: translateX(400%); } }
 
 @media (max-width: 1400px) {
-  .submissionTable th:nth-child(5),
-  .submissionTable td:nth-child(5) { display: none; }
+  .submissionTable th:nth-child(6),
+  .submissionTable td:nth-child(6) { display: none; }
   .filterControls { grid-template-columns: 1fr; }
 }
 
@@ -628,7 +633,6 @@
   .detailColumns { grid-template-columns: 1fr; }
   .actionColumn { position: static; grid-row: 1; }
   .reviewActions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .identityCard { display: none; }
   .richTextGrid,
   .contextGrid { grid-template-columns: 1fr; }
   .richTextGrid article + article,

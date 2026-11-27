@@ -2,6 +2,7 @@ import { useState, useRef, useCallback } from "react";
 import ReactCrop, { centerCrop, makeAspectCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { staticApi } from "@/common/api/static/staticApi";
+import { getApiErrorMessage } from "@/lib/errorMessageHandler";
 import styles from "./AvatarUpload.module.css";
 import { BsCameraFill, BsCheckLg, BsXLg } from "react-icons/bs";
 import { FiRefreshCw, FiUploadCloud } from "react-icons/fi";
@@ -104,8 +105,7 @@ const AvatarUpload = ({ onDone, onClose }) => {
       const previewUrl = canvasRef.current.toDataURL("image/jpeg");
       onDone(staticId, previewUrl);
     } catch (err) {
-      const msg = err?.response?.data?.message || err.message || "Upload failed. Please try again.";
-      setError(msg);
+      setError(getApiErrorMessage(err, "Upload failed. Please try again."));
     } finally {
       setUploading(false);
     }

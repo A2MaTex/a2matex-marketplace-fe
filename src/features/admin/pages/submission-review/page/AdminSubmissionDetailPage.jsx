@@ -21,9 +21,10 @@ import SubmissionSnapshot from "../components/SubmissionSnapshot";
 import SubmissionStatusBadge from "../components/SubmissionStatusBadge";
 import SubmissionWorkflowPreview from "../components/SubmissionWorkflowPreview";
 import { useAdminSubmission } from "../hooks/useAdminSubmission";
+import { useAdminSubmissionReferences } from "../hooks/useAdminSubmissionReferences";
 import { useNodeCatalog } from "@/features/publisher/pages/workflow/hooks/useNodeCatalog";
 import { toAdminSubmissionError } from "../model/adminSubmissionError";
-import { compactId, formatAdminSubmissionDate } from "../model/adminSubmissionPresentation";
+import { formatAdminSubmissionDate } from "../model/adminSubmissionPresentation";
 import { isSubmissionUuid } from "../model/adminSubmissionQuery";
 import { reviewEligibility } from "../model/adminSubmissionReview";
 import styles from "./AdminSubmissionReview.module.css";
@@ -57,6 +58,11 @@ export default function AdminSubmissionDetailPage() {
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState(null);
   const [announcement, setAnnouncement] = useState("");
+  const references = useAdminSubmissionReferences({
+    userIds: [detail.data?.createdById, detail.data?.updatedById],
+    publisherAccountId: detail.data?.productSnapshot?.publisherAccountId,
+    projectId: detail.data?.productSnapshot?.projectId,
+  });
   const backTo =
     typeof location.state?.from === "string" && location.state.from.startsWith("/admin/submissions")
       ? location.state.from
@@ -145,8 +151,8 @@ export default function AdminSubmissionDetailPage() {
         <dl className={styles.heroMetadata}>
           <div><dt>Requested</dt><dd>v{submission.releaseRequest.version}</dd></div>
           <div><dt>Created</dt><dd>{formatAdminSubmissionDate(submission.createdAt)}</dd></div>
-          <div><dt>Submission ID</dt><dd><code title={submission.id}>{compactId(submission.id)}</code></dd></div>
-          <div><dt>Reviewer</dt><dd>{submission.updatedById ? <code title={submission.updatedById}>{compactId(submission.updatedById)}</code> : "Not reviewed"}</dd></div>
+          <div><dt>Submission</dt><dd>#{submission.number}</dd></div>
+          <div><dt>Reviewer</dt><dd>{submission.updatedById ? references.users[submission.updatedById]?.name ?? "Loading reviewer…" : "Not reviewed"}</dd></div>
         </dl>
       </header>
 
@@ -249,10 +255,10 @@ export default function AdminSubmissionDetailPage() {
           <section className={styles.identityCard}>
             <h3>Evidence identity</h3>
             <dl>
-              <div><dt>Product</dt><dd><code title={submission.productId}>{compactId(submission.productId)}</code></dd></div>
-              <div><dt>Publisher</dt><dd><code title={submission.productSnapshot.publisherAccountId}>{compactId(submission.productSnapshot.publisherAccountId)}</code></dd></div>
-              <div><dt>Project</dt><dd><code title={submission.productSnapshot.projectId}>{compactId(submission.productSnapshot.projectId)}</code></dd></div>
-              <div><dt>Created by</dt><dd><code title={submission.createdById}>{compactId(submission.createdById)}</code></dd></div>
+              <div><dt>Product</dt><dd>{submission.productSnapshot.name}</dd></div>
+              <div><dt>Publisher</dt><dd>{references.publisher?.name ?? "Loading publisher…"}</dd></div>
+              <div><dt>Project</dt><dd>{references.project?.name ?? "Loading project…"}</dd></div>
+              <div><dt>Created by</dt><dd>{references.users[submission.createdById]?.name ?? "Loading user…"}</dd></div>
             </dl>
           </section>
         </aside>

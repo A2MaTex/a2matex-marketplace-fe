@@ -5,7 +5,6 @@ const SUBMISSION_STATUSES = new Set([
   "APPROVED",
   "REJECTED",
 ]);
-const SCAN_STATUSES = new Set(["QUEUED", "RUNNING", "PASSED", "FAILED", "ERROR"]);
 const MEDIA_TYPES = new Set(["ICON", "COVER", "GALLERY"]);
 const FINDING_SEVERITIES = new Set(["INFO", "WARNING", "ERROR"]);
 const UUID_PATTERN =
@@ -97,6 +96,14 @@ const enumValue = (value, allowed, label) => {
   return value;
 };
 
+// Scanner workers may be deployed independently from the Admin UI. Preserve a
+// future non-empty status for read-only display; reviewEligibility still denies
+// every action unless the status is one of the explicitly supported values.
+const scanStatusValue = (value, label) => {
+  const parsed = string(value, label).trim().toUpperCase();
+  return parsed || "UNKNOWN";
+};
+
 const schemaVersion = (value, label) => {
   if (value !== SNAPSHOT_SCHEMA_VERSION) {
     throw new AdminSubmissionContractError(
@@ -164,7 +171,7 @@ const parseListItem = (value, label) => {
     updatedAt: nullableIsoDate(item.updatedAt, `${label}.updatedAt`),
     createdById: uuid(item.createdById, `${label}.createdById`),
     scanAttempt: integer(item.scanAttempt, `${label}.scanAttempt`, 1),
-    scanStatus: enumValue(item.scanStatus, SCAN_STATUSES, `${label}.scanStatus`),
+    scanStatus: scanStatusValue(item.scanStatus, `${label}.scanStatus`),
     scannerVersion: requiredNullableString(
       item,
       "scannerVersion",
@@ -339,7 +346,7 @@ const parseDetail = (value, label) => {
     createdById: uuid(detail.createdById, `${label}.createdById`),
     updatedAt: nullableIsoDate(detail.updatedAt, `${label}.updatedAt`),
     scanAttempt: integer(detail.scanAttempt, `${label}.scanAttempt`, 1),
-    scanStatus: enumValue(detail.scanStatus, SCAN_STATUSES, `${label}.scanStatus`),
+    scanStatus: scanStatusValue(detail.scanStatus, `${label}.scanStatus`),
     scannerVersion: requiredNullableString(
       detail,
       "scannerVersion",

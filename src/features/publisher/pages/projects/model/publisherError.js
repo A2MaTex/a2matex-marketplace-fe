@@ -1,4 +1,5 @@
 import { PublisherContractError } from "./projectContract";
+import { getApiErrorCode, getApiErrorMessage } from "@/lib/errorMessageHandler";
 
 const ERROR_MESSAGES = {
   "Error.ProjectAccessDenied": "You do not have access to this project.",
@@ -20,7 +21,7 @@ export const toPublisherError = (error, fallbackMessage) => {
     };
   }
 
-  const code = error?.response?.data?.message ?? null;
+  const code = getApiErrorCode(error);
   const status = error?.response?.status ?? null;
   return {
     code: code ?? (status ? `HTTP_${status}` : "NETWORK_ERROR"),
@@ -28,7 +29,7 @@ export const toPublisherError = (error, fallbackMessage) => {
       ERROR_MESSAGES[code] ??
       (status === 401
         ? "Your session has expired. Please sign in again."
-        : fallbackMessage),
+        : getApiErrorMessage(error, fallbackMessage)),
     retryable: status === null || status >= 500 || status === 429,
   };
 };

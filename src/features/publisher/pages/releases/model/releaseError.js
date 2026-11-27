@@ -1,4 +1,5 @@
 import { ReleaseContractError } from "./releaseContract";
+import { getApiErrorCode, getApiErrorMessage } from "@/lib/errorMessageHandler";
 
 const MESSAGES = {
   "Error.ProductNotFound": "This product is no longer available.",
@@ -25,13 +26,15 @@ export const toPublisherReleaseError = (error, fallbackMessage) => {
       conflict: false,
     };
   }
-  const code = error?.response?.data?.message ?? null;
+  const code = getApiErrorCode(error);
   const status = error?.response?.status ?? null;
   return {
     code: code ?? (status ? `HTTP_${status}` : "NETWORK_ERROR"),
     message:
       MESSAGES[code] ??
-      (status === 401 ? "Your session has expired. Please sign in again." : fallbackMessage),
+      (status === 401
+        ? "Your session has expired. Please sign in again."
+        : getApiErrorMessage(error, fallbackMessage)),
     retryable: status === null || status === 429 || status >= 500,
     conflict: status === 409,
   };

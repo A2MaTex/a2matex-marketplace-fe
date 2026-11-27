@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { publisherProductApi } from "../api/product/api";
+import { getApiErrorMessage } from "@/lib/errorMessageHandler";
 
 // ─── Slug helper ──────────────────────────────────────────────────────────────
 /**
@@ -267,7 +268,7 @@ export function useProductForm({ project, product, onSuccess }) {
       onSuccess?.(afterChange);
     } catch (err) {
       console.error("[useProductForm] submit error:", err);
-      setSubmitError(err?.response?.data?.message ?? "Save failed. Please try again.");
+      setSubmitError(getApiErrorMessage(err, "Save failed. Please try again."));
     } finally {
       setSubmitting(false);
     }

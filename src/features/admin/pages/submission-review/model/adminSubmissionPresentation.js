@@ -14,6 +14,12 @@ export const SCAN_STATUS_LABELS = {
   ERROR: "Technical error",
 };
 
+export const formatScanStatus = (status) =>
+  SCAN_STATUS_LABELS[status] ??
+  (typeof status === "string" && status
+    ? status.toLowerCase().replaceAll("_", " ").replace(/^./, (value) => value.toUpperCase())
+    : "Unknown status");
+
 export const formatAdminSubmissionDate = (value) =>
   value
     ? new Intl.DateTimeFormat("en", {

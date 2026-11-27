@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import DOMPurify from "dompurify";
 import { Link } from "react-router-dom";
+import { getApiErrorMessage } from "@/lib/errorMessageHandler";
 import {
   FiAlertTriangle,
   FiBookOpen,
@@ -113,11 +114,7 @@ async function getCurrentDocument(type, signal) {
 }
 
 function getRequestErrorMessage(requestError) {
-  return (
-    requestError?.response?.data?.message ||
-    requestError?.message ||
-    DEFAULT_ERROR_MESSAGE
-  );
+  return getApiErrorMessage(requestError, DEFAULT_ERROR_MESSAGE);
 }
 
 export default function LegalDocumentPage({

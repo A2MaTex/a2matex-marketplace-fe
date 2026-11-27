@@ -7,6 +7,7 @@ import {
   FiInfo,
 } from "react-icons/fi";
 import { Link } from "react-router-dom";
+import { getErrorCodeMessage } from "@/constants/errorCodeMessages";
 import {
   buildSubmissionNodeIndex,
   decodeSubmissionWorkflowRevision,
@@ -53,7 +54,9 @@ export default function ScanFindings({ findings, revision, submissionId, catalog
                 return (
                   <li key={`${finding.code}:${finding.nodeId ?? "global"}:${index}`}>
                     <div className={styles.findingHeading}>
-                      <code>{finding.code}</code>
+                      <strong title={`Technical code: ${finding.code}`}>
+                        {getErrorCodeMessage(finding.code, "The scanner found a problem.")}
+                      </strong>
                       {!finding.nodeId ? <span>Submission-wide finding</span> : null}
                     </div>
                     {finding.nodeId ? (

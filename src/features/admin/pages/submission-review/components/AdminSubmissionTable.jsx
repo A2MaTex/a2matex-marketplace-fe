@@ -10,6 +10,7 @@ import StaticImage from "@/features/publisher/pages/components/StaticImage";
 import {
   formatAdminSubmissionDate,
 } from "../model/adminSubmissionPresentation";
+import { useAdminSubmissionReferences } from "../hooks/useAdminSubmissionReferences";
 import ScanStatusBadge from "./ScanStatusBadge";
 import ScanSummary from "./ScanSummary";
 import SubmissionStatusBadge from "./SubmissionStatusBadge";
@@ -20,7 +21,7 @@ const ProductIcon = ({ item }) =>
     <StaticImage
       staticId={item.product.iconStaticId}
       variant="small"
-      alt=""
+      alt={`${item.product.name} icon`}
       className={styles.productIcon}
     />
   ) : (
@@ -35,6 +36,9 @@ const LoadingRows = () => (
 
 export default function AdminSubmissionTable({ data, loading, filtered, onPageChange }) {
   const location = useLocation();
+  const references = useAdminSubmissionReferences({
+    userIds: data.items.map((item) => item.createdById),
+  });
   const returnTo = `${location.pathname}${location.search}`;
   const firstResult = data.totalItems ? (data.page - 1) * data.limit + 1 : 0;
   const lastResult = Math.min(data.page * data.limit, data.totalItems);
@@ -67,6 +71,7 @@ export default function AdminSubmissionTable({ data, loading, filtered, onPageCh
             <tr>
               <th>Product</th>
               <th>Submission</th>
+              <th>Submitted by</th>
               <th>Review status</th>
               <th>Scanner</th>
               <th>Findings</th>
@@ -91,6 +96,14 @@ export default function AdminSubmissionTable({ data, loading, filtered, onPageCh
                   <td data-label="Submission">
                     <div className={styles.submissionCell}>
                       <strong>v{item.requestedVersion}</strong>
+                    </div>
+                  </td>
+                  <td data-label="Submitted by">
+                    <div className={styles.personCell}>
+                      <strong>{references.users[item.createdById]?.name ?? "Loading user…"}</strong>
+                      {references.users[item.createdById]?.secondary ? (
+                        <small>{references.users[item.createdById].secondary}</small>
+                      ) : null}
                     </div>
                   </td>
                   <td data-label="Review status"><SubmissionStatusBadge status={item.status} /></td>

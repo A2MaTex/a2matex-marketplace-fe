@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { FiImage, FiTrash2, FiUploadCloud } from "react-icons/fi";
 import { staticApi } from "@api/static/staticApi";
+import { getApiErrorMessage } from "@/lib/errorMessageHandler";
 import StaticImage from "../../components/StaticImage";
 import styles from "./ProductMediaSection.module.css";
 
@@ -150,7 +151,7 @@ const ProductMediaSection = ({
         if (ownedUrlsRef.current.has(url)) URL.revokeObjectURL(url);
         ownedUrlsRef.current.delete(url);
       });
-      setError(uploadError?.response?.data?.message ?? uploadError.message ?? "Image upload failed.");
+      setError(getApiErrorMessage(uploadError, "Image upload failed."));
     } finally {
       setUploading(false);
     }

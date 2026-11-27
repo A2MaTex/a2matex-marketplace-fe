@@ -1,5 +1,6 @@
 import { ProductContractError } from "./productContract";
 import { ProductValidationError } from "./productForm";
+import { getApiErrorCode, getApiErrorMessage } from "@/lib/errorMessageHandler";
 
 const ERROR_MESSAGES = {
   "Error.PublisherUserNotActive": "Your publisher user is not active.",
@@ -31,13 +32,15 @@ export const toPublisherProductError = (error, fallbackMessage) => {
       retryable: true,
     };
   }
-  const code = error?.response?.data?.message ?? null;
+  const code = getApiErrorCode(error);
   const status = error?.response?.status ?? null;
   return {
     code: code ?? (status ? `HTTP_${status}` : "NETWORK_ERROR"),
     message:
       ERROR_MESSAGES[code] ??
-      (status === 401 ? "Your session has expired. Please sign in again." : fallbackMessage),
+      (status === 401
+        ? "Your session has expired. Please sign in again."
+        : getApiErrorMessage(error, fallbackMessage)),
     field: code === "Error.ProductSlugConflict" ? "slug" : null,
     retryable: status === null || status === 429 || status >= 500,
   };

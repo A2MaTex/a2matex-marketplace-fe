@@ -1,5 +1,6 @@
 import { AdminSubmissionContractError } from "./adminSubmissionContract.js";
 import { AdminSubmissionReviewValidationError } from "./adminSubmissionReview.js";
+import { translateError } from "@/lib/errorMessageHandler";
 
 const MESSAGES = {
   "Error.SubmissionNotFound": "This submission no longer exists or is outside your access scope.",
@@ -25,7 +26,7 @@ const validationIssues = (message) => {
   return message.reduce((result, issue) => {
     const path = pathString(issue?.path);
     if (path && typeof issue?.message === "string") {
-      result[path.replace(/^feedback\./, "")] = issue.message;
+      result[path.replace(/^feedback\./, "")] = translateError(issue.message);
     }
     return result;
   }, {});
