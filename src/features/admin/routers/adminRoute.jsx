@@ -11,6 +11,7 @@ import LauncherReleasePage from "../pages/launcher-release/page/LauncherReleaseP
 import StudioReleasePage from "../pages/studio-release/page/StudioReleasePage";
 import AdminSystemSettingsPage from "../pages/system-settings/page/AdminSystemSettingsPage";
 import EntitlementManagementPage from "../pages/entitlements/EntitlementManagementPage";
+import WalletTransactionsPage from "../pages/wallet-transactions/WalletTransactionsPage";
 import UserManage from "../pages/user-manage/page/UserManage";
 import UserDetail from "../pages/user-manage/page/UserDetail";
 import AdminPublishersPage from "../pages/publisher-moderation/page/AdminPublishersPage";
@@ -69,6 +70,12 @@ export default function adminRoutes() {
       icon: <MdOutlineVpnKey />,
       path: "/admin/entitlements",
       element: <EntitlementManagementPage />,
+    },
+    {
+      label: "Wallet Transactions",
+      icon: <MdOutlineAttachMoney />,
+      path: "/admin/wallet-transactions",
+      element: <WalletTransactionsPage />,
     },
     {
       path: "/admin/submissions",
