@@ -1,0 +1,46 @@
+.filterGrid {
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+}
+
+.ledgerTable td,
+.ledgerTable th {
+  white-space: nowrap;
+}
+
+.numeric {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.ledgerTable td.credit {
+  color: #4fe081;
+}
+
+.ledgerTable td.debit {
+  color: #ff7b83;
+}
+
+.accountCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.accountCell small {
+  opacity: 0.7;
+}
+
+.note {
+  display: inline-block;
+  max-width: 28ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
+@media (max-width: 1100px) {
+  .filterGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

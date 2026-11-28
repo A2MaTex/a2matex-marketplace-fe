@@ -77,9 +77,9 @@ const NAV_SECTIONS = [
         disabledReason: "There is no Admin order API yet.",
       },
       {
-        label: "Top-up Transactions",
+        label: "Wallet Transactions",
         icon: <FiCreditCard />,
-        disabledReason: "There is no Admin transaction API yet.",
+        to: "/admin/wallet-transactions",
       },
     ],
   },
